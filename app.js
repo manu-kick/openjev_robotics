@@ -5,49 +5,6 @@ const codecData = {
   bin25: { name: 'Per-axis binning · 25', success: 39, tokens: 224, error: 0.020, verdict: 'One choice fits PlayJev’s alphabet and nearly every replay succeeds.', note: 'The policy compromise: 25 options per axis, seven questions per step.' }
 };
 
-const axes = [
-  { id: 'dx', min: -1, max: 1, value: -.19 }, { id: 'dy', min: -1, max: 1, value: .28 },
-  { id: 'dz', min: -1, max: 1, value: -.08 }, { id: 'dα', min: -.5, max: .5, value: .13 },
-  { id: 'dβ', min: -.5, max: .5, value: -.11 }, { id: 'dγ', min: -.5, max: .5, value: .04 },
-  { id: 'grip', min: -1, max: 1, value: 1, grip: true }
-];
-
-const actionControls = document.querySelector('#action-controls');
-axes.forEach((axis, index) => {
-  const wrap = document.createElement('div');
-  wrap.className = 'axis-control';
-  wrap.innerHTML = `<label for="axis-${index}"><span>${axis.id}</span><output>${axis.value.toFixed(axis.grip ? 0 : 2)}</output></label><input id="axis-${index}" type="range" min="${axis.min}" max="${axis.max}" step="${axis.grip ? 2 : .01}" value="${axis.value}" aria-label="Valore ${axis.id}">`;
-  actionControls.appendChild(wrap);
-  wrap.querySelector('input').addEventListener('input', updateAction);
-});
-
-function quantize(value, min, max) {
-  const step = (max - min) / 24;
-  return Math.round((value - min) / step) * step + min;
-}
-
-function updateAction() {
-  const values = [...actionControls.querySelectorAll('input')].map(NumberInputValue);
-  const quantized = values.map((v, i) => axes[i].grip ? (v >= 0 ? 1 : -1) : quantize(v, axes[i].min, axes[i].max));
-  [...actionControls.querySelectorAll('.axis-control')].forEach((control, i) => control.querySelector('output').textContent = values[i].toFixed(axes[i].grip ? 0 : 2));
-  document.querySelector('#raw-vector').textContent = formatVector(values);
-  document.querySelector('#quant-vector').textContent = formatVector(quantized);
-  const error = values.slice(0, 6).reduce((sum, v, i) => sum + Math.abs(v - quantized[i]), 0) / 6;
-  document.querySelector('#quant-error').textContent = error.toFixed(3);
-}
-
-function NumberInputValue(input) { return Number(input.value); }
-function formatVector(values) { return `[${values.map((v, i) => v.toFixed(axes[i].grip ? 0 : 2)).join(', ')}]`; }
-
-document.querySelector('#random-action').addEventListener('click', () => {
-  actionControls.querySelectorAll('input').forEach((input, i) => {
-    const axis = axes[i];
-    input.value = axis.grip ? (Math.random() > .5 ? 1 : -1) : axis.min + Math.random() * (axis.max - axis.min);
-  });
-  updateAction();
-});
-updateAction();
-
 const prototypeSlider = document.querySelector('#prototype-frame');
 let prototypeData = null;
 function formatAction(values) {
@@ -231,3 +188,17 @@ if (heroVideo && binPanel) {
     })
     .catch(() => document.querySelector('#hero-inspect').remove());
 }
+
+const readingLinks = [...document.querySelectorAll('.reading-index a[data-section]')];
+const readingSections = readingLinks.map(link => document.getElementById(link.dataset.section)).filter(Boolean);
+const readingPercent = document.querySelector('#reading-percent');
+function updateReadingIndex() {
+  const marker = innerHeight * .4;
+  let current = 0;
+  readingSections.forEach((section, index) => { if (section.getBoundingClientRect().top <= marker) current = index; });
+  readingLinks.forEach((link, index) => index === current ? link.setAttribute('aria-current', 'location') : link.removeAttribute('aria-current'));
+  const scrollable = document.documentElement.scrollHeight - innerHeight;
+  readingPercent.textContent = `${scrollable > 0 ? Math.round(scrollY / scrollable * 100) : 0}%`;
+}
+addEventListener('scroll', updateReadingIndex, { passive: true });
+updateReadingIndex();

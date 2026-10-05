@@ -36,8 +36,23 @@
     <button class="soundless" id="motion-toggle" type="button" aria-pressed="false">Reduce motion</button>
   </header>
 
+  <nav class="reading-index" aria-label="Reading position">
+    <ol>
+      <li><a href="#start" data-section="start"><b><em>00</em> Start</b></a></li>
+      <li><a href="#jev" data-section="jev"><b><em>01</em> Architecture</b></a></li>
+      <li><a href="#playjev" data-section="playjev"><b><em>02</em> PlayJev</b></a></li>
+      <li><a href="#alphabet" data-section="alphabet"><b><em>03</em> Alphabet</b></a></li>
+      <li><a href="#evidence" data-section="evidence"><b><em>04</em> Oracle replay</b></a></li>
+      <li><a href="#policy" data-section="policy"><b><em>05</em> Policy</b></a></li>
+      <li><a href="#horizon" data-section="horizon"><b><em>05b</em> Horizon</b></a></li>
+      <li><a href="#next" data-section="next"><b><em>06</em> Next test</b></a></li>
+      <li><a href="#references" data-section="references"><b>References</b></a></li>
+    </ol>
+    <p class="reading-percent" aria-live="off"><span id="reading-percent">0%</span> read</p>
+  </nav>
+
   <main id="top">
-    <section class="hero" aria-labelledby="hero-title">
+    <section class="hero" id="start" aria-labelledby="hero-title">
       <div class="hero-stage reveal" data-delay="1">
         <figure class="media-card robot-hero">
           <video id="hero-video" autoplay loop muted playsinline poster="assets/rollout-episode21.jpg" aria-label="PlayJev driving the LIBERO robot to pick up the black bowl and place it on the plate. Left: external camera. Right: wrist camera.">
@@ -110,7 +125,7 @@
 
     </section>
 
-    <section class="chapter intro-chapter">
+    <section class="chapter intro-chapter" id="playjev">
       <div class="chapter-number">02</div>
       <div class="chapter-copy reveal">
         <p class="eyebrow">02 · A visual child of JEV</p>
@@ -154,29 +169,7 @@
       <div class="section-heading reveal">
         <p class="eyebrow">03 · The representation that follows</p>
         <h2>Continuous motion needs<br>a usable alphabet.</h2>
-        <p>This is where the alphabet becomes necessary: it translates a continuous robot action into choices PlayJev can make. Move the seven controls. The yellow vector is the original action; the blue one is its 25-level discrete representation.</p>
-      </div>
-
-      <div class="action-lab reveal">
-        <div class="lab-topbar">
-          <span>CONTINUOUS ACTION</span>
-          <button id="random-action" type="button">Generate action</button>
-        </div>
-        <div id="action-controls" class="action-controls"></div>
-        <div class="action-output" aria-live="polite">
-          <div>
-            <small>ORIGINAL</small>
-            <code id="raw-vector">[0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 1]</code>
-          </div>
-          <div>
-            <small>BIN25</small>
-            <code id="quant-vector">[0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 1]</code>
-          </div>
-          <div class="error-readout">
-            <small>MEAN ERROR</small>
-            <strong id="quant-error">0.000</strong>
-          </div>
-        </div>
+        <p>This is where the alphabet becomes necessary: it translates a continuous robot action into choices PlayJev can make. Each of the seven control dimensions is quantized separately.</p>
       </div>
 
       <div class="robot-definition reveal">
@@ -321,7 +314,7 @@
       </div>
 
       <div class="oracle-definition reveal">
-        <div class="oracle-flow"><span>expert actions \(a_{1:T}\)</span><b>\(\rightarrow\)</b><span>encode \(E\)</span><b>\(\rightarrow\)</b><span>tokens \(z\)</span><b>\(\rightarrow\)</b><span>decode \(D\)</span><b>\(\rightarrow\)</b><span>\(\hat a_{1:T}\)</span></div>
+        <div class="oracle-flow"><span>expert actions \(a_{1:T}\)</span><b><em>encode \(E\)</em> \(\rightarrow\)</b><b><em>tokens \(z\)</em> \(\rightarrow\)</b><b><em>decode \(D\)</em> \(\rightarrow\)</b><b><em>\(\hat a_{1:T}\)</em> \(\rightarrow\)</b></div>
         <div><div class="equation">\[\hat a_{1:T}=D\!\left(E(a_{1:T})\right)\]</div><p>Oracle replay removes perception and policy learning from the experiment. It asks one necessary—but not sufficient—question: if the tokenizer is given the expert’s own actions, can its reconstruction still complete the task?</p></div>
       </div>
 
