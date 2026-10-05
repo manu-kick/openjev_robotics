@@ -182,3 +182,52 @@ document.querySelector('#motion-toggle').addEventListener('click', event => {
   event.currentTarget.textContent = active ? 'Motion reduced' : 'Reduce motion';
   document.querySelectorAll('video').forEach(video => active ? video.pause() : video.play().catch(() => {}));
 });
+
+const heroVideo = document.querySelector('#hero-video');
+const binPanel = document.querySelector('#bin-panel');
+if (heroVideo && binPanel) {
+  const FPS = 10;
+  const AXIS_LABELS = { dx: 'dx', dy: 'dy', dz: 'dz', droll: 'dα', dpitch: 'dβ', dyaw: 'dγ' };
+  fetch('assets/rollout-episode21.json')
+    .then(response => response.json())
+    .then(episode => {
+      const steps = episode.steps;
+      const rows = {};
+      Object.keys(AXIS_LABELS).forEach(id => {
+        const row = document.createElement('div');
+        row.className = 'bin-row';
+        row.innerHTML = `<span>${AXIS_LABELS[id]}</span><div class="bin-bars"></div><output></output>`;
+        binPanel.appendChild(row);
+        const bars = row.querySelector('.bin-bars');
+        rows[id] = { bars: [...Array(25)].map(() => bars.appendChild(document.createElement('i'))), out: row.querySelector('output') };
+      });
+      const grip = document.createElement('div');
+      grip.className = 'bin-row';
+      grip.innerHTML = '<span>grip</span><div class="grip-meter"><i></i></div><output></output>';
+      binPanel.appendChild(grip);
+      rows.grip = { meter: grip.querySelector('i'), out: grip.querySelector('output') };
+
+      let current = -1;
+      const render = () => {
+        const index = Math.min(steps.length - 1, Math.floor(heroVideo.currentTime * FPS));
+        if (index !== current && steps[index] && steps[index].axes) {
+          current = index;
+          const step = steps[index];
+          Object.keys(AXIS_LABELS).forEach(id => {
+            const axis = step.axes[id];
+            const peak = Math.max(...axis.probs);
+            rows[id].bars.forEach((bar, k) => {
+              bar.style.setProperty('--h', `${(axis.probs[k] / peak * 100).toFixed(1)}%`);
+              bar.classList.toggle('on', k === axis.level);
+            });
+            rows[id].out.textContent = axis.value.toFixed(2);
+          });
+          rows.grip.meter.style.setProperty('--w', `${(step.gripper_p_close * 100).toFixed(1)}%`);
+          rows.grip.out.textContent = step.gripper_p_close.toFixed(2);
+        }
+        requestAnimationFrame(render);
+      };
+      requestAnimationFrame(render);
+    })
+    .catch(() => document.querySelector('#hero-inspect').remove());
+}

@@ -38,6 +38,20 @@
 
   <main id="top">
     <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-stage reveal" data-delay="1">
+        <figure class="media-card robot-hero">
+          <video id="hero-video" autoplay loop muted playsinline poster="assets/rollout-episode21.jpg" aria-label="PlayJev driving the LIBERO robot to pick up the black bowl and place it on the plate. Left: external camera. Right: wrist camera.">
+            <source src="assets/rollout-episode21.mp4" type="video/mp4">
+          </video>
+          <figcaption><span class="live-dot blue"></span> One robot · pick up the black bowl · success</figcaption>
+        </figure>
+        <details class="inspect" id="hero-inspect">
+          <summary>Show the decision · 25 bins per axis</summary>
+          <div class="inspect-body" id="bin-panel"></div>
+          <p class="inspect-note">At each step PlayJev answers seven questions. The bars are the probabilities over the 25 bins of each axis, for the frame on screen. The highlighted bin is the most likely one; the number is the value executed.</p>
+        </details>
+      </div>
+
       <div class="hero-copy reveal">
         <p class="eyebrow"><span>Experiment 01</span> · From games to robotics</p>
         <h1 id="hero-title">From simple commands<br>to <em>continuous</em><br>robot control.</h1>
@@ -53,22 +67,6 @@
         </div>
       </div>
 
-      <div class="hero-stage reveal" data-delay="1">
-        <div class="stage-grid">
-          <figure class="media-card game-card">
-            <img src="assets/games-board.webp" alt="Ten browser games played by PlayJev" width="1600" height="900">
-            <figcaption><span class="live-dot"></span> Ten games · pixels in</figcaption>
-          </figure>
-          <figure class="media-card robot-card">
-            <video autoplay loop muted playsinline poster="assets/libero-grasp.jpg" aria-label="Robot rollout in the LIBERO simulator">
-              <source src="assets/libero-rollout.mp4" type="video/mp4">
-            </video>
-            <figcaption><span class="live-dot blue"></span> One robot · seven values out</figcaption>
-          </figure>
-        </div>
-        <div class="transfer-line" aria-hidden="true"><span></span><b>?</b><span></span></div>
-        <p class="stage-question">Can a model built for simple choices<br>learn to command continuous motion?</p>
-      </div>
     </section>
 
     <section class="chapter theory" id="jev">
