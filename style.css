@@ -42,6 +42,7 @@ nav a:hover, nav a:focus-visible { color: var(--yellow); }
 h1, h2, h3, p { margin-top: 0; }
 h1 { max-width: 900px; margin-bottom: 28px; font-size: clamp(2.8rem, 5.1vw, 5.8rem); line-height: .98; letter-spacing: -.055em; font-weight: 600; }
 h1 em, h2 em, h3 em { font-style: normal; color: var(--yellow); }
+.hero h1 { font-size: clamp(2.2rem, 3.4vw, 3.6rem); }
 .dek { max-width: 650px; color: #c6ccd6; font-size: clamp(1.05rem, 1.45vw, 1.35rem); line-height: 1.55; }
 .hero-actions { display: flex; gap: 10px; margin: 36px 0 54px; }
 .button { display: inline-block; padding: 13px 18px; border: 1px solid var(--line); text-decoration: none; font: 500 .78rem var(--mono); text-transform: uppercase; letter-spacing: .04em; transition: transform .2s, background .2s; }
@@ -461,7 +462,7 @@ body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after 
   .site-header { min-height: 60px; }
   .soundless { display: none; }
   .hero { min-height: auto; padding: 65px 20px 90px; }
-  h1 { font-size: clamp(2.65rem, 12vw, 3.8rem); line-height: 1; }
+  h1, .hero h1 { font-size: clamp(2.2rem, 10vw, 3.2rem); line-height: 1; }
   .hero-actions { flex-direction: column; align-items: stretch; text-align: center; }
   .hero-facts { justify-content: space-between; gap: 10px; }
   .media-card img, .media-card video { aspect-ratio: 16/9; }
