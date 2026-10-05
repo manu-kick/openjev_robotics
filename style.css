@@ -255,7 +255,7 @@ input[type="range"]::-webkit-slider-thumb { appearance: none; width: 15px; heigh
 .codec-visual { padding: 42px; display: grid; grid-template-columns: .65fr 1.35fr; gap: 55px; position: relative; }
 .codec-score span { color: var(--muted); font: .7rem var(--mono); text-transform: uppercase; }
 .codec-score > strong { display: block; margin: 15px 0 2px; color: var(--yellow); font-size: clamp(5rem, 9vw, 9rem); line-height: .85; letter-spacing: -.09em; }
-.codec-score small { font-size: 1.5rem; }
+.codec-score small { font-size: 1.5rem; letter-spacing: 0; margin-left: .12em; }
 .codec-score p { max-width: 300px; color: #bbc2cd; }
 .codec-metrics { display: grid; align-content: center; gap: 25px; }
 .codec-metrics > div { display: grid; grid-template-columns: 115px 1fr 55px; align-items: center; gap: 15px; }
