@@ -523,5 +523,4 @@ body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after 
   .reading-index { right: 4px; }
   .reading-index a b { display: none; }
 }
-main { padding-right: 56px; }
-@media (max-width: 700px) { main { padding-right: 34px; } }
+.alphabet > .rigor-note { margin: 28px 0 0; max-width: none; }
