@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A study of how PlayJev can move from simple game commands to the continuous, multidimensional controls required by a robot in LIBERO.">
+  <meta name="theme-color" content="#090b0f">
+  <title>PlayJev x LIBERO — From simple commands to continuous robot control</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23090b0f'/%3E%3Cpath d='M14 22h36v27H14z' fill='%23f4cb3d'/%3E%3Cpath d='M21 14h22v8H21zM23 29h7v7h-7zm11 0h7v7h-7z' fill='%23090b0f'/%3E%3Cpath d='M23 42h18' stroke='%23090b0f' stroke-width='4'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
+      chtml: { scale: 1 }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="scroll-meter" aria-hidden="true"><span id="scroll-progress"></span></div>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="PlayJev x LIBERO, back to top">
+      <span class="brand-mark" aria-hidden="true">PJ</span>
+      <span>PlayJev <i>×</i> LIBERO</span>
+    </a>
+    <nav aria-label="Main navigation">
+      <a href="#jev">JEV</a>
+      <a href="#alphabet">Alphabet</a>
+      <a href="#evidence">Evidence</a>
+      <a href="#policy">Policy</a>
+      <a href="#next">What’s next</a>
+    </nav>
+    <button class="soundless" id="motion-toggle" type="button" aria-pressed="false">Reduce motion</button>
+    <a class="soundless" href="v01.html">Vai a blogpost v01</a>
+  </header>
+
+  <nav class="reading-index" aria-label="Reading position">
+    <ol>
+      <li><a href="#start" data-section="start"><b><em>00</em> Start</b></a></li>
+      <li><a href="#jev" data-section="jev"><b><em>01</em> Architecture</b></a></li>
+      <li><a href="#playjev" data-section="playjev"><b><em>02</em> PlayJev</b></a></li>
+      <li><a href="#alphabet" data-section="alphabet"><b><em>03</em> Alphabet</b></a></li>
+      <li><a href="#evidence" data-section="evidence"><b><em>04</em> Oracle replay</b></a></li>
+      <li><a href="#policy" data-section="policy"><b><em>05</em> Policy</b></a></li>
+      <li><a href="#horizon" data-section="horizon"><b><em>05b</em> Horizon</b></a></li>
+      <li><a href="#next" data-section="next"><b><em>06</em> Next test</b></a></li>
+      <li><a href="#references" data-section="references"><b>References</b></a></li>
+    </ol>
+    <p class="reading-percent" aria-live="off"><span id="reading-percent">0%</span> read</p>
+  </nav>
+
+  <main id="top">
+    <section class="hero" id="start" aria-labelledby="hero-title">
+      <div class="hero-stage reveal" data-delay="1">
+        <figure class="media-card robot-hero">
+          <video id="hero-video" autoplay loop muted playsinline poster="assets/rollout-episode21.jpg" aria-label="PlayJev driving the LIBERO robot to pick up the black bowl and place it on the plate. Left: external camera. Right: wrist camera.">
+            <source src="assets/rollout-episode21.mp4" type="video/mp4">
+          </video>
+          <figcaption><span class="live-dot blue"></span> One robot · pick up the black bowl · success</figcaption>
+        </figure>
+        <details class="inspect" id="hero-inspect">
+          <summary>Show the decision · 25 bins per axis</summary>
+          <div class="inspect-body" id="bin-panel"></div>
+          <p class="inspect-note">At each step PlayJev answers seven questions. The bars are the probabilities over the 25 bins of each axis, for the frame on screen. The highlighted bin is the most likely one; the number is the value executed.</p>
+        </details>
+      </div>
+
+      <div class="hero-copy reveal">
+        <p class="eyebrow"><span>Experiment 01</span> · From games to robotics</p>
+        <h1 id="hero-title">From simple commands<br>to <em>continuous</em><br>robot control.</h1>
+        <p class="dek">PlayJev learned to play games by choosing between a few simple moves. We study what it takes to give that same model control of a robot, where every decision is a precise, multidimensional movement.</p>
+        <div class="hero-actions">
+          <a class="button primary" href="#jev">Meet JEV</a>
+          <a class="button ghost" href="#evidence">See the evidence</a>
+        </div>
+        <div class="hero-facts" aria-label="Key results">
+          <div><strong>0.8B</strong><span>parameters</span></div>
+          <div><strong>70%</strong><span>success rate · 28/40 on dev set</span></div>
+          <div><strong>193 ms</strong><span>per step, p50</span></div>
+        </div>
+      </div>
+
+    </section>
+
+    <section class="chapter theory" id="jev">
+      <div class="chapter-number">01</div>
+      <div class="section-heading reveal">
+        <p class="eyebrow">01 · The architecture behind the study</p>
+        <h2>JEV turns language-model prediction into a decision.</h2>
+        <p>JEV is the new model architecture from which this study begins. Instead of producing an unconstrained answer, it evaluates a finite set of admissible choices and returns a calibrated probability distribution over them. The result is a fast, inspectable decision layer that can sit between an observed state and an action.<a class="cite" href="#ref-openjev" aria-label="Reference 1">[1]</a></p>
+      </div>
+
+      <div class="definition-grid reveal">
+        <article class="definition-card">
+          <span class="definition-index">I</span><p class="eyebrow">The JEV foundation</p>
+          <div class="equation">\[\mathcal{D}=(s,q,\mathcal{O})\]</div>
+          <p>Studying JEV reveals a useful control primitive: \(s\) is the observed state, \(q\) is a question, and \(\mathcal{O}=\{o_1,\ldots,o_K\}\) is a finite set of admissible commands.</p>
+        </article>
+        <article class="definition-card">
+          <span class="definition-index">II</span><p class="eyebrow">Choice readout</p>
+          <div class="equation">\[p_\theta(o_i\mid\mathcal{D})=\frac{\exp(\ell_i)}{\sum_{j\in\mathcal{O}}\exp(\ell_j)}\]</div>
+          <p>The language model runs once. We keep only the logits \(\ell_i\) of the valid answer letters and normalize them over the option set.</p>
+        </article>
+        <article class="definition-card">
+          <span class="definition-index">III</span><p class="eyebrow">Decision</p>
+          <div class="equation">\[o^*=\operatorname*{arg\,max}_{o_i\in\mathcal{O}}p_\theta(o_i\mid\mathcal{D})\]</div>
+          <p>The output is a choice and its full probability distribution. No unconstrained token can become an action.</p>
+        </article>
+      </div>
+
+      <div class="contract-diagram reveal" aria-label="JEV decision contract diagram">
+        <div class="contract-input"><span>STATE \(s\)</span><b>pixels or text</b></div><div class="contract-plus">\(+\)</div>
+        <div class="contract-input"><span>QUESTION \(q\)</span><b>what should happen?</b></div><div class="contract-plus">\(+\)</div>
+        <div class="contract-input"><span>OPTIONS \(\mathcal{O}\)</span><b>A · B · C · …</b></div><div class="contract-arrow">\(\rightarrow\)</div>
+        <div class="contract-model"><span>one forward pass</span><b>JEV-style model</b></div><div class="contract-arrow">→</div>
+        <div class="contract-output"><span>simplex \(\Delta^{K-1}\)</span><b>\([0.08,\,0.71,\,0.21]\)</b></div>
+      </div>
+
+      <div class="control-bridge reveal">
+        <div><p class="eyebrow">From architecture to robotics</p><h3>A finite choice is simple.<br>A robot action is not.</h3></div>
+        <p>JEV gives us the decision mechanism. The open question is how to use it when the output is no longer “left”, “right”, or “jump”. At every step, a robot must coordinate position, orientation, and its gripper with continuous precision. Our study asks how far the JEV architecture can be extended across that gap.</p>
+      </div>
+
+    </section>
+
+    <section class="chapter intro-chapter" id="playjev">
+      <div class="chapter-number">02</div>
+      <div class="chapter-copy reveal">
+        <p class="eyebrow">02 · A visual child of JEV</p>
+        <h2>PlayJev inherits the decision contract—and learns to see.</h2>
+        <p>JEV defines the parent interface: a state, a question, a finite set of options, and a probability for each valid answer. PlayJev is its visual specialization. It keeps that contract intact, but replaces a textual state with raw pixels and trains the decision model on interaction.<a class="cite" href="#ref-playjev" aria-label="Reference 2">[2]</a></p>
+
+        <div class="playjev-lineage" aria-label="JEV to PlayJev model hierarchy">
+          <div><small>PARENT CONTRACT</small><strong>JEV</strong><span>finite-choice decision interface</span></div>
+          <i aria-hidden="true">inherits →</i>
+          <div class="child"><small>VISUAL SPECIALIZATION</small><strong>PlayJev</strong><span>pixels in · action probabilities out</span></div>
+        </div>
+
+        <div class="model-specs" aria-label="How PlayJev makes a decision">
+          <span><small>MODEL</small><b>Qwen3.5 · 0.8B</b> vision-language transformer</span>
+          <span><small>STATE</small><b>one visual frame</b> no game name or internal state</span>
+          <span><small>OPTIONS</small><b>shuffled moves</b> position cannot reveal the answer</span>
+          <span><small>READOUT</small><b>valid-letter logits</b> normalized into a policy</span>
+        </div>
+        <p class="training-note"><strong>Training procedure.</strong> PlayJev learns first from supervised cloning, then from three DAgger rounds that add teacher labels on states reached by the model itself.<a class="cite" href="#ref-dagger" aria-label="Reference 3">[3]</a> Across 2.2 million game frames, one shared policy learns ten different games and reaches a mean teacher-normalized score of 0.57.</p>
+      </div>
+      <div class="choice-demo reveal" data-delay="1" aria-label="Example PlayJev decision">
+        <div class="choice-frame">
+          <img src="assets/games-board.webp" alt="Frames from ten games controlled by PlayJev">
+          <span>raw game frame</span>
+        </div>
+        <div class="choice-question">
+          <small>ONE FRAME · ONE FORWARD PASS</small>
+          <p>Which valid move should the agent take?</p>
+          <div class="choice-bars" aria-hidden="true">
+            <div><b>A</b><span style="--p:18%"></span><i>left</i></div>
+            <div class="picked"><b>B</b><span style="--p:74%"></span><i>right</i></div>
+            <div><b>C</b><span style="--p:31%"></span><i>jump</i></div>
+            <div><b>D</b><span style="--p:12%"></span><i>wait</i></div>
+          </div>
+          <p class="choice-caption">Only logits assigned to valid answer letters become the action distribution.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter alphabet" id="alphabet">
+      <div class="section-heading reveal">
+        <p class="eyebrow">03 · The representation that follows</p>
+        <h2>Continuous motion needs<br>a usable alphabet.</h2>
+        <p>This is where the alphabet becomes necessary: it translates a continuous robot action into choices PlayJev can make. Each of the seven control dimensions is quantized separately.</p>
+      </div>
+
+      <div class="robot-definition reveal">
+        <div><p class="eyebrow">The control variable</p><div class="equation large">\[a_t=(\Delta x,\Delta y,\Delta z,\Delta\alpha,\Delta\beta,\Delta\gamma,g)\in\mathbb{R}^6\times\{-1,+1\}\]</div></div>
+        <p>At each control step \(t\), LIBERO expects six continuous end-effector deltas and one binary gripper command.<a class="cite" href="#ref-libero" aria-label="Reference 4">[4]</a> A single 26-letter question cannot represent this space at useful precision, so we factor the action by dimension.</p>
+      </div>
+
+      <div class="failed-first reveal">
+        <div class="prototype-intro">
+          <p class="eyebrow danger">The first attempt</p>
+          <h3>One letter for an entire action.</h3>
+          <p>We first clustered the expert actions into a small codebook. Here, <strong>\(K\) is the number of 7D action prototypes in that codebook</strong>: each prototype contains all six motion deltas and the gripper command. At every step, the continuous expert action is replaced by its nearest prototype, selected with a single letter.</p>
+          <p class="prototype-caveat">A larger \(K\) offers more candidate movements, but it still forces the seven control dimensions to vary together. The replay below isolates that representation error: no learned policy is involved.</p>
+        </div>
+
+        <div class="prototype-comparison" aria-label="Compare every expert action with K equals 16 and K equals 26 prototype reconstructions">
+          <div class="prototype-slider-head">
+            <label for="prototype-frame">Complete expert trajectory · <strong id="prototype-gripper-state">gripper open</strong></label>
+            <output id="prototype-frame-count" for="prototype-frame">frame 1 / 110</output>
+          </div>
+          <div class="prototype-range">
+            <input id="prototype-frame" type="range" min="0" max="109" step="1" value="0" aria-label="Select any frame from the expert trajectory">
+            <div class="gripper-zones" id="gripper-zones" aria-label="Expert gripper-close intervals"></div>
+          </div>
+          <p class="slider-help">Yellow intervals mark where the expert command closes the gripper. Hover or focus a marker for its exact frame range.</p>
+
+          <div class="prototype-grid">
+            <article class="prototype-card expert-card">
+              <header><span>REFERENCE</span><h4>Expert action</h4></header>
+              <img class="prototype-frame-image" data-mode="expert" src="assets/codebook-comparison/expert/0000.webp" alt="Expert rollout at the selected control step">
+              <div class="prototype-action"><small>7D CONTROL</small><code id="expert-action">loading…</code></div>
+              <p>The original command from the demonstration.</p>
+            </article>
+            <article class="prototype-card">
+              <header><span>ONE LETTER</span><h4>\(K=16\)</h4></header>
+              <img class="prototype-frame-image" data-mode="k16" src="assets/codebook-comparison/k16/0000.webp" alt="K equals 16 rollout at the selected control step">
+              <div class="prototype-action"><small id="k16-code">NEAREST PROTOTYPE</small><code id="k16-action">loading…</code></div>
+              <p><strong>0 / 48</strong> successful oracle replays.</p>
+            </article>
+            <article class="prototype-card">
+              <header><span>ONE LETTER</span><h4>\(K=26\)</h4></header>
+              <img class="prototype-frame-image" data-mode="k26" src="assets/codebook-comparison/k26/0000.webp" alt="K equals 26 rollout at the selected control step">
+              <div class="prototype-action"><small id="k26-code">NEAREST PROTOTYPE</small><code id="k26-action">loading…</code></div>
+              <p><strong>2 / 48</strong> successful oracle replays.</p>
+            </article>
+          </div>
+          <p class="comparison-note">All three rollouts start from the same simulator state and remain synchronized by control step. Their images diverge as each method executes its own command; the vectors below show the expert action and its K16 and K26 reconstructions at that step.</p>
+          <p class="prototype-conclusion">Even the larger codebook fails: choosing one whole-action prototype cannot preserve the independent precision required by each control axis. This motivates the factorized alphabet tested next.</p>
+        </div>
+      </div>
+      <aside class="rigor-note reveal"><strong>Where the alphabet comes from.</strong><p>The alphabet is not our starting claim; it is the representation that emerges when we ask how this finite-choice contract can express continuous control. In this study, “JEV-style” refers only to that contract. We use the public PlayJev-0.8B checkpoint;<a class="cite" href="#ref-playjev" aria-label="Reference 2">[2]</a> we do not claim access to, or equivalence with, any proprietary JEV model.</p></aside>
+    </section>
+
+    <section class="chapter evidence" id="evidence">
+      <div class="section-heading reveal">
+        <p class="eyebrow">04 · Oracle replay</p>
+        <h2>Can the alphabet express<br>the right movement?</h2>
+        <p>Before PlayJev can learn an action alphabet, that alphabet must preserve the control signal it is meant to describe. Every codec replaces the expert’s continuous trajectory with symbols, then reconstructs an approximation. If that approximation already misses the grasp or drifts away from the goal, the learning problem is ill-posed: the model is being asked to predict letters that cannot reproduce the correct behavior.</p>
+        <p class="oracle-intro-note">Oracle replay isolates this representation bottleneck. We give each codec the expert actions directly—without vision, language, or policy prediction—and execute only its reconstruction in the simulator. Success is a necessary gate: first prove that the alphabet can carry the movement, then ask PlayJev to learn it.</p>
+      </div>
+
+      <div class="method-intro reveal">
+        <div class="method-lead">
+          <p class="eyebrow">Three ways to write motion</p>
+          <h3>Same trajectory.<br>Different symbolic structure.</h3>
+          <p>The methods differ in what they treat as a token. BIN encodes one scalar at one time step. FAST encodes patterns across time. OAT learns a short, ordered latent description of the whole chunk.</p>
+        </div>
+        <div class="method-cards">
+          <article class="method-card bin-method">
+            <div class="method-title"><span>01</span><h3>BIN</h3><small>local · deterministic</small></div>
+            <div class="method-equation">\[q_B(a)=\operatorname{round}\!\left(\frac{a-a_{\min}}{a_{\max}-a_{\min}}(B-1)\right)\]</div>
+            <p>Each action dimension is independently assigned to one of \(B\) uniform levels at every time step. Decoding maps the index back to the corresponding scalar. This is the direct action-token approach used by RT-2 and OpenVLA.<a class="cite" href="#ref-rt2" aria-label="Reference 5">[5]</a><a class="cite" href="#ref-openvla" aria-label="Reference 6">[6]</a></p>
+            <div class="method-animation bin-animation" role="img" aria-label="Animated diagram: continuous scalar values snap independently to fixed bins">
+              <div class="animation-labels"><span>continuous</span><span>round</span><span>bin token</span></div>
+              <div class="bin-flow" aria-hidden="true">
+                <div class="bin-samples"><i style="--y:68%"></i><i style="--y:31%"></i><i style="--y:52%"></i><i style="--y:18%"></i></div>
+                <b>→</b>
+                <div class="bin-quantizer"><span></span><span></span><span></span><span></span><span></span><i></i></div>
+                <b>→</b>
+                <div class="bin-tokens"><span>18</span><span>08</span><span>13</span><span>05</span></div>
+              </div>
+            </div>
+            <dl><div><dt>Unit</dt><dd>axis × step</dd></div><div><dt>Training</dt><dd>none</dd></div><div><dt>Risk</dt><dd>long sequences</dd></div></dl>
+          </article>
+
+          <article class="method-card fast-method">
+            <div class="method-title"><span>02</span><h3>FAST</h3><small>frequency · variable length</small></div>
+            <div class="method-equation">\[z=\operatorname{BPE}\!\left(\operatorname{round}(s\,\operatorname{DCT}(a_{1:H}))\right)\]</div>
+            <p>FAST applies a discrete cosine transform along time, scales and rounds the coefficients, then compresses the resulting integer stream with byte-pair encoding. Smooth trajectories concentrate their information in a few low-frequency coefficients.<a class="cite" href="#ref-fast" aria-label="Reference 7">[7]</a></p>
+            <div class="method-animation fast-animation" role="img" aria-label="Animated diagram: a temporal trajectory becomes frequency coefficients and a compressed token stream">
+              <div class="animation-labels"><span>trajectory</span><span>DCT</span><span>BPE tokens</span></div>
+              <div class="fast-flow" aria-hidden="true">
+                <svg viewBox="0 0 110 58"><path d="M3 42 C18 5 27 54 43 23 S69 12 79 35 S96 50 107 15"/></svg>
+                <b>→</b>
+                <div class="frequency-bars"><i style="--h:92%;--d:0"></i><i style="--h:67%;--d:1"></i><i style="--h:40%;--d:2"></i><i style="--h:21%;--d:3"></i><i style="--h:10%;--d:4"></i></div>
+                <b>→</b>
+                <div class="fast-tokens"><span>τ₁</span><span>τ₂</span><span>τ₃</span></div>
+              </div>
+            </div>
+            <dl><div><dt>Unit</dt><dd>temporal frequency</dd></div><div><dt>Training</dt><dd>BPE only</dd></div><div><dt>Risk</dt><dd>rounding overshoot</dd></div></dl>
+          </article>
+
+          <article class="method-card oat-method">
+            <div class="method-title"><span>03</span><h3>OAT</h3><small>learned · ordered latent</small></div>
+            <div class="method-equation">\[z_{1:L}=Q(E_\phi(a_{1:H})),\qquad \hat a_{1:H}=D_\psi(z_{1:L})\]</div>
+            <p>OAT uses a transformer autoencoder and finite scalar quantization. Nested dropout trains each prefix of the latent sequence to reconstruct the chunk, ordering tokens from coarse to fine.<a class="cite" href="#ref-oat" aria-label="Reference 8">[8]</a><a class="cite" href="#ref-fsq" aria-label="Reference 9">[9]</a><a class="cite" href="#ref-nested" aria-label="Reference 10">[10]</a></p>
+            <div class="method-animation oat-animation" role="img" aria-label="Animated diagram: an action chunk passes through an encoder and quantizer to produce ordered latent tokens">
+              <div class="animation-labels"><span>action chunk</span><span>encoder + FSQ</span><span>coarse → fine</span></div>
+              <div class="oat-flow" aria-hidden="true">
+                <div class="action-chunk"><i></i><i></i><i></i><i></i><i></i></div>
+                <b>→</b>
+                <div class="oat-encoder"><span>E</span><i></i><span>Q</span></div>
+                <b>→</b>
+                <div class="ordered-tokens"><span style="--d:0">z₁</span><span style="--d:1">z₂</span><span style="--d:2">z₃</span><span style="--d:3">z₄</span></div>
+              </div>
+            </div>
+            <dl><div><dt>Unit</dt><dd>ordered latent</dd></div><div><dt>Training</dt><dd>autoencoder</dd></div><div><dt>Risk</dt><dd>integrated drift</dd></div></dl>
+          </article>
+        </div>
+      </div>
+
+      <div class="codec-lab reveal">
+        <div class="codec-tabs" role="tablist" aria-label="Choose an action tokenizer">
+          <button role="tab" aria-selected="true" data-codec="bin256">BIN·256</button>
+          <button role="tab" aria-selected="false" data-codec="fast">FAST</button>
+          <button role="tab" aria-selected="false" data-codec="oat">OAT</button>
+          <button role="tab" aria-selected="false" data-codec="bin25">BIN·25</button>
+        </div>
+        <div class="codec-visual">
+          <div class="codec-score">
+            <span id="codec-name">Per-axis binning · 256</span>
+            <strong id="codec-success">40<small>/40</small></strong>
+            <p id="codec-verdict">Every replay succeeds. No codec training required.</p>
+          </div>
+          <div class="codec-metrics">
+            <div><span>Replay success</span><div class="meter"><i id="success-bar"></i></div><b id="success-value">100%</b></div>
+            <div><span>Token / chunk</span><div class="meter"><i id="tokens-bar"></i></div><b id="tokens-value">224</b></div>
+            <div><span>RMSE xyz</span><div class="meter inverse"><i id="error-bar"></i></div><b id="error-value">0.002</b></div>
+          </div>
+          <p class="codec-note" id="codec-note">Seven tokens per step × 32 steps. Precise, predictable, but verbose.</p>
+        </div>
+      </div>
+
+      <div class="oracle-definition reveal">
+        <div class="oracle-flow"><span>expert actions \(a_{1:T}\)</span><b><em>encode \(E\)</em> \(\rightarrow\)</b><b><em>tokens \(z\)</em> \(\rightarrow\)</b><b><em>decode \(D\)</em> \(\rightarrow\)</b><b><em>\(\hat a_{1:T}\)</em> \(\rightarrow\)</b></div>
+        <div><div class="equation">\[\hat a_{1:T}=D\!\left(E(a_{1:T})\right)\]</div><p>Oracle replay removes perception and policy learning from the experiment. It asks one necessary—but not sufficient—question: if the tokenizer is given the expert’s own actions, can its reconstruction still complete the task?</p></div>
+      </div>
+
+      <div class="drift-story reveal">
+        <div class="drift-copy">
+          <p class="eyebrow">The decisive clue</p>
+          <h3>It is not only how much you miss.<br>It is missing <em>in the same direction</em>.</h3>
+          <p>OAT can make only a small error at each step. But when those errors share the same sign, they add up. By the end of the trajectory, the robot is no longer where it thinks it is.<a class="cite" href="#ref-oat" aria-label="Reference 8">[8]</a></p>
+          <label for="drift-slider">Move through the trajectory <output id="drift-step">0</output>/100</label>
+          <input id="drift-slider" type="range" min="0" max="100" value="0">
+        </div>
+        <div class="drift-canvas">
+          <svg id="drift-svg" viewBox="0 0 680 380" role="img" aria-label="Interactive comparison of the expert trajectory and a trajectory with drift">
+            <defs>
+              <pattern id="grid" width="34" height="34" patternUnits="userSpaceOnUse"><path d="M34 0H0V34" fill="none" stroke="rgba(255,255,255,.08)"/></pattern>
+            </defs>
+            <rect width="680" height="380" fill="url(#grid)"/>
+            <path id="expert-path" d="M70 310 C145 270 170 160 260 170 S390 290 470 225 S540 105 610 70" fill="none" stroke="#f4cb3d" stroke-width="4" stroke-linecap="round"/>
+            <path id="codec-path" d="M70 310 C145 273 173 168 264 181 S398 310 482 254 S558 143 622 117" fill="none" stroke="#4198ff" stroke-width="4" stroke-linecap="round" stroke-dasharray="9 8"/>
+            <circle id="expert-dot" cx="70" cy="310" r="9" fill="#f4cb3d"/>
+            <circle id="codec-dot" cx="70" cy="310" r="9" fill="#4198ff"/>
+            <line id="gap-line" x1="70" y1="310" x2="70" y2="310" stroke="#ff6b5f" stroke-width="2" stroke-dasharray="4 4"/>
+            <text x="28" y="34" fill="#f4cb3d">EXPERT</text>
+            <text x="118" y="34" fill="#4198ff">OAT REPLAY</text>
+          </svg>
+          <div class="drift-stat"><span>integrated drift</span><strong id="drift-cm">0.0 cm</strong></div>
+        </div>
+      </div>
+
+      <div class="finding-row reveal">
+        <div><span>AUC</span><strong>0.84</strong><p>Integrated drift predicts failure better than per-step error.</p></div>
+        <div><span>FAIL</span><strong>6.0 cm</strong><p>Median maximum deviation in failed OAT replays.</p></div>
+        <div><span>SUCCESS</span><strong>2.9 cm</strong><p>Median maximum deviation in successful replays.</p></div>
+      </div>
+    </section>
+
+    <section class="chapter policy" id="policy">
+      <div class="section-heading reveal">
+        <p class="eyebrow">05 · The policy</p>
+        <h2>Seven questions.<br>One movement.</h2>
+        <p>The proposed multiview policy preserves the temporal agent-view used in our experiments and adds a synchronized temporal wrist-view. PlayJev encodes both streams once, answers seven axis-specific Choice questions in parallel, and reconstructs one continuous robot action.</p>
+      </div>
+
+      <div class="model-schema reveal" role="img" aria-label="Animated architecture diagram of the proposed multiview PlayJev robot policy, from temporal external and wrist cameras to a seven-dimensional action">
+        <div class="schema-topbar"><span>PROPOSED MULTIVIEW POLICY</span><small>one control step \(t\)</small></div>
+        <div class="schema-flow">
+          <section class="schema-inputs">
+            <p class="schema-label">01 · synchronized input</p>
+            <div class="camera-stream agent-stream">
+              <div class="camera-frames"><img src="assets/model-agent.jpg" alt=""><img src="assets/model-agent.jpg" alt=""></div>
+              <div><strong>external camera</strong><small>\(t-1 \rightarrow t\)</small></div>
+            </div>
+            <div class="camera-stream wrist-stream">
+              <div class="camera-frames"><img src="assets/model-wrist.jpg" alt=""><img src="assets/model-wrist.jpg" alt=""></div>
+              <div><strong>wrist camera</strong><small>\(t-1 \rightarrow t\)</small></div>
+            </div>
+            <div class="task-chip"><span>LANGUAGE</span><b>“pick up the black bowl…”</b></div>
+          </section>
+
+          <div class="schema-arrow" aria-hidden="true"><i></i><b>→</b></div>
+
+          <section class="schema-core">
+            <p class="schema-label">02 · shared model</p>
+            <div class="vision-streams" aria-hidden="true"><span>agent temporal tokens</span><span>wrist temporal tokens</span></div>
+            <div class="model-core"><small>QWEN3.5 · 0.8B</small><strong>PlayJev</strong><i></i><span>shared visual-language state</span></div>
+          </section>
+
+          <div class="schema-arrow" aria-hidden="true"><i></i><b>→</b></div>
+
+          <section class="schema-questions">
+            <p class="schema-label">03 · one batched forward</p>
+            <div class="question-fan" aria-hidden="true">
+              <span style="--d:0">dx</span><span style="--d:1">dy</span><span style="--d:2">dz</span><span style="--d:3">dα</span><span style="--d:4">dβ</span><span style="--d:5">dγ</span><span style="--d:6">grip</span>
+            </div>
+            <small>7 Choice questions · shared visual state</small>
+          </section>
+
+          <div class="schema-arrow" aria-hidden="true"><i></i><b>→</b></div>
+
+          <section class="schema-readout">
+            <p class="schema-label">04 · distributions</p>
+            <div class="probability-stack" aria-hidden="true">
+              <span style="--w:73%;--d:0"></span><span style="--w:46%;--d:1"></span><span style="--w:61%;--d:2"></span><span style="--w:35%;--d:3"></span><span style="--w:82%;--d:4"></span><span style="--w:54%;--d:5"></span><span style="--w:91%;--d:6"></span>
+            </div>
+            <code>\(p(b_k\mid S_t,q_j)\)</code>
+          </section>
+
+          <div class="schema-arrow" aria-hidden="true"><i></i><b>→</b></div>
+
+          <section class="schema-output">
+            <p class="schema-label">05 · execute</p>
+            <div class="output-orbit" aria-hidden="true"><i></i><span>Σ</span></div>
+            <code>[dx, dy, dz,<br>dα, dβ, dγ, g]</code>
+            <strong>7D ACTION</strong>
+          </section>
+        </div>
+        <div class="schema-legend"><span><i class="current-dot"></i>current experiment: external stream</span><span><i class="proposed-dot"></i>proposed extension: wrist stream</span><span>BIN25 expected-value readout · binary gripper argmax</span></div>
+      </div>
+
+      <div class="policy-math reveal">
+        <article><p class="eyebrow">Six motion axes</p><div class="equation">\[\hat a_{t,j}=\sum_{k=1}^{25}p_\theta\!\left(b_k\mid s_{t-1:t},q,j\right)b_k\]</div><p>For each continuous axis \(j\), the policy returns a distribution over 25 fixed levels. We execute its probability-weighted mean, not merely the most likely bin.</p></article>
+        <article><p class="eyebrow">Binary gripper</p><div class="equation">\[\hat g_t=\operatorname*{arg\,max}_{g\in\{-1,+1\}}p_\theta\!\left(g\mid s_{t-1:t},q\right)\]</div><p>The gripper remains discrete. All seven questions share the same visual state and are evaluated in one batched forward pass.</p></article>
+      </div>
+
+      <div class="scheme-lab reveal">
+        <div class="scheme-copy">
+          <p class="eyebrow">The counterintuitive experiment</p>
+          <h3>More precise does not mean easier to learn.</h3>
+          <p>Choose a scheme. The second reconstructs every demonstration perfectly, yet it asks almost twice as many questions and produces a worse policy.</p>
+          <div class="scheme-switch" role="group" aria-label="Compare quantization schemes">
+            <button type="button" class="active" data-scheme="a">A · 25 levels</button>
+            <button type="button" data-scheme="b">B · 16 × 16</button>
+          </div>
+        </div>
+        <div class="scheme-score">
+          <div class="donut" id="scheme-donut"><span><strong id="scheme-percent">70</strong>%</span></div>
+          <div class="scheme-values">
+            <div><span>Policy success</span><strong id="scheme-success">28 / 40</strong></div>
+            <div><span>Replay ceiling</span><strong id="scheme-ceiling">39 / 40</strong></div>
+            <div><span>Questions / step</span><strong id="scheme-questions">7</strong></div>
+            <div><span>Latency p50</span><strong id="scheme-latency">193 ms</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="failure-lab reveal">
+        <div class="failure-heading">
+          <div><p class="eyebrow danger">Where it fails</p><h3>Transport is not the problem.<br>It misses the grasp — and cannot recover.</h3></div>
+          <div class="failure-toggle" role="group" aria-label="Show a successful or failed episode">
+            <button class="active" data-trace="success" type="button">Success</button>
+            <button data-trace="failure" type="button">Failure</button>
+          </div>
+        </div>
+        <div class="trace-stage">
+          <img id="trace-image" src="assets/libero-place.jpg" alt="Frame from the selected episode">
+          <div class="trace-data">
+            <div class="trace-status"><span id="trace-label">SUCCESS</span><strong id="trace-step-count">108 steps</strong></div>
+            <div class="timeline" id="timeline" aria-label="Episode event timeline"></div>
+            <p id="trace-description">One gripper closure, stable transport, release over the plate. Successful episodes are shorter than their demonstrations.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter" id="horizon">
+      <div class="section-heading reveal">
+        <p class="eyebrow">05b · Horizon <span class="pending-tag">in progress</span></p>
+        <h2>How far ahead should it plan?</h2>
+      </div>
+      <div class="reveal">
+        <p>The same bin25 policy can also be asked about the next actions of each state. Training then covers four steps ahead, while the closed loop still executes only the current action: the horizon changes what the model learns, not what an inference step costs.</p>
+        <p>Same data, same optimizer steps, same forty dev episodes as the one-step policy, which reached 28 of 40.</p>
+        <p class="pending"><em>[Pending: the four-step result and its paired comparison with the one-step policy. Reported whether or not it clears the gate of five more successes.]</em></p>
+      </div>
+    </section>
+
+    <section class="chapter next" id="next">
+      <div class="section-heading reveal">
+        <p class="eyebrow">06 · The next test</p>
+        <h2>Spatial built the alphabet.<br>Now we test language and memory.</h2>
+      </div>
+
+      <div class="roadmap reveal">
+        <article class="roadmap-card priority">
+          <span class="order">01</span><p class="eyebrow">LIBERO · Goal</p>
+          <h3>Does it understand what we ask?</h3>
+          <p>Tasks with different goals: drawers, stoves, cabinets, bowls, and plates. This directly tests dependence on Spatial’s ten fixed sentences.</p>
+          <ul><li>Controlled paraphrases</li><li>Minimal instruction pairs</li><li>Language consistency loss</li></ul>
+          <button class="roadmap-expand" type="button" aria-expanded="false">Proposed protocol</button>
+          <div class="roadmap-detail"><p>Replicate bin25 unchanged, then train with 3–5 validated paraphrases per instruction. Evaluate canonical prompts, seen paraphrases, and held-out language templates separately.</p></div>
+        </article>
+        <article class="roadmap-card">
+          <span class="order">02</span><p class="eyebrow">LIBERO · Long</p>
+          <h3>Does it remember what it already did?</h3>
+          <p>Multi-stage sequences: two objects, drawers to close, stoves to switch on. A purely reactive policy is no longer enough; action chunking provides a relevant temporal baseline.<a class="cite" href="#ref-act" aria-label="Reference 11">[11]</a></p>
+          <ul><li>Recent action history</li><li>Subgoals and recovery</li><li>A new tokenizer gate</li></ul>
+          <button class="roadmap-expand" type="button" aria-expanded="false">Proposed protocol</button>
+          <div class="roadmap-detail"><p>First run oracle replay for binning, FAST, and OAT. Then compare the unchanged two-frame baseline with a history-conditioned policy and a recovery dataset built from states visited after missed grasps.</p></div>
+        </article>
+        <article class="roadmap-card">
+          <span class="order">03</span><p class="eyebrow">LIBERO · Object</p>
+          <h3>Does it see an object—or “the black bowl”?</h3>
+          <p>The same pick-and-place structure with different objects. A clean control for separating motor control from visual generalization.</p>
+          <ul><li>Cross-suite transfer</li><li>Texture, shape, category</li><li>Balanced joint training</li></ul>
+          <button class="roadmap-expand" type="button" aria-expanded="false">Proposed protocol</button>
+          <div class="roadmap-detail"><p>Compare Spatial-only, Object-only, and joint training. Sample by task rather than by frame, with robot replay to measure and limit catastrophic forgetting.</p></div>
+        </article>
+      </div>
+
+      <div class="pro-banner reveal">
+        <div><p class="eyebrow">Then · evaluation only</p><h3>LIBERO-PRO</h3></div>
+        <p>Freeze the policy and perturb one variable at a time: position, object, language, task, and environment. First measure zero-shot generalization; only then adapt the training.<a class="cite" href="#ref-libero-pro" aria-label="Reference 12">[12]</a></p>
+        <div class="perturbations"><span>position</span><span>object</span><span>semantic</span><span>task</span><span>environment</span></div>
+      </div>
+    </section>
+
+    <section class="closing">
+      <p class="eyebrow">The lesson</p>
+      <blockquote>The best representation is not the one that compresses most. It is the one that preserves control and remains simple enough to predict.</blockquote>
+      <div class="closing-links">
+        <a href="../paper/main.pdf">Read the paper</a>
+        <a href="../libero_simulator/README.md">Explore the simulator</a>
+        <a href="../README.md">Open PlayJev</a>
+      </div>
+    </section>
+
+    <section class="references" id="references" aria-labelledby="references-title">
+      <div class="references-head"><p class="eyebrow">Sources</p><h2 id="references-title">References</h2><p>Primary papers and project sources linked from the relevant claims above.</p></div>
+      <ol>
+        <li id="ref-openjev"><span>01</span><div><a href="https://github.com/OmniJev/openJev">OpenJev</a><p>System One finite-choice request and response contract. OmniJev, project repository.</p></div></li>
+        <li id="ref-playjev"><span>02</span><div><a href="https://github.com/OmniJev/PlayJev">PlayJev: A Multimodal JEV-Like Model for Small Games</a><p>OmniJev, model, training code, evaluation and weights, 2026.</p></div></li>
+        <li id="ref-dagger"><span>03</span><div><a href="https://arxiv.org/abs/1011.0686">A Reduction of Imitation Learning and Structured Prediction to No-Regret Online Learning</a><p>S. Ross, G. Gordon, J. A. Bagnell, AISTATS 2011.</p></div></li>
+        <li id="ref-libero"><span>04</span><div><a href="https://arxiv.org/abs/2306.03310">LIBERO: Benchmarking Knowledge Transfer for Lifelong Robot Learning</a><p>B. Liu, Y. Zhu, C. Gao et al., 2023.</p></div></li>
+        <li id="ref-rt2"><span>05</span><div><a href="https://arxiv.org/abs/2307.15818">RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control</a><p>A. Brohan, N. Brown, J. Carbajal et al., 2023.</p></div></li>
+        <li id="ref-openvla"><span>06</span><div><a href="https://arxiv.org/abs/2406.09246">OpenVLA: An Open-Source Vision-Language-Action Model</a><p>M. J. Kim, K. Pertsch, S. Karamcheti et al., 2024.</p></div></li>
+        <li id="ref-fast"><span>07</span><div><a href="https://arxiv.org/abs/2501.09747">FAST: Efficient Action Tokenization for Vision-Language-Action Models</a><p>K. Pertsch, K. Stachowicz, B. Ichter et al., 2025.</p></div></li>
+        <li id="ref-oat"><span>08</span><div><a href="https://arxiv.org/abs/2602.04215">OAT: Ordered Action Tokenization</a><p>C. Liu, X. Han, J. Gao et al., 2026.</p></div></li>
+        <li id="ref-fsq"><span>09</span><div><a href="https://arxiv.org/abs/2309.15505">Finite Scalar Quantization: VQ-VAE Made Simple</a><p>F. Mentzer, D. Minnen, E. Agustsson, M. Tschannen, ICLR 2024.</p></div></li>
+        <li id="ref-nested"><span>10</span><div><a href="https://arxiv.org/abs/1402.0915">Learning Ordered Representations with Nested Dropout</a><p>O. Rippel, M. A. Gelbart, R. P. Adams, ICML 2014.</p></div></li>
+        <li id="ref-act"><span>11</span><div><a href="https://arxiv.org/abs/2304.13705">Learning Fine-Grained Bimanual Manipulation with Low-Cost Hardware</a><p>T. Z. Zhao, V. Kumar, S. Levine, C. Finn, RSS 2023. Introduces Action Chunking with Transformers.</p></div></li>
+        <li id="ref-libero-pro"><span>12</span><div><a href="https://arxiv.org/abs/2510.03827">LIBERO-PRO: Towards Robust and Fair Evaluation of Vision-Language-Action Models Beyond Memorization</a><p>X. Zhou, Y. Xu, G. Tie et al., 2025.</p></div></li>
+      </ol>
+    </section>
+  </main>
+
+  <footer>
+    <div class="brand"><span class="brand-mark">PJ</span><span>PlayJev × LIBERO</span></div>
+    <p>Results on LIBERO-Spatial · frozen dev split · 40 episodes.</p>
+    <p>An OmniJev research project · 2026</p>
+  </footer>
+  <script src="app.js"></script>
+</body>
+</html>
