@@ -125,6 +125,87 @@
     @keyframes fp-wire { 0% { stroke-opacity: .15; } 40% { stroke-opacity: 1; } 100% { stroke-opacity: .3; } }
     @keyframes fp-fade { 0% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
     @media (prefers-reduced-motion: reduce) { .fp-net { display: none; } }
+    /* Policy: the intro and the schema fit one screen */
+    #policy { min-height: calc(100vh - 70px); display: flex; flex-direction: column; justify-content: center; gap: clamp(14px, 2.4vh, 26px); padding-top: 28px; padding-bottom: 28px; }
+    .policy-intro { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: clamp(28px, 4vw, 64px); align-items: start; margin: 0; }
+    .policy-intro-title, .policy-intro-text { display: flex; flex-direction: column; }
+    .policy-intro-title h2 { font-size: clamp(1.9rem, 3vw, 2.9rem); margin: 0; }
+    .policy-intro-text p { margin: 0; padding-left: 18px; border-left: 2px solid var(--yellow); }
+    #policy .model-schema { flex: 0 1 auto; min-height: 0; overflow: hidden; }
+    #policy .schema-flow { max-height: calc(100vh - 360px); min-height: 0; }
+    #policy .camera-frames img { max-height: calc((100vh - 360px) / 3); object-fit: cover; }
+    /* Policy schema: full width, more air between the blocks */
+    #policy { max-width: 1480px; padding-inline: 3vw; }
+    #policy .model-schema { width: 100%; max-width: none; }
+    #policy .schema-flow { gap: clamp(18px, 2.4vw, 40px); padding: clamp(18px, 2vw, 34px); }
+    /* Policy diagram: larger, legible, LaTeX formulas in readout and output */
+    #policy .schema-flow { min-height: 62vh; max-height: none; }
+    #policy .camera-frames img { max-height: none; height: auto; }
+    #policy .schema-label { font-size: .85rem; }
+    #policy .schema-flow code { font-size: 1.05rem; display: block; line-height: 1.5; }
+    #policy .schema-flow strong, #policy .schema-flow small { font-size: .95rem; }
+    /* policy formulas: MathJax renders <div>, not <code> */
+    #policy .formula { font-size: .95rem; line-height: 1.5; overflow-wrap: anywhere; word-break: break-word; max-width: 100%; }
+    /* policy schema: five equal columns, content from the top, formulas that fit their column */
+    #policy .schema-flow { grid-template-columns: minmax(0,1fr) 26px minmax(0,1fr) 26px minmax(0,1fr) 26px minmax(0,1fr) 26px minmax(0,1fr); min-height: 58vh; align-items: stretch; gap: 10px; }
+    #policy .schema-flow > section { justify-content: flex-start; padding: 22px 18px; }
+    #policy .schema-flow > section > .schema-label { margin: 0 0 14px; }
+    #policy .formula { font-size: .8rem; }
+    #policy .schema-output .formula { font-size: .7rem; }
+    #policy .schema-readout .formula { font-size: .78rem; }
+    #policy .camera-stream, #policy .schema-core, #policy .schema-questions { flex: 0 0 auto; }
+    /* policy schema, revised: full width, larger inputs, spaced formulas, clear arrows, sensible block height */
+    #policy { max-width: none; padding-inline: 2vw; }
+    #policy .model-schema { width: 100%; }
+    #policy .schema-flow { grid-template-columns: minmax(0,1fr) 56px minmax(0,1fr) 56px minmax(0,1fr) 56px minmax(0,1fr) 56px minmax(0,1fr); min-height: 0; height: auto; gap: 8px; padding: 26px 28px; }
+    #policy .schema-flow > section { min-height: 380px; padding: 24px 22px; gap: 14px; }
+    #policy .schema-arrow { min-width: 56px; }
+    #policy .schema-arrow b { font-size: 1.2rem; padding: 6px; }
+    #policy .schema-arrow i { height: 2px; }
+    #policy .schema-label { font-size: .95rem; letter-spacing: .02em; }
+    #policy .camera-stream { padding: 14px; }
+    #policy .camera-frames img { width: 100%; }
+    #policy .camera-stream strong { font-size: 1.05rem; }
+    #policy .task-chip, #policy .schema-questions .q-grid span { font-size: .9rem; }
+    #policy .schema-questions button, #policy .schema-questions span { min-height: 34px; }
+    #policy .schema-readout .formula, #policy .schema-output .formula { margin: 14px 0; line-height: 1.8; }
+    #policy .schema-readout .formula { font-size: .9rem; }
+    #policy .schema-output .formula { font-size: .82rem; }
+    #policy .probability-stack { gap: 8px; }
+    /* camera inputs: previous and current frame side by side, no overlap */
+    #policy .camera-stream { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 16px; align-items: center; }
+    #policy .camera-frames { position: static; height: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: center; }
+    #policy .camera-frames img { position: static; width: 100%; height: auto; aspect-ratio: 1 / 1; object-fit: cover; }
+    #policy .camera-frames img:first-child { opacity: .55; animation: none; }
+    #policy .camera-frames img:last-child { animation: none; }
+    /* policy formulas: display-mode LaTeX, centred, with air around each */
+    #policy .schema-readout .formula, #policy .schema-output .formula { font-size: .8rem; margin: 10px 0; overflow-x: auto; }
+    #policy .formula mjx-container[display="true"] { margin: .4em 0 !important; }
+    /* policy-math: motion axes as bin distributions, gripper as an open/close animation */
+    .axis-viz { display: grid; gap: 8px; margin: 14px 0; }
+    .axis-row { display: grid; grid-template-columns: 34px 1fr; gap: 10px; align-items: end; }
+    .axis-row b { font: 400 .72rem var(--mono); color: var(--muted); }
+    .axis-bars { display: grid; grid-template-columns: repeat(25, 1fr); align-items: end; gap: 2px; height: 46px; }
+    .axis-bars i { display: block; height: var(--h); background: rgba(65,152,255,.4); transform-origin: bottom; animation: bin-breathe 2.8s ease-in-out var(--d) infinite; }
+    .axis-bars i.peak { background: var(--yellow); }
+    @keyframes bin-breathe { 0%,100% { transform: scaleY(.55); } 50% { transform: scaleY(1); } }
+    .grip-viz { margin: 14px 0; display: grid; grid-template-columns: 120px 1fr; gap: 14px; align-items: center; }
+    .grip-svg { width: 120px; height: 80px; }
+    .grip-base { fill: #2a313c; }
+    .jaw { fill: var(--yellow); transform-box: fill-box; animation: grip-cycle 4s ease-in-out infinite; }
+    .jaw-l { transform-origin: right center; }
+    .jaw-r { transform-origin: left center; }
+    .jaw-l { animation-name: grip-close-l; }
+    .jaw-r { animation-name: grip-close-r; }
+    @keyframes grip-close-l { 0%,40% { transform: translateX(0); } 60%,100% { transform: translateX(14px); } }
+    @keyframes grip-close-r { 0%,40% { transform: translateX(0); } 60%,100% { transform: translateX(-14px); } }
+    .grip-state { font: 400 .72rem var(--mono); color: var(--muted); display: grid; gap: 6px; }
+    .grip-state span { transition: color .3s; }
+    .st-open { animation: grip-label-open 4s steps(1) infinite; }
+    .st-closed { animation: grip-label-closed 4s steps(1) infinite; }
+    @keyframes grip-label-open { 0%,40% { color: var(--yellow); } 60%,100% { color: var(--muted); } }
+    @keyframes grip-label-closed { 0%,40% { color: var(--muted); } 60%,100% { color: var(--yellow); } }
+    @media (prefers-reduced-motion: reduce) { .axis-bars i, .jaw, .st-open, .st-closed { animation: none; } }
   </style>
 </head>
 <body>
@@ -149,8 +230,8 @@
       <li><a href="#start" data-section="start"><b><em>00</em> Start</b></a></li>
       <li><a href="#jev" data-section="jev"><b><em>01</em> Architecture</b></a></li>
       <li><a href="#playjev" data-section="playjev"><b><em>02</em> PlayJev</b></a></li>
-      <li><a href="#results" data-section="results"><b><em>03</em> Result</b></a></li>
-      <li><a href="#policy" data-section="policy"><b><em>04</em> Policy</b></a></li>
+      <li><a href="#policy" data-section="policy"><b><em>03</em> Policy</b></a></li>
+      <li><a href="#results" data-section="results"><b><em>04</em> Result</b></a></li>
       <li><a href="#horizon" data-section="horizon"><b><em>05</em> Horizon</b></a></li>
       <li><a href="#next" data-section="next"><b><em>06</em> Next test</b></a></li>
       <li><a href="#alphabet" data-section="alphabet"><b><em>A</em> Appendix · Alphabet</b></a></li>
@@ -274,35 +355,14 @@
           <div class="training-proc"><svg class="train-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v4h-4"/><circle cx="12" cy="12" r="2.2" class="train-dot"/></svg><p class="training-note"><strong>Training procedure.</strong> <span class="jev-name">PlayJev</span> learns first from supervised cloning, then from three DAgger rounds that add teacher labels on states reached by the model itself.<a class="cite" href="#ref-dagger" aria-label="Reference 3">[3]</a> Across 2.2 million game frames, one shared policy learns ten different games and reaches a mean teacher-normalized score of 0.57.</p></div>
     </section>
 
-    <section class="chapter results" id="results">
-      <div class="section-heading reveal">
-        <p class="eyebrow">The result</p>
-        <h2>Forty dev episodes.<br>Two changes, same protocol.</h2>
-      </div>
-      <div class="reveal">
-        <p>Each policy drives the robot from the same initial states on the same forty held-out LIBERO-Spatial episodes, with a 220-step limit. The replay of the same actions by the expert, which is the ceiling, reaches 39 of 40.</p>
-        <table class="results-table">
-          <thead><tr><th>Policy</th><th>Successes</th><th>Rate</th><th>95% interval</th><th>vs one-step, paired</th></tr></thead>
-          <tbody>
-            <tr><td>One step, external camera, previous frame (reference)</td><td>28 / 40</td><td>70.0%</td><td>55–82%</td><td>—</td></tr>
-            <tr><td>Four steps ahead, external camera</td><td><b>35 / 40</b></td><td><b>87.5%</b></td><td>74–95%</td><td>+10 / −3</td></tr>
-            <tr><td>One step, wrist + external camera</td><td><b>35 / 40</b></td><td><b>87.5%</b></td><td>74–95%</td><td>+10 / −3</td></tr>
-          </tbody>
-        </table>
-        <p>The four-step and wrist policies solve the same episodes, except for four each that the other misses. The reference was rerun with the current code and reproduces its 28 successes episode by episode.</p>
-        <p class="limit"><em>Limit: one training seed per policy and forty episodes. The gains are consistent, but not yet significant at the 5% level. A second seed and the locked split (48 episodes, used once) come next.</em></p>
-      </div>
-    </section>
-
     <section class="chapter policy" id="policy">
-      <div class="section-heading reveal">
-        <p class="eyebrow">05 · The policy</p>
-        <h2>Seven questions.<br>One movement.</h2>
-        <p>The proposed multiview policy preserves the temporal agent-view used in our experiments and adds a synchronized temporal wrist-view. PlayJev encodes both streams once, answers seven axis-specific Choice questions in parallel, and reconstructs one continuous robot action.</p>
+      <div class="section-heading reveal policy-intro">
+        <div class="policy-intro-title"><p class="eyebrow">05 · The policy</p><h2>Seven questions.<br>One movement.</h2></div>
+        <div class="policy-intro-text"><p>The multiview policy preserves the temporal agent-view used in our experiments and adds a synchronized temporal wrist-view. PlayJev encodes both streams once, answers seven axis-specific Choice questions in parallel, and reconstructs one continuous robot action.</p></div>
       </div>
 
       <div class="model-schema reveal" role="img" aria-label="Animated architecture diagram of the proposed multiview PlayJev robot policy, from temporal external and wrist cameras to a seven-dimensional action">
-        <div class="schema-topbar"><span>PROPOSED MULTIVIEW POLICY</span><small>one control step \(t\)</small></div>
+        <div class="schema-topbar"><span>MULTIVIEW POLICY · FOUR-STEP READOUT</span><small>one control step \(t\)</small></div>
         <div class="schema-flow">
           <section class="schema-inputs">
             <p class="schema-label">01 · synchronized input</p>
@@ -342,7 +402,8 @@
             <div class="probability-stack" aria-hidden="true">
               <span style="--w:73%;--d:0"></span><span style="--w:46%;--d:1"></span><span style="--w:61%;--d:2"></span><span style="--w:35%;--d:3"></span><span style="--w:82%;--d:4"></span><span style="--w:54%;--d:5"></span><span style="--w:91%;--d:6"></span>
             </div>
-            <code>\(p(b_k\mid S_t,q_j)\)</code>
+            <div class="formula">\[p_\theta(b_k \mid s_{t-1:t},\, q,\, j)\]</div>
+            <div class="formula">\[\hat a_{t,j}=\sum_{k=1}^{25} p_\theta(b_k \mid s_{t-1:t},\, q,\, j)\, b_k\]</div>
           </section>
 
           <div class="schema-arrow" aria-hidden="true"><i></i><b>→</b></div>
@@ -350,16 +411,17 @@
           <section class="schema-output">
             <p class="schema-label">05 · execute</p>
             <div class="output-orbit" aria-hidden="true"><i></i><span>Σ</span></div>
-            <code>[dx, dy, dz,<br>dα, dβ, dγ, g]</code>
+            <div class="formula">\[\hat a_t=(\hat a_{t,1},\dots,\hat a_{t,6},\,\hat g_t)\]</div>
+            <div class="formula">\[\hat g_t=\operatorname*{arg\,max}_{g\in\{-1,+1\}} p_\theta(g \mid s_{t-1:t},\, q)\]</div>
             <strong>7D ACTION</strong>
           </section>
         </div>
-        <div class="schema-legend"><span><i class="current-dot"></i>current experiment: external stream</span><span><i class="proposed-dot"></i>proposed extension: wrist stream</span><span>BIN25 expected-value readout · binary gripper argmax</span></div>
+        <div class="schema-legend"><span><i class="current-dot"></i>external camera, temporal (t-1 → t)</span><span><i class="proposed-dot"></i>wrist camera, temporal (t-1 → t)</span><span>BIN25 expected-value readout · four steps ahead · dev result pending</span></div>
       </div>
 
       <div class="policy-math reveal">
-        <article><p class="eyebrow">Six motion axes</p><div class="equation">\[\hat a_{t,j}=\sum_{k=1}^{25}p_\theta\!\left(b_k\mid s_{t-1:t},q,j\right)b_k\]</div><p>For each continuous axis \(j\), the policy returns a distribution over 25 fixed levels. We execute its probability-weighted mean, not merely the most likely bin.</p></article>
-        <article><p class="eyebrow">Binary gripper</p><div class="equation">\[\hat g_t=\operatorname*{arg\,max}_{g\in\{-1,+1\}}p_\theta\!\left(g\mid s_{t-1:t},q\right)\]</div><p>The gripper remains discrete. All seven questions share the same visual state and are evaluated in one batched forward pass.</p></article>
+        <article><p class="eyebrow">Six motion axes</p><div class="axis-viz" aria-hidden="true"><div class="axis-row"><b>dx</b><div class="axis-bars"><i style="--h:6%;--d:0.27s"></i><i style="--h:6%;--d:0.24s"></i><i style="--h:6%;--d:0.21s"></i><i style="--h:7%;--d:0.18s"></i><i style="--h:16%;--d:0.15s"></i><i style="--h:31%;--d:0.12s"></i><i style="--h:51%;--d:0.09s"></i><i style="--h:74%;--d:0.06s"></i><i style="--h:93%;--d:0.03s"></i><i style="--h:100%;--d:0.00s" class="peak"></i><i style="--h:93%;--d:0.03s"></i><i style="--h:74%;--d:0.06s"></i><i style="--h:51%;--d:0.09s"></i><i style="--h:31%;--d:0.12s"></i><i style="--h:16%;--d:0.15s"></i><i style="--h:7%;--d:0.18s"></i><i style="--h:6%;--d:0.21s"></i><i style="--h:6%;--d:0.24s"></i><i style="--h:6%;--d:0.27s"></i><i style="--h:6%;--d:0.30s"></i><i style="--h:6%;--d:0.33s"></i><i style="--h:6%;--d:0.36s"></i><i style="--h:6%;--d:0.39s"></i><i style="--h:6%;--d:0.42s"></i><i style="--h:6%;--d:0.45s"></i></div></div><div class="axis-row"><b>dy</b><div class="axis-bars"><i style="--h:6%;--d:0.54s"></i><i style="--h:6%;--d:0.51s"></i><i style="--h:6%;--d:0.48s"></i><i style="--h:6%;--d:0.45s"></i><i style="--h:6%;--d:0.42s"></i><i style="--h:6%;--d:0.39s"></i><i style="--h:6%;--d:0.36s"></i><i style="--h:6%;--d:0.33s"></i><i style="--h:7%;--d:0.30s"></i><i style="--h:16%;--d:0.27s"></i><i style="--h:31%;--d:0.24s"></i><i style="--h:51%;--d:0.21s"></i><i style="--h:74%;--d:0.18s"></i><i style="--h:93%;--d:0.15s"></i><i style="--h:100%;--d:0.12s" class="peak"></i><i style="--h:93%;--d:0.15s"></i><i style="--h:74%;--d:0.18s"></i><i style="--h:51%;--d:0.21s"></i><i style="--h:31%;--d:0.24s"></i><i style="--h:16%;--d:0.27s"></i><i style="--h:7%;--d:0.30s"></i><i style="--h:6%;--d:0.33s"></i><i style="--h:6%;--d:0.36s"></i><i style="--h:6%;--d:0.39s"></i><i style="--h:6%;--d:0.42s"></i></div></div><div class="axis-row"><b>dz</b><div class="axis-bars"><i style="--h:6%;--d:0.57s"></i><i style="--h:6%;--d:0.54s"></i><i style="--h:6%;--d:0.51s"></i><i style="--h:6%;--d:0.48s"></i><i style="--h:6%;--d:0.45s"></i><i style="--h:7%;--d:0.42s"></i><i style="--h:16%;--d:0.39s"></i><i style="--h:31%;--d:0.36s"></i><i style="--h:51%;--d:0.33s"></i><i style="--h:74%;--d:0.30s"></i><i style="--h:93%;--d:0.27s"></i><i style="--h:100%;--d:0.24s" class="peak"></i><i style="--h:93%;--d:0.27s"></i><i style="--h:74%;--d:0.30s"></i><i style="--h:51%;--d:0.33s"></i><i style="--h:31%;--d:0.36s"></i><i style="--h:16%;--d:0.39s"></i><i style="--h:7%;--d:0.42s"></i><i style="--h:6%;--d:0.45s"></i><i style="--h:6%;--d:0.48s"></i><i style="--h:6%;--d:0.51s"></i><i style="--h:6%;--d:0.54s"></i><i style="--h:6%;--d:0.57s"></i><i style="--h:6%;--d:0.60s"></i><i style="--h:6%;--d:0.63s"></i></div></div><div class="axis-row"><b>dα</b><div class="axis-bars"><i style="--h:6%;--d:0.84s"></i><i style="--h:6%;--d:0.81s"></i><i style="--h:6%;--d:0.78s"></i><i style="--h:6%;--d:0.75s"></i><i style="--h:6%;--d:0.72s"></i><i style="--h:6%;--d:0.69s"></i><i style="--h:6%;--d:0.66s"></i><i style="--h:6%;--d:0.63s"></i><i style="--h:6%;--d:0.60s"></i><i style="--h:6%;--d:0.57s"></i><i style="--h:7%;--d:0.54s"></i><i style="--h:16%;--d:0.51s"></i><i style="--h:31%;--d:0.48s"></i><i style="--h:51%;--d:0.45s"></i><i style="--h:74%;--d:0.42s"></i><i style="--h:93%;--d:0.39s"></i><i style="--h:100%;--d:0.36s" class="peak"></i><i style="--h:93%;--d:0.39s"></i><i style="--h:74%;--d:0.42s"></i><i style="--h:51%;--d:0.45s"></i><i style="--h:31%;--d:0.48s"></i><i style="--h:16%;--d:0.51s"></i><i style="--h:7%;--d:0.54s"></i><i style="--h:6%;--d:0.57s"></i><i style="--h:6%;--d:0.60s"></i></div></div><div class="axis-row"><b>dβ</b><div class="axis-bars"><i style="--h:6%;--d:0.72s"></i><i style="--h:6%;--d:0.69s"></i><i style="--h:7%;--d:0.66s"></i><i style="--h:16%;--d:0.63s"></i><i style="--h:31%;--d:0.60s"></i><i style="--h:51%;--d:0.57s"></i><i style="--h:74%;--d:0.54s"></i><i style="--h:93%;--d:0.51s"></i><i style="--h:100%;--d:0.48s" class="peak"></i><i style="--h:93%;--d:0.51s"></i><i style="--h:74%;--d:0.54s"></i><i style="--h:51%;--d:0.57s"></i><i style="--h:31%;--d:0.60s"></i><i style="--h:16%;--d:0.63s"></i><i style="--h:7%;--d:0.66s"></i><i style="--h:6%;--d:0.69s"></i><i style="--h:6%;--d:0.72s"></i><i style="--h:6%;--d:0.75s"></i><i style="--h:6%;--d:0.78s"></i><i style="--h:6%;--d:0.81s"></i><i style="--h:6%;--d:0.84s"></i><i style="--h:6%;--d:0.87s"></i><i style="--h:6%;--d:0.90s"></i><i style="--h:6%;--d:0.93s"></i><i style="--h:6%;--d:0.96s"></i></div></div><div class="axis-row"><b>dγ</b><div class="axis-bars"><i style="--h:6%;--d:0.99s"></i><i style="--h:6%;--d:0.96s"></i><i style="--h:6%;--d:0.93s"></i><i style="--h:6%;--d:0.90s"></i><i style="--h:6%;--d:0.87s"></i><i style="--h:6%;--d:0.84s"></i><i style="--h:6%;--d:0.81s"></i><i style="--h:7%;--d:0.78s"></i><i style="--h:16%;--d:0.75s"></i><i style="--h:31%;--d:0.72s"></i><i style="--h:51%;--d:0.69s"></i><i style="--h:74%;--d:0.66s"></i><i style="--h:93%;--d:0.63s"></i><i style="--h:100%;--d:0.60s" class="peak"></i><i style="--h:93%;--d:0.63s"></i><i style="--h:74%;--d:0.66s"></i><i style="--h:51%;--d:0.69s"></i><i style="--h:31%;--d:0.72s"></i><i style="--h:16%;--d:0.75s"></i><i style="--h:7%;--d:0.78s"></i><i style="--h:6%;--d:0.81s"></i><i style="--h:6%;--d:0.84s"></i><i style="--h:6%;--d:0.87s"></i><i style="--h:6%;--d:0.90s"></i><i style="--h:6%;--d:0.93s"></i></div></div></div><div class="equation">\[\hat a_{t,j}=\sum_{k=1}^{25}p_\theta\!\left(b_k\mid s_{t-1:t},q,j\right)b_k\]</div><p>For each continuous axis \(j\), the policy returns a distribution over 25 fixed levels. We execute its probability-weighted mean, not merely the most likely bin.</p></article>
+        <article><p class="eyebrow">Binary gripper</p><div class="grip-viz" aria-hidden="true"><svg viewBox="0 0 120 80" class="grip-svg"><rect x="8" y="34" width="104" height="10" rx="3" class="grip-base"/><rect class="jaw jaw-l" x="22" y="10" width="12" height="34" rx="3"/><rect class="jaw jaw-r" x="86" y="10" width="12" height="34" rx="3"/></svg><div class="grip-state"><span class="st-open">open · −1</span><span class="st-closed">closed · +1</span></div></div><div class="equation">\[\hat g_t=\operatorname*{arg\,max}_{g\in\{-1,+1\}}p_\theta\!\left(g\mid s_{t-1:t},q\right)\]</div><p>The gripper remains discrete. All seven questions share the same visual state and are evaluated in one batched forward pass.</p></article>
       </div>
 
       <div class="scheme-lab reveal">
@@ -402,6 +464,27 @@
       </div>
     </section>
 
+    <section class="chapter results" id="results">
+      <div class="section-heading reveal">
+        <p class="eyebrow">The result</p>
+        <h2>Forty dev episodes.<br>Two changes, same protocol.</h2>
+      </div>
+      <div class="reveal">
+        <p>Each policy drives the robot from the same initial states on the same forty held-out LIBERO-Spatial episodes, with a 220-step limit. The replay of the same actions by the expert, which is the ceiling, reaches 39 of 40.</p>
+        <table class="results-table">
+          <thead><tr><th>Policy</th><th>Successes</th><th>Rate</th><th>95% interval</th><th>vs one-step, paired</th></tr></thead>
+          <tbody>
+            <tr><td>One step, external camera, previous frame (reference)</td><td>28 / 40</td><td>70.0%</td><td>55–82%</td><td>—</td></tr>
+            <tr><td>Four steps ahead, external camera</td><td><b>35 / 40</b></td><td><b>87.5%</b></td><td>74–95%</td><td>+10 / −3</td></tr>
+            <tr><td>One step, wrist + external camera</td><td><b>35 / 40</b></td><td><b>87.5%</b></td><td>74–95%</td><td>+10 / −3</td></tr>
+            <tr><td>Four steps ahead, wrist + external camera</td><td><b>35 / 40</b></td><td><b>87.5%</b></td><td>74–95%</td><td>+9 / −2</td></tr>
+          </tbody>
+        </table>
+        <p>All three changes reach the same 35 of 40. The four-step and wrist policies solve the same episodes, except for four each that the other misses. Combining both does not add a further gain: the combined policy exchanges four episodes with four-step-only and four with wrist-only, net zero against either -- on this dev set the two changes look redundant, not additive. The reference was rerun with the current code and reproduces its 28 successes episode by episode.</p>
+        <p class="limit"><em>Limit: one training seed per policy and forty episodes. The gains are consistent, but not yet significant at the 5% level. A second seed and the locked split (48 episodes, used once) come next.</em></p>
+      </div>
+    </section>
+
     <section class="chapter" id="horizon">
       <div class="section-heading reveal">
         <p class="eyebrow">05b · Horizon </p>
@@ -411,6 +494,7 @@
         <p>The same bin25 policy can also be asked about the next actions of each state. Training then covers four steps ahead, while the closed loop still executes only the current action: the horizon changes what the model learns, not what an inference step costs.</p>
         <p>Same data, same optimizer steps, same forty dev episodes as the one-step policy.</p>
         <p>Result on the same forty dev episodes: <b>35 of 40</b> (87.5%, 95% interval 74–95%), against 28 of 40 for the one-step policy. Against it, the four-step policy gains ten episodes and loses three; the replay ceiling is 39. This comes from one training seed, and the paired difference is not yet significant at the 5% level (McNemar, p ≈ 0.09).</p>
+        <p>The wrist camera reaches the same 35/40 on its own. Adding it to the four-step policy does not push the result further: still 35/40, with four episodes swapped either way against each single-change policy. The two changes do not stack on this dev set.</p>
       </div>
     </section>
 
