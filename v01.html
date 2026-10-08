@@ -88,9 +88,6 @@
     @media (prefers-reduced-motion: reduce) { .train-icon, .train-dot { animation: none; } }
     .training-proc { grid-column: 1 / -1; max-width: 1000px; margin: 8px auto 0; grid-template-columns: 52px minmax(0, 1fr); }
     .train-icon { width: 52px; height: 52px; }
-    /* vertical snap between sections: every section snaps to its top edge */
-    html { scroll-snap-type: y mandatory; }
-    .hero, .chapter, .closing, .references { scroll-snap-align: start; }
     .hero, .chapter, .closing, .references { scroll-margin-top: 70px; }
     @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
     /* hero spacing: even rhythm between title, animations and subtitle */
