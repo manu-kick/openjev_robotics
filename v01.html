@@ -168,7 +168,6 @@
     #policy .schema-readout .formula, #policy .schema-output .formula { margin: 14px 0; line-height: 1.8; }
     #policy .schema-readout .formula { font-size: .9rem; }
     #policy .schema-output .formula { font-size: .82rem; }
-    #policy .probability-stack { gap: 8px; }
     /* camera inputs: previous and current frame side by side, no overlap */
     #policy .camera-stream { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 16px; align-items: center; }
     #policy .camera-frames { position: static; height: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: center; }
@@ -203,6 +202,22 @@
     @keyframes grip-label-open { 0%,40% { color: var(--yellow); } 60%,100% { color: var(--muted); } }
     @keyframes grip-label-closed { 0%,40% { color: var(--muted); } 60%,100% { color: var(--yellow); } }
     @media (prefers-reduced-motion: reduce) { .axis-bars i, .jaw, .st-open, .st-closed { animation: none; } }
+    /* schema 04/05: per-axis rows shared by the distribution histograms and the collapsed values */
+    .axis-readout, .axis-readout-row, .mini-bars, .mini-track { min-width: 0; }
+    .axis-readout { display: grid; gap: 5px; margin: 4px 0 2px; }
+    .axis-readout-row { display: grid; grid-template-columns: 20px 1fr; gap: 8px; align-items: center; }
+    .axis-readout-row b { font: 400 .68rem var(--mono); color: var(--muted); }
+    .axis-readout-row .mini-bars { display: grid; grid-template-columns: repeat(19, 1fr); align-items: end; gap: 1px; height: 24px; }
+    .axis-readout-row .mini-bars i { display: block; height: var(--h); background: rgba(65,152,255,.4); transform-origin: bottom; animation: bin-breathe 2.8s ease-in-out var(--d) infinite; }
+    .axis-readout-row .mini-bars i.peak { background: var(--yellow); }
+    .axis-readout-row.grip .mini-grip { display: flex; align-items: center; gap: 8px; height: 24px; font: 400 .62rem var(--mono); color: var(--muted); }
+    .axis-readout-row.grip .mini-grip i { width: 8px; height: 8px; border-radius: 50%; background: var(--yellow); animation: grip-label-closed 4s steps(1) infinite reverse; }
+    .mini-track { position: relative; height: 24px; display: flex; align-items: center; }
+    .mini-track::before { content: ""; position: absolute; left: 0; right: 0; height: 1px; background: var(--line); }
+    .mini-track i { position: absolute; left: var(--x); width: 9px; height: 9px; margin-left: -4.5px; border-radius: 50%; background: var(--yellow); box-shadow: 0 0 8px rgba(244,203,61,.6); }
+    .mini-track.binary i { background: var(--blue); box-shadow: 0 0 8px rgba(65,152,255,.6); }
+    @media (prefers-reduced-motion: reduce) { .axis-readout-row .mini-bars i, .axis-readout-row.grip .mini-grip i { animation: none; } }
+
   </style>
 </head>
 <body>
@@ -396,20 +411,32 @@
 
           <section class="schema-readout">
             <p class="schema-label">04 · distributions</p>
-            <div class="probability-stack" aria-hidden="true">
-              <span style="--w:73%;--d:0"></span><span style="--w:46%;--d:1"></span><span style="--w:61%;--d:2"></span><span style="--w:35%;--d:3"></span><span style="--w:82%;--d:4"></span><span style="--w:54%;--d:5"></span><span style="--w:91%;--d:6"></span>
+            <div class="axis-readout" aria-hidden="true">
+            <div class="axis-readout-row"><b>dx</b><div class="mini-bars"><i style="--h:6%;--d:0.3s"></i><i style="--h:6%;--d:0.27s"></i><i style="--h:6%;--d:0.24s"></i><i style="--h:6%;--d:0.21s"></i><i style="--h:6%;--d:0.18s"></i><i style="--h:6%;--d:0.15s"></i><i style="--h:6%;--d:0.12s"></i><i style="--h:11%;--d:0.09s"></i><i style="--h:35%;--d:0.06s"></i><i style="--h:74%;--d:0.03s"></i><i style="--h:99%;--d:0.0s" class="peak"></i><i style="--h:86%;--d:0.03s"></i><i style="--h:48%;--d:0.06s"></i><i style="--h:17%;--d:0.09s"></i><i style="--h:6%;--d:0.12s"></i><i style="--h:6%;--d:0.15s"></i><i style="--h:6%;--d:0.18s"></i><i style="--h:6%;--d:0.21s"></i><i style="--h:6%;--d:0.24s"></i></div></div>
+            <div class="axis-readout-row"><b>dy</b><div class="mini-bars"><i style="--h:6%;--d:0.27s"></i><i style="--h:6%;--d:0.24s"></i><i style="--h:6%;--d:0.21s"></i><i style="--h:6%;--d:0.18s"></i><i style="--h:6%;--d:0.15s"></i><i style="--h:6%;--d:0.12s"></i><i style="--h:21%;--d:0.09s"></i><i style="--h:55%;--d:0.06s"></i><i style="--h:91%;--d:0.03s"></i><i style="--h:97%;--d:0.0s" class="peak"></i><i style="--h:66%;--d:0.03s"></i><i style="--h:29%;--d:0.06s"></i><i style="--h:8%;--d:0.09s"></i><i style="--h:6%;--d:0.12s"></i><i style="--h:6%;--d:0.15s"></i><i style="--h:6%;--d:0.18s"></i><i style="--h:6%;--d:0.21s"></i><i style="--h:6%;--d:0.24s"></i><i style="--h:6%;--d:0.27s"></i></div></div>
+            <div class="axis-readout-row"><b>dz</b><div class="mini-bars"><i style="--h:6%;--d:0.27s"></i><i style="--h:6%;--d:0.24s"></i><i style="--h:6%;--d:0.21s"></i><i style="--h:6%;--d:0.18s"></i><i style="--h:6%;--d:0.15s"></i><i style="--h:6%;--d:0.12s"></i><i style="--h:14%;--d:0.09s"></i><i style="--h:41%;--d:0.06s"></i><i style="--h:80%;--d:0.03s"></i><i style="--h:100%;--d:0.0s" class="peak"></i><i style="--h:80%;--d:0.03s"></i><i style="--h:41%;--d:0.06s"></i><i style="--h:14%;--d:0.09s"></i><i style="--h:6%;--d:0.12s"></i><i style="--h:6%;--d:0.15s"></i><i style="--h:6%;--d:0.18s"></i><i style="--h:6%;--d:0.21s"></i><i style="--h:6%;--d:0.24s"></i><i style="--h:6%;--d:0.27s"></i></div></div>
+            <div class="axis-readout-row"><b>dα</b><div class="mini-bars"><i style="--h:6%;--d:0.27s"></i><i style="--h:6%;--d:0.24s"></i><i style="--h:6%;--d:0.21s"></i><i style="--h:6%;--d:0.18s"></i><i style="--h:6%;--d:0.15s"></i><i style="--h:6%;--d:0.12s"></i><i style="--h:14%;--d:0.09s"></i><i style="--h:41%;--d:0.06s"></i><i style="--h:80%;--d:0.03s"></i><i style="--h:100%;--d:0.0s" class="peak"></i><i style="--h:80%;--d:0.03s"></i><i style="--h:41%;--d:0.06s"></i><i style="--h:14%;--d:0.09s"></i><i style="--h:6%;--d:0.12s"></i><i style="--h:6%;--d:0.15s"></i><i style="--h:6%;--d:0.18s"></i><i style="--h:6%;--d:0.21s"></i><i style="--h:6%;--d:0.24s"></i><i style="--h:6%;--d:0.27s"></i></div></div>
+            <div class="axis-readout-row"><b>dβ</b><div class="mini-bars"><i style="--h:6%;--d:0.27s"></i><i style="--h:6%;--d:0.24s"></i><i style="--h:6%;--d:0.21s"></i><i style="--h:6%;--d:0.18s"></i><i style="--h:6%;--d:0.15s"></i><i style="--h:6%;--d:0.12s"></i><i style="--h:24%;--d:0.09s"></i><i style="--h:59%;--d:0.06s"></i><i style="--h:93%;--d:0.03s"></i><i style="--h:96%;--d:0.0s" class="peak"></i><i style="--h:63%;--d:0.03s"></i><i style="--h:26%;--d:0.06s"></i><i style="--h:7%;--d:0.09s"></i><i style="--h:6%;--d:0.12s"></i><i style="--h:6%;--d:0.15s"></i><i style="--h:6%;--d:0.18s"></i><i style="--h:6%;--d:0.21s"></i><i style="--h:6%;--d:0.24s"></i><i style="--h:6%;--d:0.27s"></i></div></div>
+            <div class="axis-readout-row"><b>dγ</b><div class="mini-bars"><i style="--h:6%;--d:0.27s"></i><i style="--h:6%;--d:0.24s"></i><i style="--h:6%;--d:0.21s"></i><i style="--h:6%;--d:0.18s"></i><i style="--h:6%;--d:0.15s"></i><i style="--h:6%;--d:0.12s"></i><i style="--h:14%;--d:0.09s"></i><i style="--h:41%;--d:0.06s"></i><i style="--h:80%;--d:0.03s"></i><i style="--h:100%;--d:0.0s" class="peak"></i><i style="--h:80%;--d:0.03s"></i><i style="--h:41%;--d:0.06s"></i><i style="--h:14%;--d:0.09s"></i><i style="--h:6%;--d:0.12s"></i><i style="--h:6%;--d:0.15s"></i><i style="--h:6%;--d:0.18s"></i><i style="--h:6%;--d:0.21s"></i><i style="--h:6%;--d:0.24s"></i><i style="--h:6%;--d:0.27s"></i></div></div>
+            <div class="axis-readout-row grip"><b>g</b><div class="mini-grip"><i></i><span>open</span><span>closed</span></div></div>
             </div>
             <div class="formula">\[p_\theta(b_k \mid s_{t-1:t},\, q,\, j)\]</div>
-            <div class="formula">\[\hat a_{t,j}=\sum_{k=1}^{25} p_\theta(b_k \mid s_{t-1:t},\, q,\, j)\, b_k\]</div>
           </section>
 
           <div class="schema-arrow" aria-hidden="true"><i></i><b>→</b></div>
 
           <section class="schema-output">
             <p class="schema-label">05 · execute</p>
-            <div class="output-orbit" aria-hidden="true"><i></i><span>Σ</span></div>
+            <div class="axis-readout exec" aria-hidden="true">
+            <div class="axis-readout-row"><b>dx</b><div class="mini-track"><i style="--x:56.5%"></i></div></div>
+            <div class="axis-readout-row"><b>dy</b><div class="mini-track"><i style="--x:48.0%"></i></div></div>
+            <div class="axis-readout-row"><b>dz</b><div class="mini-track"><i style="--x:50.0%"></i></div></div>
+            <div class="axis-readout-row"><b>dα</b><div class="mini-track"><i style="--x:50.0%"></i></div></div>
+            <div class="axis-readout-row"><b>dβ</b><div class="mini-track"><i style="--x:47.5%"></i></div></div>
+            <div class="axis-readout-row"><b>dγ</b><div class="mini-track"><i style="--x:50.0%"></i></div></div>
+            <div class="axis-readout-row grip"><b>g</b><div class="mini-track binary"><i style="--x:0%"></i></div></div>
+            </div>
             <div class="formula">\[\hat a_t=(\hat a_{t,1},\dots,\hat a_{t,6},\,\hat g_t)\]</div>
-            <div class="formula">\[\hat g_t=\operatorname*{arg\,max}_{g\in\{-1,+1\}} p_\theta(g \mid s_{t-1:t},\, q)\]</div>
             <strong>7D ACTION</strong>
           </section>
         </div>
