@@ -482,21 +482,27 @@
     <section class="chapter results" id="results">
       <div class="section-heading reveal">
         <p class="eyebrow">The result</p>
-        <h2>Forty dev episodes.<br>Two changes, same protocol.</h2>
+        <h2>Five hundred episodes.<br>The same test as the public baselines.</h2>
       </div>
       <div class="reveal">
-        <p>Each policy drives the robot from the same initial states on the same forty held-out LIBERO-Spatial episodes, with a 220-step limit. The replay of the same actions by the expert, which is the ceiling, reaches 39 of 40.</p>
+        <p>The numbers below are not the forty-episode dev set used earlier in this post. They are the official LIBERO-Spatial protocol: fifty fixed initial states per task, ten tasks, five hundred episodes, every one of the 432 demonstrations used as training data with nothing held out — the same protocol OpenVLA and OpenVLA-OFT are evaluated on, so the comparison is direct.</p>
         <table class="results-table">
-          <thead><tr><th>Policy</th><th>Successes</th><th>Rate</th><th>95% interval</th><th>vs one-step, paired</th></tr></thead>
+          <thead><tr><th>Policy</th><th>Successes</th><th>Rate</th><th>95% interval</th></tr></thead>
           <tbody>
-            <tr><td>One step, external camera, previous frame (reference)</td><td>28 / 40</td><td>70.0%</td><td>55–82%</td><td>—</td></tr>
-            <tr><td>Four steps ahead, external camera</td><td><b>35 / 40</b></td><td><b>87.5%</b></td><td>74–95%</td><td>+10 / −3</td></tr>
-            <tr><td>One step, wrist + external camera</td><td><b>35 / 40</b></td><td><b>87.5%</b></td><td>74–95%</td><td>+10 / −3</td></tr>
-            <tr><td>Four steps ahead, wrist + external camera</td><td><b>35 / 40</b></td><td><b>87.5%</b></td><td>74–95%</td><td>+9 / −2</td></tr>
+            <tr><td>External camera (reference)</td><td>417 / 500</td><td>83.4%</td><td>79.9–86.4%</td></tr>
+            <tr><td>+ wrist camera</td><td>408 / 500</td><td>81.6%</td><td>78.0–84.8%</td></tr>
+            <tr><td>4 steps ahead</td><td>442 / 500</td><td>88.4%</td><td>85.3–90.9%</td></tr>
+            <tr><td>8 steps ahead</td><td><b>454 / 500</b></td><td><b>90.8%</b></td><td>87.9–93.0%</td></tr>
+            <tr><td>4 steps ahead + wrist</td><td>419 / 500</td><td>83.8%</td><td>80.3–86.8%</td></tr>
+            <tr><td>+ proprioception (text sentence)</td><td>212 / 500</td><td>42.4%</td><td>38.1–46.8%</td></tr>
+            <tr><td><em>OpenVLA, published</em></td><td><em>442 / 500</em></td><td><em>88.4%</em></td><td><em>85.6–91.0%</em></td></tr>
+            <tr><td><em>OpenVLA-OFT, published</em></td><td><em>488 / 500</em></td><td><em>97.6%</em></td><td><em>96.2–98.8%</em></td></tr>
           </tbody>
         </table>
-        <p>All three changes reach the same 35 of 40. The four-step and wrist policies solve the same episodes, except for four each that the other misses. Combining both does not add a further gain: the combined policy exchanges four episodes with four-step-only and four with wrist-only, net zero against either -- on this dev set the two changes look redundant, not additive. The reference was rerun with the current code and reproduces its 28 successes episode by episode.</p>
-        <p class="limit"><em>Limit: one training seed per policy and forty episodes. The gains are consistent, but not yet significant at the 5% level. A second seed and the locked split (48 episodes, used once) come next.</em></p>
+        <p>Asking the policy about the next eight actions instead of one — training only, the closed loop still executes a single action per model query — is the strongest change on its own: 90.8%, matching OpenVLA's exact success count (442/500) at four steps ahead and beating it outright at eight. A 0.8B model answering multiple-choice questions reaches a public 7B vision-language-action system. It does not reach OpenVLA-OFT, which adds a continuous action head, eight-action open-loop chunking and real proprioception — three changes at once, not one.</p>
+        <p>The wrist camera is not a clear win either way: it loses two points at one step ahead (81.6% vs 83.4%) and is statistically indistinguishable from the baseline at four steps ahead (83.8% vs 83.4%). Across both horizons, adding a second camera neither reliably helps nor reliably hurts on this task family — a different result from the forty-episode dev set shown earlier, where wrist and four-step-ahead looked like separate, redundant routes to the same gain. At five hundred episodes, only the horizon change holds up.</p>
+        <p>Proprioception is the one change that clearly makes things worse. A text sentence — the robot's own end-effector position, orientation and gripper reading, rebuilt live from the simulator at every step, same format in training and in evaluation — drops the policy to 42.4%, the weakest result by a wide margin. The failure is not spread evenly: six of the ten tasks fall below 20/50, two of them to 6/50 and 3/50, while the untouched baseline never drops below 24/50 on any task. Four explanations are plausible and not yet told apart: writing numbers as text loses the metric structure a dedicated continuous encoder preserves (two close values can tokenize into very different sequences); the model gets the same training budget as every other arm, but an added parsing task; the extra tokens compete with the image for a small model's attention; or this task simply does not need proprioception; the camera already carries what matters. OpenVLA-OFT also uses proprioception, through a learned projector rather than text, and its own numbers do not separate that choice from its other two changes either.</p>
+        <p class="limit"><em>One training seed per arm. The gains and the one large loss are consistent with the per-task breakdown, but a second seed has not run yet.</em></p>
       </div>
     </section>
 
@@ -505,7 +511,7 @@
         <div class="scheme-copy">
           <p class="eyebrow">The counterintuitive experiment</p>
           <h3>More precise does not mean easier to learn.</h3>
-          <p>Choose a scheme. The second reconstructs every demonstration perfectly, yet it asks almost twice as many questions and produces a worse policy.</p>
+          <p>A separate question from the one above: not which input to add, but how coarse the letter alphabet itself can be. This comparison predates the five-hundred-episode protocol and still uses the forty-episode dev set, kept here because the two schemes were never retrained on the full protocol. Choose a scheme. The second reconstructs every demonstration perfectly, yet it asks almost twice as many questions and produces a worse policy.</p>
           <div class="scheme-switch" role="group" aria-label="Compare quantization schemes">
             <button type="button" class="active" data-scheme="a">A · 25 levels</button>
             <button type="button" data-scheme="b">B · 16 × 16</button>
@@ -547,10 +553,9 @@
         <h2>How far ahead should it plan?</h2>
       </div>
       <div class="reveal">
-        <p>The same bin25 policy can also be asked about the next actions of each state. Training then covers four steps ahead, while the closed loop still executes only the current action: the horizon changes what the model learns, not what an inference step costs.</p>
-        <p>Same data, same optimizer steps, same forty dev episodes as the one-step policy.</p>
-        <p>Result on the same forty dev episodes: <b>35 of 40</b> (87.5%, 95% interval 74–95%), against 28 of 40 for the one-step policy. Against it, the four-step policy gains ten episodes and loses three; the replay ceiling is 39. This comes from one training seed, and the paired difference is not yet significant at the 5% level (McNemar, p ≈ 0.09).</p>
-        <p>The wrist camera reaches the same 35/40 on its own. Adding it to the four-step policy does not push the result further: still 35/40, with four episodes swapped either way against each single-change policy. The two changes do not stack on this dev set.</p>
+        <p>The same bin25 policy can also be asked about the next actions of each state, not just the current one: train it to answer about four or eight steps ahead instead of one, while the closed loop still executes only the current action every time it queries the model. The horizon changes what the policy learns from the same demonstrations; it does not, on its own, change what one inference step costs.</p>
+        <p>On the official five-hundred-episode protocol (§ above), asking about four steps ahead moves success from 83.4% to 88.4%; asking about eight moves it further, to 90.8% — PlayJev's strongest result. The gain is not free forever: going from one to four steps ahead adds 5 points, from four to eight adds another 2.4, a shrinking return for a more demanding training target.</p>
+        <p>What this result does not yet show: PlayJev still queries the model and executes one action at every control step, the same as the one-step policy. OpenVLA-OFT's eight-action chunking queries once and executes eight actions open loop — a real latency and query-count advantage this comparison does not test. Reading the eight-steps-ahead answers once and acting on all eight before asking again is the natural next experiment, and would need a different closed-loop evaluator, not a different model.</p>
       </div>
     </section>
 
