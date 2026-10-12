@@ -363,6 +363,7 @@ input[type="range"]::-webkit-slider-thumb { appearance: none; width: 15px; heigh
 .examples-tabs button span { font: 700 1.3rem var(--mono); letter-spacing: .04em; color: inherit; }
 .examples-tabs button small { font: .68rem var(--mono); color: inherit; opacity: .75; }
 .examples-tabs button:hover { transform: translateY(-2px); }
+.examples-help { text-align: center; color: var(--muted); font: .72rem var(--mono); margin: 0 0 24px; }
 .examples-tabs button[data-examples="success"][aria-selected="true"] { border-color: var(--green); color: var(--green); background: rgba(114,216,160,.08); }
 .examples-tabs button[data-examples="failure"][aria-selected="true"] { border-color: var(--red); color: var(--red); background: rgba(255,107,95,.08); }
 .examples-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
