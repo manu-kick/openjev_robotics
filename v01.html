@@ -396,17 +396,17 @@
     <section class="chapter policy" id="policy">
       <div class="section-heading reveal policy-intro">
         <div class="policy-intro-title"><p class="eyebrow">05 · The policy</p><h2>Seven questions.<br>One movement.</h2></div>
-        <div class="policy-intro-text"><p>The multiview policy preserves the temporal agent-view used in our experiments and adds a synchronized temporal wrist-view. PlayJev encodes both streams once, answers seven axis-specific Choice questions in parallel, and reconstructs one continuous robot action.</p></div>
+        <div class="policy-intro-text"><p>The best-performing policy reads both cameras at the same instant, neither one a time pair: external and wrist, both at step t. PlayJev encodes both streams once, answers seven axis-specific Choice questions in parallel, and reconstructs one continuous robot action.</p></div>
       </div>
 
-      <div class="model-schema reveal" role="img" aria-label="Animated architecture diagram of the multiview PlayJev robot policy, from a temporal external camera and a single-instant wrist camera to a seven-dimensional action">
-        <div class="schema-topbar"><span>MULTIVIEW POLICY · EIGHT-STEP READOUT</span><small>one control step \(t\)</small></div>
+      <div class="model-schema reveal" role="img" aria-label="Animated architecture diagram of the best PlayJev robot policy, external and wrist cameras at the same instant, to a seven-dimensional action">
+        <div class="schema-topbar"><span>BEST RESULT · 98.2% · EIGHT-STEP READOUT</span><small>one control step \(t\)</small></div>
         <div class="schema-flow">
           <section class="schema-inputs">
             <p class="schema-label">01 · synchronized input</p>
             <div class="camera-stream agent-stream">
-              <div class="camera-frames"><img src="assets/model-agent.jpg" alt=""><img src="assets/model-agent.jpg" alt=""></div>
-              <div><strong>external camera</strong><small>\(t-1 \rightarrow t\)</small></div>
+              <div class="camera-frames single"><img src="assets/model-agent.jpg" alt=""></div>
+              <div><strong>external camera</strong><small>same instant, \(t\)</small></div>
             </div>
             <div class="camera-stream wrist-stream">
               <div class="camera-frames single"><img src="assets/model-wrist.jpg" alt=""></div>
@@ -419,7 +419,7 @@
 
           <section class="schema-core">
             <p class="schema-label">02 · shared model</p>
-            <div class="vision-streams" aria-hidden="true"><span>agent temporal tokens</span><span>wrist temporal tokens</span></div>
+            <div class="vision-streams" aria-hidden="true"><span>external camera tokens</span><span>wrist camera tokens</span></div>
             <div class="model-core"><small>QWEN3.5 · 0.8B</small><strong>PlayJev</strong><i></i><span>shared visual-language state</span></div>
           </section>
 
@@ -470,7 +470,7 @@
             <strong>7D ACTION</strong>
           </section>
         </div>
-        <div class="schema-legend"><span><i class="current-dot"></i>external camera, temporal (t-1 → t)</span><span><i class="proposed-dot"></i>wrist camera, same instant (t only, not a time pair)</span><span>BIN25 expected-value readout · eight steps ahead · 98.2% on the official protocol</span></div>
+        <div class="schema-legend"><span><i class="current-dot"></i>external camera, same instant t (not a time pair)</span><span><i class="proposed-dot"></i>wrist camera, same instant t (not a time pair)</span><span>BIN25 expected-value readout · eight steps ahead · 98.2% on the official protocol</span></div>
       </div>
 
       <div class="policy-math reveal">
