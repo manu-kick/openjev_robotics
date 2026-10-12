@@ -80,24 +80,10 @@ function updateDrift() {
 driftSlider.addEventListener('input', updateDrift);
 updateDrift();
 
-const schemes = {
-  a: { percent: 70, success: '28 / 40', ceiling: '39 / 40', questions: '7', latency: '193 ms' },
-  b: { percent: 55, success: '22 / 40', ceiling: '40 / 40', questions: '13', latency: '320 ms' }
-};
-document.querySelectorAll('.scheme-switch button').forEach(button => button.addEventListener('click', () => {
-  document.querySelectorAll('.scheme-switch button').forEach(item => item.classList.toggle('active', item === button));
-  const data = schemes[button.dataset.scheme];
-  document.querySelector('#scheme-percent').textContent = data.percent;
-  document.querySelector('#scheme-success').textContent = data.success;
-  document.querySelector('#scheme-ceiling').textContent = data.ceiling;
-  document.querySelector('#scheme-questions').textContent = data.questions;
-  document.querySelector('#scheme-latency').textContent = data.latency;
-  document.querySelector('#scheme-donut').style.setProperty('--value', data.percent);
-}));
 
 const traces = {
-  success: { label: 'SUCCESS', count: '108 steps', image: 'assets/libero-place.jpg', color: '#72d8a0', description: 'One gripper closure, stable transport, release over the plate. Successful episodes are shorter than their demonstrations.', events: [['approach', 20], ['grasp', 39], ['lift', 55], ['place', 86], ['goal', 100]] },
-  failure: { label: 'TIMEOUT', count: '220 steps', image: 'assets/libero-grasp.jpg', color: '#ff6b5f', description: 'A missed grasp, repeated closures, and no recovery strategy. All twelve bin25 failures end in a timeout.', events: [['approach', 14], ['miss', 23], ['retry', 43], ['retry', 68], ['timeout', 100]] }
+  success: { label: 'SUCCESS', count: '108 steps', image: 'assets/libero-place.jpg', color: '#72d8a0', description: 'One gripper closure, stable transport, release over the plate. Successful episodes average 108 steps on the official protocol.', events: [['approach', 20], ['grasp', 39], ['lift', 55], ['place', 86], ['goal', 100]] },
+  failure: { label: 'TIMEOUT', count: '220 steps', image: 'assets/libero-grasp.jpg', color: '#ff6b5f', description: 'It grasps: 98% of the baseline arm’s 83 official-protocol failures close the gripper at least once. Most then reopen it before the task is done — a drop or a failed placement, not a missed grasp — and every one of them runs out the full 220-step clock rather than giving up early.', events: [['approach', 15], ['grasp', 32], ['transport', 55], ['drop', 74], ['timeout', 100]] }
 };
 function renderTrace(key) {
   const data = traces[key];

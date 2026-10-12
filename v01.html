@@ -302,7 +302,7 @@
       <div class="hero-sub reveal"><p class="dek">We study what it takes to give Jev the ability of controlling a robot, where every decision is a precise, multidimensional movement.</p>
         <div class="hero-facts" aria-label="Key results">
           <div><strong>0.8B</strong><span>parameters</span></div>
-          <div><strong>87.5%</strong><span>success · 35/40 on dev set, four-step policy</span></div>
+          <div><strong>98.2%</strong><span>success · 491/500, official LIBERO-Spatial protocol</span></div>
           <div><strong>193 ms</strong><span>per step, p50</span></div>
         </div>
       </div>
@@ -399,8 +399,8 @@
         <div class="policy-intro-text"><p>The multiview policy preserves the temporal agent-view used in our experiments and adds a synchronized temporal wrist-view. PlayJev encodes both streams once, answers seven axis-specific Choice questions in parallel, and reconstructs one continuous robot action.</p></div>
       </div>
 
-      <div class="model-schema reveal" role="img" aria-label="Animated architecture diagram of the proposed multiview PlayJev robot policy, from temporal external and wrist cameras to a seven-dimensional action">
-        <div class="schema-topbar"><span>MULTIVIEW POLICY · FOUR-STEP READOUT</span><small>one control step \(t\)</small></div>
+      <div class="model-schema reveal" role="img" aria-label="Animated architecture diagram of the multiview PlayJev robot policy, from a temporal external camera and a single-instant wrist camera to a seven-dimensional action">
+        <div class="schema-topbar"><span>MULTIVIEW POLICY · EIGHT-STEP READOUT</span><small>one control step \(t\)</small></div>
         <div class="schema-flow">
           <section class="schema-inputs">
             <p class="schema-label">01 · synchronized input</p>
@@ -409,8 +409,8 @@
               <div><strong>external camera</strong><small>\(t-1 \rightarrow t\)</small></div>
             </div>
             <div class="camera-stream wrist-stream">
-              <div class="camera-frames"><img src="assets/model-wrist.jpg" alt=""><img src="assets/model-wrist.jpg" alt=""></div>
-              <div><strong>wrist camera</strong><small>\(t-1 \rightarrow t\)</small></div>
+              <div class="camera-frames single"><img src="assets/model-wrist.jpg" alt=""></div>
+              <div><strong>wrist camera</strong><small>same instant, \(t\)</small></div>
             </div>
             <div class="task-chip"><span>LANGUAGE</span><b>“pick up the black bowl…”</b></div>
           </section>
@@ -470,7 +470,7 @@
             <strong>7D ACTION</strong>
           </section>
         </div>
-        <div class="schema-legend"><span><i class="current-dot"></i>external camera, temporal (t-1 → t)</span><span><i class="proposed-dot"></i>wrist camera, temporal (t-1 → t)</span><span>BIN25 expected-value readout · four steps ahead · dev result pending</span></div>
+        <div class="schema-legend"><span><i class="current-dot"></i>external camera, temporal (t-1 → t)</span><span><i class="proposed-dot"></i>wrist camera, same instant (t only, not a time pair)</span><span>BIN25 expected-value readout · eight steps ahead · 98.2% on the official protocol</span></div>
       </div>
 
       <div class="policy-math reveal">
@@ -485,7 +485,7 @@
         <h2>Five hundred episodes.<br>The same test as the public baselines.</h2>
       </div>
       <div class="reveal">
-        <p>The numbers below are not the forty-episode dev set used earlier in this post. They are the official LIBERO-Spatial protocol: fifty fixed initial states per task, ten tasks, five hundred episodes, every one of the 432 demonstrations used as training data with nothing held out — the same protocol OpenVLA and OpenVLA-OFT are evaluated on, so the comparison is direct.</p>
+        <p>Every number on this page is the official LIBERO-Spatial protocol: fifty fixed initial states per task, ten tasks, five hundred episodes, every one of the 432 demonstrations used as training data with nothing held out — the same protocol OpenVLA and OpenVLA-OFT are evaluated on, so the comparison is direct.</p>
         <table class="results-table">
           <thead><tr><th>Policy</th><th>Successes</th><th>Rate</th><th>95% interval</th></tr></thead>
           <tbody>
@@ -511,30 +511,9 @@
     </section>
 
     <section class="chapter policy-more">
-      <div class="scheme-lab reveal">
-        <div class="scheme-copy">
-          <p class="eyebrow">The counterintuitive experiment</p>
-          <h3>More precise does not mean easier to learn.</h3>
-          <p>A separate question from the one above: not which input to add, but how coarse the letter alphabet itself can be. This comparison predates the five-hundred-episode protocol and still uses the forty-episode dev set, kept here because the two schemes were never retrained on the full protocol. Choose a scheme. The second reconstructs every demonstration perfectly, yet it asks almost twice as many questions and produces a worse policy.</p>
-          <div class="scheme-switch" role="group" aria-label="Compare quantization schemes">
-            <button type="button" class="active" data-scheme="a">A · 25 levels</button>
-            <button type="button" data-scheme="b">B · 16 × 16</button>
-          </div>
-        </div>
-        <div class="scheme-score">
-          <div class="donut" id="scheme-donut"><span><strong id="scheme-percent">70</strong>%</span></div>
-          <div class="scheme-values">
-            <div><span>Policy success</span><strong id="scheme-success">28 / 40</strong></div>
-            <div><span>Replay ceiling</span><strong id="scheme-ceiling">39 / 40</strong></div>
-            <div><span>Questions / step</span><strong id="scheme-questions">7</strong></div>
-            <div><span>Latency p50</span><strong id="scheme-latency">193 ms</strong></div>
-          </div>
-        </div>
-      </div>
-
       <div class="failure-lab reveal">
         <div class="failure-heading">
-          <div><p class="eyebrow danger">Where it fails</p><h3>Transport is not the problem.<br>It misses the grasp — and cannot recover.</h3></div>
+          <div><p class="eyebrow danger">Where it fails</p><h3>It grasps the object.<br>Finishing the placement is the hard part.</h3></div>
           <div class="failure-toggle" role="group" aria-label="Show a successful or failed episode">
             <button class="active" data-trace="success" type="button">Success</button>
             <button data-trace="failure" type="button">Failure</button>
@@ -545,7 +524,7 @@
           <div class="trace-data">
             <div class="trace-status"><span id="trace-label">SUCCESS</span><strong id="trace-step-count">108 steps</strong></div>
             <div class="timeline" id="timeline" aria-label="Episode event timeline"></div>
-            <p id="trace-description">One gripper closure, stable transport, release over the plate. Successful episodes are shorter than their demonstrations.</p>
+            <p id="trace-description">One gripper closure, stable transport, release over the plate. Successful episodes average 108 steps on the official protocol.</p>
           </div>
         </div>
       </div>
@@ -821,7 +800,7 @@
 
   <footer>
     <div class="brand"><span class="brand-mark">PJ</span><span>PlayJev × LIBERO</span></div>
-    <p>Results on LIBERO-Spatial · frozen dev split · 40 episodes.</p>
+    <p>Results on LIBERO-Spatial · official protocol · 500 episodes.</p>
     <p>An OmniJev research project · 2026</p>
   </footer>
   <script src="app.js"></script>
