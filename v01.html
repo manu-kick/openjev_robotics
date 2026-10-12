@@ -649,7 +649,7 @@
         </div>
         <div class="horizon-text">
           <p>On the official five-hundred-episode protocol (§ above), asking about four steps ahead moves success from 83.4% to 88.4%; asking about eight moves it further, to 90.8%, and combined with the wrist camera, to 98.2% — the strongest result in this study. The gain is not free forever: on the external camera alone, going from one to four steps ahead adds 5 points, from four to eight adds another 2.4, a shrinking return for a more demanding training target. With the wrist camera the curve is not even monotonic — M=4 (91.0%) dips slightly below M=1 (91.6%) before M=8 jumps to 98.2% — a reminder that horizon and camera input interact rather than simply add.</p>
-          <p>We also closed the gap we flagged here in an earlier draft of this post: PlayJev was trained to answer about eight steps ahead but the closed loop still queried the model and executed one action at a time, the same cost as the one-step policy, so the training horizon bought accuracy but not speed. We built the open-loop version — one query, eight actions executed before asking again, the same pattern OpenVLA-OFT uses — and it costs nothing in success (90.4%, no real change from 90.8%) while cutting model queries by 87%, from about 117 per episode to about 15. The latency advantage was there; it just needed an evaluator that actually used it.</p>
+          <p>By default the closed loop queries the model and executes one action at a time, even for an arm trained to answer eight steps ahead — the training horizon buys accuracy but not speed on its own. We built the open-loop version — one query, eight actions executed before asking again, the same pattern OpenVLA-OFT uses — and it costs nothing in success (90.4%, no real change from 90.8%) while cutting model queries by 87%, from about 117 per episode to about 15.</p>
         </div>
         </div>
       </div>
@@ -922,7 +922,7 @@
             <tr><td>+ proprioception (text, gripper reading removed)</td><td>M=1</td><td>387 / 500</td><td>77.4%</td><td>73.5–80.8%</td></tr>
           </tbody>
         </table>
-        <p class="limit"><em>One training seed per arm. The wrist-camera numbers above are the corrected, re-evaluated ones; the pre-fix numbers (81.6%, 83.8%, 96.0%) are not reported here because they described a bug, not the policy — see below. A second seed has not run yet.</em></p>
+        <p class="limit"><em>One training seed per arm. A second seed has not run yet.</em></p>
 
         <div class="ablation-block">
           <h3>The wrist camera story changed after we found a bug in how we were testing it.</h3>
