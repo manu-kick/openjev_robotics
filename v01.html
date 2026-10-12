@@ -476,23 +476,25 @@
 
     </section>
 
-    <section class="chapter results" id="results">
+    <div class="result-divider reveal" aria-hidden="true"><span>RESULT</span></div>
+
+    <section class="chapter results no-border" id="results">
       <div class="section-heading reveal">
         <p class="eyebrow">The result</p>
-        <h2>Five hundred episodes.<br>The same test as the public baselines.</h2>
+        <h2>Official evaluation protocol</h2>
       </div>
       <div class="reveal">
-        <p>Every number on this page is the official LIBERO-Spatial protocol: fifty fixed initial states per task, ten tasks, five hundred episodes, every one of the 432 demonstrations used as training data with nothing held out — the same protocol OpenVLA and OpenVLA-OFT are evaluated on, so the comparison is direct.</p>
+        <p>Every number on this page comes from the official LIBERO-Spatial evaluation protocol, the same one used throughout the published literature for this benchmark (OpenVLA, OpenVLA-OFT and the other systems in the table below): fifty fixed initial states per task — <code>suite.get_task_init_states()</code> — across the suite's ten tasks, five hundred episodes total, every one of the 432 demonstrations used as training data with nothing held out for validation. Each episode seeds the simulator (<code>env.seed(0)</code>), resets to its fixed initial state rather than a random one, runs ten no-op steps to let the scene settle, then allows up to 220 control steps at 256×256 camera resolution; success is read directly from <code>env.check_success()</code>, the suite's own goal predicate, with no custom scoring. We verified this byte-for-byte against OpenVLA-OFT's own evaluation code before running a single episode, so the comparison in this table is not approximate.</p>
         <table class="results-table">
           <thead><tr><th>Policy</th><th>Params</th><th>Successes</th><th>Rate</th><th>95% interval</th></tr></thead>
           <tbody>
-            <tr><td>Octo, published</td><td>93M</td><td>—</td><td>78.9%</td><td>—</td></tr>
-            <tr><td>Diffusion Policy, published</td><td>~260M</td><td>—</td><td>78.3%</td><td>—</td></tr>
-            <tr><td>SpatialVLA, published</td><td>4B</td><td>—</td><td>88.2%</td><td>—</td></tr>
-            <tr><td>OpenVLA, our local reproduction</td><td>7B</td><td>442 / 500</td><td>88.4%</td><td>85.6–91.0%</td></tr>
-            <tr><td>pi0, published</td><td>~3.3B</td><td>—</td><td>96.8%</td><td>—</td></tr>
-            <tr><td>CogACT, published</td><td>~7.3B<sup>*</sup></td><td>—</td><td>97.2%</td><td>—</td></tr>
-            <tr><td>OpenVLA-OFT, our local reproduction</td><td>7B</td><td>488 / 500</td><td>97.6%</td><td>96.2–98.8%</td></tr>
+            <tr class="other-model"><td>Octo, published</td><td>93M</td><td>—</td><td>78.9%</td><td>—</td></tr>
+            <tr class="other-model"><td>Diffusion Policy, published</td><td>~260M</td><td>—</td><td>78.3%</td><td>—</td></tr>
+            <tr class="other-model"><td>SpatialVLA, published</td><td>4B</td><td>—</td><td>88.2%</td><td>—</td></tr>
+            <tr class="other-model"><td>OpenVLA, our local reproduction</td><td>7B</td><td>442 / 500</td><td>88.4%</td><td>85.6–91.0%</td></tr>
+            <tr class="other-model"><td>pi0, published</td><td>~3.3B</td><td>—</td><td>96.8%</td><td>—</td></tr>
+            <tr class="other-model"><td>CogACT, published</td><td>~7.3B<sup>*</sup></td><td>—</td><td>97.2%</td><td>—</td></tr>
+            <tr class="other-model"><td>OpenVLA-OFT, our local reproduction</td><td>7B</td><td>488 / 500</td><td>97.6%</td><td>96.2–98.8%</td></tr>
             <tr><td><strong>PlayJev, 8 steps ahead + wrist (ours)</strong></td><td><b>0.8B</b></td><td><b>491 / 500</b></td><td><b>98.2%</b></td><td>96.6–99.1%</td></tr>
           </tbody>
         </table>
@@ -589,14 +591,13 @@
       </div>
     </section>
 
-    <section class="examples-grid-stage success-stage reveal" aria-label="Sixteen successful episodes of the best arm">
-      <div class="examples-grid-label"><span>SUCCESS</span><small>16 of 491 — official protocol, 500 episodes</small></div>
-      <div class="examples-grid" id="examples-success"></div>
-    </section>
-
-    <section class="examples-grid-stage failure-stage reveal" aria-label="All nine failed episodes of the best arm">
-      <div class="examples-grid-label"><span>FAILURE</span><small>all 9 of 500 — official protocol, nothing held back</small></div>
-      <div class="examples-grid failure" id="examples-failure"></div>
+    <section class="examples-grid-stage reveal" id="examples-stage">
+      <div class="examples-tabs" role="tablist" aria-label="Show successful or failed episodes">
+        <button role="tab" aria-selected="true" data-examples="success" type="button"><span>SUCCESS</span><small>16 of 491</small></button>
+        <button role="tab" aria-selected="false" data-examples="failure" type="button"><span>FAILURE</span><small>all 9 of 500</small></button>
+      </div>
+      <div class="examples-grid" id="examples-success" aria-label="Sixteen successful episodes of the best arm"></div>
+      <div class="examples-grid failure" id="examples-failure" hidden aria-label="All nine failed episodes of the best arm"></div>
     </section>
 
     <section class="chapter" id="horizon">

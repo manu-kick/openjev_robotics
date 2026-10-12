@@ -95,6 +95,13 @@ fetch('assets/examples/manifest.json').then(response => response.json()).then(da
   renderExampleGrid('#examples-failure', data.failure);
 }).catch(() => {});
 
+document.querySelectorAll('.examples-tabs button').forEach(button => button.addEventListener('click', () => {
+  document.querySelectorAll('.examples-tabs button').forEach(item => item.setAttribute('aria-selected', String(item === button)));
+  const mode = button.dataset.examples;
+  document.querySelector('#examples-success').hidden = mode !== 'success';
+  document.querySelector('#examples-failure').hidden = mode !== 'failure';
+}));
+
 document.querySelectorAll('.roadmap-expand').forEach(button => button.addEventListener('click', () => {
   const card = button.closest('.roadmap-card');
   const open = card.classList.toggle('open');
