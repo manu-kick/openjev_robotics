@@ -273,6 +273,7 @@
       <li><a href="#next" data-section="next"><b><em>06</em> Next test</b></a></li>
       <li><a href="#alphabet" data-section="alphabet"><b><em>A</em> Appendix · Alphabet</b></a></li>
       <li><a href="#evidence" data-section="evidence"><b><em>B</em> Appendix · Oracle replay</b></a></li>
+      <li><a href="#ablations" data-section="ablations"><b><em>C</em> Appendix · Ablations</b></a></li>
       <li><a href="#references" data-section="references"><b>References</b></a></li>
     </ol>
     <p class="reading-percent" aria-live="off"><span id="reading-percent">0%</span> read</p>
@@ -482,47 +483,119 @@
       <div class="reveal">
         <p>Every number on this page is the official LIBERO-Spatial protocol: fifty fixed initial states per task, ten tasks, five hundred episodes, every one of the 432 demonstrations used as training data with nothing held out — the same protocol OpenVLA and OpenVLA-OFT are evaluated on, so the comparison is direct.</p>
         <table class="results-table">
-          <thead><tr><th>Policy</th><th>Successes</th><th>Rate</th><th>95% interval</th></tr></thead>
+          <thead><tr><th>Policy</th><th>Params</th><th>Successes</th><th>Rate</th><th>95% interval</th></tr></thead>
           <tbody>
-            <tr><td>External camera (reference)</td><td>417 / 500</td><td>83.4%</td><td>79.9–86.4%</td></tr>
-            <tr><td>+ wrist camera</td><td>458 / 500</td><td>91.6%</td><td>88.8–93.7%</td></tr>
-            <tr><td>4 steps ahead</td><td>442 / 500</td><td>88.4%</td><td>85.3–90.9%</td></tr>
-            <tr><td>8 steps ahead</td><td>454 / 500</td><td>90.8%</td><td>87.9–93.0%</td></tr>
-            <tr><td>8 steps ahead, executed in blocks of 8</td><td>452 / 500</td><td>90.4%</td><td>87.5–92.7%</td></tr>
-            <tr><td>4 steps ahead + wrist</td><td>455 / 500</td><td>91.0%</td><td>88.2–93.2%</td></tr>
-            <tr><td>8 steps ahead + wrist</td><td><b>491 / 500</b></td><td><b>98.2%</b></td><td>96.6–99.1%</td></tr>
-            <tr><td>+ proprioception (text, with gripper reading)</td><td>212 / 500</td><td>42.4%</td><td>38.1–46.8%</td></tr>
-            <tr><td>+ proprioception (text, gripper reading removed)</td><td>387 / 500</td><td>77.4%</td><td>73.5–80.8%</td></tr>
-            <tr><td><em>OpenVLA, published</em></td><td><em>442 / 500</em></td><td><em>88.4%</em></td><td><em>85.6–91.0%</em></td></tr>
-            <tr><td><em>OpenVLA-OFT, published</em></td><td><em>488 / 500</em></td><td><em>97.6%</em></td><td><em>96.2–98.8%</em></td></tr>
+            <tr><td>Octo, published</td><td>93M</td><td>—</td><td>78.9%</td><td>—</td></tr>
+            <tr><td>Diffusion Policy, published</td><td>~260M</td><td>—</td><td>78.3%</td><td>—</td></tr>
+            <tr><td>SpatialVLA, published</td><td>4B</td><td>—</td><td>88.2%</td><td>—</td></tr>
+            <tr><td>OpenVLA, our local reproduction</td><td>7B</td><td>442 / 500</td><td>88.4%</td><td>85.6–91.0%</td></tr>
+            <tr><td>pi0, published</td><td>~3.3B</td><td>—</td><td>96.8%</td><td>—</td></tr>
+            <tr><td>CogACT, published</td><td>~7.3B<sup>*</sup></td><td>—</td><td>97.2%</td><td>—</td></tr>
+            <tr><td>OpenVLA-OFT, our local reproduction</td><td>7B</td><td>488 / 500</td><td>97.6%</td><td>96.2–98.8%</td></tr>
+            <tr><td><strong>PlayJev, 8 steps ahead + wrist (ours)</strong></td><td><b>0.8B</b></td><td><b>491 / 500</b></td><td><b>98.2%</b></td><td>96.6–99.1%</td></tr>
           </tbody>
         </table>
-        <p><strong>Eight steps ahead, with the wrist camera, reaches 98.2%</strong> — above our own reproduction of OpenVLA-OFT (97.6%), with a 0.8B model against its 7B. By task it is close to flawless: 46 to 50 out of 50 on every one of the ten tasks, including the one that was hardest for every other arm in this study (36–39/50 elsewhere; 50/50 here). We do not say this lightly, because the first version of this number was wrong, and finding out why is as much the result as the number itself — see below.</p>
-        <p>Asking the policy about the next eight actions instead of one — training only; by default the closed loop still executes a single action per model query — is already the strongest single change: 90.8%, matching OpenVLA's exact success count (442/500) at four steps ahead and beating it outright at eight. Running that same eight-step policy in true open-loop blocks of eight, the way OpenVLA-OFT actually executes its chunks, costs nothing in success (90.4%, no real difference from 90.8%) and cuts the number of model queries by 87% — from about 117 per episode to about 15. The latency advantage OpenVLA-OFT gets from chunking turns out to be available here too, once you actually execute in chunks instead of only training to predict them.</p>
-        <p><strong>The wrist camera story changed after we found a bug in how we were testing it.</strong> The first pass through this evaluation paired each step's camera image with the <em>previous</em> step's wrist image — the two cameras are not a time sequence in training, they are two simultaneous views of the same instant, so this fed the model a combination it had never seen after the very first step of every episode. That bug made the wrist camera look neutral at best (81.6% at one step ahead, worse than no wrist at all) and net negative at times. Once fixed — pairing both cameras at the same instant, exactly as trained — the wrist camera turned out to help every time we added it: +8.2 points alone, +2.6 points on top of four steps ahead, and the combination with eight steps ahead is the best result in the whole study. We checked the fix three ways before trusting it: traced the frame order through the evaluation code and the model server to confirm no reversal; looked at the per-task breakdown, which went from a suspicious block of five perfect tasks followed by a cliff (the fingerprint of a bug) to a uniformly strong spread across all ten; and replayed one logged episode independently, from the same seeded simulator state, with no model involved — same outcome, a real grasp and place, not an artifact of how success gets checked.</p>
-        <p>Proprioception remains the one change that clearly hurts — but we now know exactly where. Comparing the same 500 episodes step by step against the camera-only baseline, the failure is not spread across the whole policy: it is almost entirely the gripper. 36% of its failed episodes never close the gripper at all, against 2% for the baseline; when it does close, it takes until step 71 on average instead of 43. The likely reason: the sentence includes the gripper's own raw finger-position reading, written in text, immediately before asking the model to decide whether to open or close that same gripper — two different things sitting right next to each other in the prompt. Remove just that one field and performance recovers from 42.4% to 77.4%, and the never-closes-the-gripper failure disappears completely (zero of its failed episodes, better than even the baseline's 2%). The remaining 6-point gap below the camera-only baseline is still open: writing numbers as text loses the metric structure a dedicated continuous encoder would keep; every arm shares the same training budget, so proprioception arms get no extra steps to learn the added parsing task; the extra text competes with the image for a small model's attention; or this task, solvable almost entirely from the external camera alone, may simply not need it.</p>
-        <p class="limit"><em>One training seed per arm. The wrist-camera numbers above are the corrected, re-evaluated ones; the pre-fix numbers (81.6%, 83.8%, 96.0%) are not reported here because they described a bug, not the policy. A second seed has not run yet.</em></p>
+        <p class="limit"><em>Our own rows (OpenVLA, OpenVLA-OFT, PlayJev) are 500-episode closed-loop evaluations run locally on the official initial states. The other rows are each author's own published number for LIBERO-Spatial, not re-run by us — different training runs, sometimes different episode counts or seeds, so treat cross-paper digits as approximate. <sup>*</sup>CogACT states its backbone (7B) and action-head size separately, not a single published total; ~7.3B is our own sum of the two, not a number from its paper. Every PlayJev ablation arm (camera combinations, proprioception, chunking) is in Appendix C, not here.</em></p>
+        <div class="results-charts">
+          <figure class="results-chart">
+            <figcaption><b>Success rate vs. parameters</b><span>all rows above, log-scale x-axis</span></figcaption>
+            <svg viewBox="0 0 640 380" role="img" aria-label="Success rate versus parameter count, log scale, across published LIBERO-Spatial systems">
+<line x1="70" y1="297.9" x2="590" y2="297.9" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+<text x="58" y="301.9" fill="#9da5b4" font-size="11" text-anchor="end" font-family="DM Mono, monospace">75%</text>
+<line x1="70" y1="244.3" x2="590" y2="244.3" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+<text x="58" y="248.3" fill="#9da5b4" font-size="11" text-anchor="end" font-family="DM Mono, monospace">80%</text>
+<line x1="70" y1="190.7" x2="590" y2="190.7" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+<text x="58" y="194.7" fill="#9da5b4" font-size="11" text-anchor="end" font-family="DM Mono, monospace">85%</text>
+<line x1="70" y1="137.1" x2="590" y2="137.1" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+<text x="58" y="141.1" fill="#9da5b4" font-size="11" text-anchor="end" font-family="DM Mono, monospace">90%</text>
+<line x1="70" y1="83.6" x2="590" y2="83.6" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+<text x="58" y="87.6" fill="#9da5b4" font-size="11" text-anchor="end" font-family="DM Mono, monospace">95%</text>
+<line x1="70" y1="30.0" x2="590" y2="30.0" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+<text x="58" y="34.0" fill="#9da5b4" font-size="11" text-anchor="end" font-family="DM Mono, monospace">100%</text>
+<line x1="106.7" y1="330" x2="106.7" y2="30" stroke="rgba(255,255,255,.18)" stroke-width="1" stroke-dasharray="2 4"/>
+<text x="106.7" y="352" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">100M</text>
+<line x1="219.6" y1="330" x2="219.6" y2="30" stroke="rgba(255,255,255,.18)" stroke-width="1" stroke-dasharray="2 4"/>
+<text x="219.6" y="352" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">300M</text>
+<line x1="343.4" y1="330" x2="343.4" y2="30" stroke="rgba(255,255,255,.18)" stroke-width="1" stroke-dasharray="2 4"/>
+<text x="343.4" y="352" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">1B</text>
+<line x1="456.4" y1="330" x2="456.4" y2="30" stroke="rgba(255,255,255,.18)" stroke-width="1" stroke-dasharray="2 4"/>
+<text x="456.4" y="352" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">3B</text>
+<line x1="543.5" y1="330" x2="543.5" y2="30" stroke="rgba(255,255,255,.18)" stroke-width="1" stroke-dasharray="2 4"/>
+<text x="543.5" y="352" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">7B</text>
+<text x="330.0" y="372" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">parameters (log scale)</text>
+<circle cx="99.2" cy="256.1" r="5" fill="#9da5b4" stroke="#090b0f" stroke-width="1.5"/>
+<text x="99.2" y="242.1" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">Octo</text>
+<circle cx="204.9" cy="262.5" r="5" fill="#9da5b4" stroke="#090b0f" stroke-width="1.5"/>
+<text x="204.9" y="248.5" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">Diffusion Policy</text>
+<circle cx="320.5" cy="49.3" r="7" fill="#f4cb3d" stroke="#090b0f" stroke-width="1.5"/>
+<text x="320.5" y="32.3" fill="var(--paper)" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">PlayJev (ours)</text>
+<circle cx="466.2" cy="64.3" r="5" fill="#9da5b4" stroke="#090b0f" stroke-width="1.5"/>
+<text x="452.2" y="68.3" fill="#9da5b4" font-size="11" text-anchor="end" font-family="DM Mono, monospace">pi0</text>
+<circle cx="486.0" cy="156.4" r="5" fill="#9da5b4" stroke="#090b0f" stroke-width="1.5"/>
+<text x="486.0" y="142.4" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">SpatialVLA</text>
+<circle cx="543.5" cy="154.3" r="5" fill="#4198ff" stroke="#090b0f" stroke-width="1.5"/>
+<text x="543.5" y="174.3" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">OpenVLA</text>
+<circle cx="547.8" cy="60.0" r="5" fill="#9da5b4" stroke="#090b0f" stroke-width="1.5"/>
+<text x="547.8" y="80.0" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">CogACT</text>
+<circle cx="543.5" cy="55.7" r="5" fill="#4198ff" stroke="#090b0f" stroke-width="1.5"/>
+<text x="543.5" y="41.7" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">OpenVLA-OFT</text>
+</svg>
+          </figure>
+          <figure class="results-chart">
+            <figcaption><b>Success rate vs. inference latency</b><span>only the three systems measured on the same local GPU</span></figcaption>
+            <svg viewBox="0 0 640 380" role="img" aria-label="Success rate versus measured median query latency, PlayJev, OpenVLA and OpenVLA-OFT on the same local hardware">
+<line x1="70" y1="330.0" x2="610" y2="330.0" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+<text x="58" y="334.0" fill="#9da5b4" font-size="11" text-anchor="end" font-family="DM Mono, monospace">85%</text>
+<line x1="70" y1="230.0" x2="610" y2="230.0" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+<text x="58" y="234.0" fill="#9da5b4" font-size="11" text-anchor="end" font-family="DM Mono, monospace">90%</text>
+<line x1="70" y1="130.0" x2="610" y2="130.0" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+<text x="58" y="134.0" fill="#9da5b4" font-size="11" text-anchor="end" font-family="DM Mono, monospace">95%</text>
+<line x1="70" y1="30.0" x2="610" y2="30.0" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+<text x="58" y="34.0" fill="#9da5b4" font-size="11" text-anchor="end" font-family="DM Mono, monospace">100%</text>
+<line x1="126.8" y1="330" x2="126.8" y2="30" stroke="rgba(255,255,255,.18)" stroke-width="1" stroke-dasharray="2 4"/>
+<text x="126.8" y="352" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">120ms</text>
+<line x1="240.5" y1="330" x2="240.5" y2="30" stroke="rgba(255,255,255,.18)" stroke-width="1" stroke-dasharray="2 4"/>
+<text x="240.5" y="352" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">160ms</text>
+<line x1="354.2" y1="330" x2="354.2" y2="30" stroke="rgba(255,255,255,.18)" stroke-width="1" stroke-dasharray="2 4"/>
+<text x="354.2" y="352" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">200ms</text>
+<line x1="467.9" y1="330" x2="467.9" y2="30" stroke="rgba(255,255,255,.18)" stroke-width="1" stroke-dasharray="2 4"/>
+<text x="467.9" y="352" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">240ms</text>
+<line x1="581.6" y1="330" x2="581.6" y2="30" stroke="rgba(255,255,255,.18)" stroke-width="1" stroke-dasharray="2 4"/>
+<text x="581.6" y="352" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">280ms</text>
+<text x="340.0" y="372" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">median latency per model query</text>
+<circle cx="168.6" cy="78.0" r="5" fill="#4198ff" stroke="#090b0f" stroke-width="1.5"/>
+<text x="168.6" y="62.0" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">OpenVLA-OFT</text>
+<text x="168.6" y="100.0" fill="#9da5b4" font-size="9.5" text-anchor="middle" font-family="DM Mono, monospace">8 actions / query</text>
+<circle cx="499.2" cy="66.0" r="7" fill="#f4cb3d" stroke="#090b0f" stroke-width="1.5"/>
+<text x="499.2" y="50.0" fill="var(--paper)" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">PlayJev (ours)</text>
+<text x="499.2" y="88.0" fill="#9da5b4" font-size="9.5" text-anchor="middle" font-family="DM Mono, monospace">1 action / query</text>
+<circle cx="484.1" cy="262.0" r="5" fill="#4198ff" stroke="#090b0f" stroke-width="1.5"/>
+<text x="484.1" y="246.0" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">OpenVLA</text>
+<text x="484.1" y="284.0" fill="#9da5b4" font-size="9.5" text-anchor="middle" font-family="DM Mono, monospace">1 action / query</text>
+</svg>
+          </figure>
+        </div>
+        <p><strong>Eight steps ahead, with the wrist camera, reaches 98.2%</strong> — above our own reproduction of OpenVLA-OFT (97.6%), with a 0.8B model against its 7B, and above every published number we could find for LIBERO-Spatial at any parameter count. By task it is close to flawless: 46 to 50 out of 50 on every one of the ten tasks, including the one that was hardest for every other arm in this study (36–39/50 elsewhere; 50/50 here). We do not say this lightly, because the first version of this number was wrong, and finding out why is as much the result as the number itself — Appendix C has the full account.</p>
+        <p>The parameter chart has no clean trend: a 93M-parameter policy and a 7B one land within a point of each other (78.9% vs. 88.4%), and the two largest systems we could find a number for (CogACT, OpenVLA-OFT, both ~7B) sit a point apart from each other. Scale correlates loosely with success across this set, but it does not explain PlayJev's position — the smallest model on the chart (0.8B) is also the highest. The latency chart, restricted to what we actually measured on one machine, shows the same shape OpenVLA-OFT's own chunking argument makes: querying once for eight actions (134.7ms) is both faster and more accurate than querying once per action, whether that single query belongs to OpenVLA (245.7ms, 88.4%) or to PlayJev without chunked execution (251.0ms, 98.2% — the accuracy gain here comes from the training horizon, not from chunking, since the closed loop above still executes one action per query; Appendix C's chunked variant shows what happens once it also executes in blocks of eight).</p>
       </div>
     </section>
 
-    <section class="chapter policy-more">
-      <div class="failure-lab reveal">
-        <div class="failure-heading">
-          <div><p class="eyebrow danger">Where it fails</p><h3>It grasps the object.<br>Finishing the placement is the hard part.</h3></div>
-          <div class="failure-toggle" role="group" aria-label="Show a successful or failed episode">
-            <button class="active" data-trace="success" type="button">Success</button>
-            <button data-trace="failure" type="button">Failure</button>
-          </div>
-        </div>
-        <div class="trace-stage">
-          <img id="trace-image" src="assets/libero-place.jpg" alt="Frame from the selected episode">
-          <div class="trace-data">
-            <div class="trace-status"><span id="trace-label">SUCCESS</span><strong id="trace-step-count">108 steps</strong></div>
-            <div class="timeline" id="timeline" aria-label="Episode event timeline"></div>
-            <p id="trace-description">One gripper closure, stable transport, release over the plate. Successful episodes average 108 steps on the official protocol.</p>
-          </div>
-        </div>
+    <section class="chapter examples-chapter">
+      <div class="section-heading reveal">
+        <p class="eyebrow">Examples</p>
+        <h2>The best policy, watched directly.<br>Sixteen successes — and all nine times it failed.</h2>
+        <p>Every clip below is a real rollout of the eight-step, wrist-camera arm (98.2%, 491/500) on the official protocol, replayed from the exact logged seed and initial state. Nothing is cherry-picked past the task spread: hover a tile for the task and outcome.</p>
       </div>
+    </section>
+
+    <section class="examples-grid-stage success-stage reveal" aria-label="Sixteen successful episodes of the best arm">
+      <div class="examples-grid-label"><span>SUCCESS</span><small>16 of 491 — official protocol, 500 episodes</small></div>
+      <div class="examples-grid" id="examples-success"></div>
+    </section>
+
+    <section class="examples-grid-stage failure-stage reveal" aria-label="All nine failed episodes of the best arm">
+      <div class="examples-grid-label"><span>FAILURE</span><small>all 9 of 500 — official protocol, nothing held back</small></div>
+      <div class="examples-grid failure" id="examples-failure"></div>
     </section>
 
     <section class="chapter" id="horizon">
@@ -532,7 +605,41 @@
       </div>
       <div class="reveal">
         <p>The same bin25 policy can also be asked about the next actions of each state, not just the current one: train it to answer about four or eight steps ahead instead of one, while the closed loop still executes only the current action every time it queries the model. The horizon changes what the policy learns from the same demonstrations; it does not, on its own, change what one inference step costs.</p>
-        <p>On the official five-hundred-episode protocol (§ above), asking about four steps ahead moves success from 83.4% to 88.4%; asking about eight moves it further, to 90.8%, and combined with the wrist camera, to 98.2% — the strongest result in this study. The gain is not free forever: on the external camera alone, going from one to four steps ahead adds 5 points, from four to eight adds another 2.4, a shrinking return for a more demanding training target.</p>
+        <div class="horizon-chart">
+          <svg viewBox="0 0 640 380" role="img" aria-label="Success rate versus action horizon M, external camera alone and external plus wrist camera">
+<line x1="70" y1="330.0" x2="500" y2="330.0" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+<text x="58" y="334.0" fill="#9da5b4" font-size="11" text-anchor="end" font-family="DM Mono, monospace">80%</text>
+<line x1="70" y1="255.0" x2="500" y2="255.0" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+<text x="58" y="259.0" fill="#9da5b4" font-size="11" text-anchor="end" font-family="DM Mono, monospace">85%</text>
+<line x1="70" y1="180.0" x2="500" y2="180.0" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+<text x="58" y="184.0" fill="#9da5b4" font-size="11" text-anchor="end" font-family="DM Mono, monospace">90%</text>
+<line x1="70" y1="105.0" x2="500" y2="105.0" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+<text x="58" y="109.0" fill="#9da5b4" font-size="11" text-anchor="end" font-family="DM Mono, monospace">95%</text>
+<line x1="70" y1="30.0" x2="500" y2="30.0" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+<text x="58" y="34.0" fill="#9da5b4" font-size="11" text-anchor="end" font-family="DM Mono, monospace">100%</text>
+<text x="96.9" y="352" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">M=1</text>
+<text x="258.1" y="352" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">M=4</text>
+<text x="473.1" y="352" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">M=8</text>
+<text x="285.0" y="372" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">action horizon (steps asked ahead per query)</text>
+<path d="M 96.9 279.0 L 258.1 204.0 L 473.1 168.0" fill="none" stroke="#4198ff" stroke-width="2"/>
+<circle cx="96.9" cy="279.0" r="5.5" fill="#4198ff" stroke="#090b0f" stroke-width="1.5"/>
+<text x="96.9" y="265.0" fill="var(--paper)" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">83.4%</text>
+<circle cx="258.1" cy="204.0" r="5.5" fill="#4198ff" stroke="#090b0f" stroke-width="1.5"/>
+<text x="258.1" y="190.0" fill="var(--paper)" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">88.4%</text>
+<circle cx="473.1" cy="168.0" r="5.5" fill="#4198ff" stroke="#090b0f" stroke-width="1.5"/>
+<text x="473.1" y="154.0" fill="var(--paper)" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">90.8%</text>
+<text x="487.1" y="172.0" fill="#4198ff" font-size="11" text-anchor="start" font-family="DM Mono, monospace">external camera</text>
+<path d="M 96.9 156.0 L 258.1 165.0 L 473.1 57.0" fill="none" stroke="#f4cb3d" stroke-width="2"/>
+<circle cx="96.9" cy="156.0" r="5.5" fill="#f4cb3d" stroke="#090b0f" stroke-width="1.5"/>
+<text x="96.9" y="142.0" fill="var(--paper)" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">91.6%</text>
+<circle cx="258.1" cy="165.0" r="5.5" fill="#f4cb3d" stroke="#090b0f" stroke-width="1.5"/>
+<text x="258.1" y="151.0" fill="var(--paper)" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">91.0%</text>
+<circle cx="473.1" cy="57.0" r="5.5" fill="#f4cb3d" stroke="#090b0f" stroke-width="1.5"/>
+<text x="473.1" y="43.0" fill="var(--paper)" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">98.2%</text>
+<text x="487.1" y="61.0" fill="#f4cb3d" font-size="11" text-anchor="start" font-family="DM Mono, monospace">external + wrist</text>
+</svg>
+        </div>
+        <p>On the official five-hundred-episode protocol (§ above), asking about four steps ahead moves success from 83.4% to 88.4%; asking about eight moves it further, to 90.8%, and combined with the wrist camera, to 98.2% — the strongest result in this study. The gain is not free forever: on the external camera alone, going from one to four steps ahead adds 5 points, from four to eight adds another 2.4, a shrinking return for a more demanding training target. With the wrist camera the curve is not even monotonic — M=4 (91.0%) dips slightly below M=1 (91.6%) before M=8 jumps to 98.2% — a reminder that horizon and camera input interact rather than simply add.</p>
         <p>We also closed the gap we flagged here in an earlier draft of this post: PlayJev was trained to answer about eight steps ahead but the closed loop still queried the model and executed one action at a time, the same cost as the one-step policy, so the training horizon bought accuracy but not speed. We built the open-loop version — one query, eight actions executed before asking again, the same pattern OpenVLA-OFT uses — and it costs nothing in success (90.4%, no real change from 90.8%) while cutting model queries by 87%, from about 117 per episode to about 15. The latency advantage was there; it just needed an evaluator that actually used it.</p>
       </div>
     </section>
@@ -771,6 +878,48 @@
         <div><span>AUC</span><strong>0.84</strong><p>Integrated drift predicts failure better than per-step error.</p></div>
         <div><span>FAIL</span><strong>6.0 cm</strong><p>Median maximum deviation in failed OAT replays.</p></div>
         <div><span>SUCCESS</span><strong>2.9 cm</strong><p>Median maximum deviation in successful replays.</p></div>
+      </div>
+    </section>
+
+    <section class="chapter ablations" id="ablations">
+      <div class="section-heading reveal">
+        <p class="eyebrow">Appendix C · Ablations</p>
+        <h2>Every arm we trained,<br>and what each change actually did.</h2>
+        <p>The main results compare PlayJev's best arm against other published systems. This appendix is the arm-by-arm record behind that one number: every camera, horizon and proprioception variant on the same 500-episode official protocol, plus the two investigations — a bug and a hypothesis — that explain why some of them look the way they do.</p>
+      </div>
+      <div class="reveal">
+        <table class="results-table">
+          <thead><tr><th>Arm</th><th>Horizon</th><th>Successes</th><th>Rate</th><th>95% interval</th></tr></thead>
+          <tbody>
+            <tr><td>External camera (reference)</td><td>M=1</td><td>417 / 500</td><td>83.4%</td><td>79.9–86.4%</td></tr>
+            <tr><td>+ wrist camera</td><td>M=1</td><td>458 / 500</td><td>91.6%</td><td>88.8–93.7%</td></tr>
+            <tr><td>External camera, 4 steps ahead</td><td>M=4</td><td>442 / 500</td><td>88.4%</td><td>85.3–90.9%</td></tr>
+            <tr><td>External camera, 8 steps ahead</td><td>M=8</td><td>454 / 500</td><td>90.8%</td><td>87.9–93.0%</td></tr>
+            <tr><td>↳ executed in open-loop blocks of 8</td><td>M=8</td><td>452 / 500</td><td>90.4%</td><td>87.5–92.7%</td></tr>
+            <tr><td>4 steps ahead + wrist</td><td>M=4</td><td>455 / 500</td><td>91.0%</td><td>88.2–93.2%</td></tr>
+            <tr><td><strong>8 steps ahead + wrist (best arm)</strong></td><td>M=8</td><td><b>491 / 500</b></td><td><b>98.2%</b></td><td>96.6–99.1%</td></tr>
+            <tr><td>+ proprioception (text, with gripper reading)</td><td>M=1</td><td>212 / 500</td><td>42.4%</td><td>38.1–46.8%</td></tr>
+            <tr><td>+ proprioception (text, gripper reading removed)</td><td>M=1</td><td>387 / 500</td><td>77.4%</td><td>73.5–80.8%</td></tr>
+          </tbody>
+        </table>
+        <p class="limit"><em>One training seed per arm. The wrist-camera numbers above are the corrected, re-evaluated ones; the pre-fix numbers (81.6%, 83.8%, 96.0%) are not reported here because they described a bug, not the policy — see below. A second seed has not run yet.</em></p>
+
+        <div class="ablation-block">
+          <h3>The wrist camera story changed after we found a bug in how we were testing it.</h3>
+          <p>The first pass through this evaluation paired each step's camera image with the <em>previous</em> step's wrist image — the two cameras are not a time sequence in training, they are two simultaneous views of the same instant, so this fed the model a combination it had never seen after the very first step of every episode. That bug made the wrist camera look neutral at best (81.6% at one step ahead, worse than no wrist at all) and net negative at times. Once fixed — pairing both cameras at the same instant, exactly as trained — the wrist camera turned out to help every time we added it: +8.2 points alone, +2.6 points on top of four steps ahead, and the combination with eight steps ahead is the best result in the whole study.</p>
+          <p>We checked the fix three ways before trusting it: traced the frame order through the evaluation code and the model server to confirm no reversal; looked at the per-task breakdown, which went from a suspicious block of five perfect tasks followed by a cliff (the fingerprint of a bug) to a uniformly strong spread across all ten; and replayed one logged episode independently, from the same seeded simulator state, with no model involved — same outcome, a real grasp and place, not an artifact of how success gets checked.</p>
+        </div>
+
+        <div class="ablation-block">
+          <h3>Proprioception is the one change that clearly hurts — and we now know exactly where.</h3>
+          <p>Comparing the same 500 episodes step by step against the camera-only baseline, the failure is not spread across the whole policy: it is almost entirely the gripper. 36% of its failed episodes never close the gripper at all, against 2% for the baseline; when it does close, it takes until step 71 on average instead of 43. The likely reason: the sentence includes the gripper's own raw finger-position reading, written in text, immediately before asking the model to decide whether to open or close that same gripper — two different things sitting right next to each other in the prompt.</p>
+          <p>Remove just that one field and performance recovers from 42.4% to 77.4%, and the never-closes-the-gripper failure disappears completely (zero of its failed episodes, better than even the baseline's 2%). The remaining 6-point gap below the camera-only baseline is still open: writing numbers as text loses the metric structure a dedicated continuous encoder would keep; every arm shares the same training budget, so proprioception arms get no extra steps to learn the added parsing task; the extra text competes with the image for a small model's attention; or this task, solvable almost entirely from the external camera alone, may simply not need it.</p>
+        </div>
+
+        <div class="ablation-block">
+          <h3>Chunked open-loop execution: the latency advantage was there; it just needed an evaluator that used it.</h3>
+          <p>PlayJev was trained to answer about eight steps ahead, but by default the closed loop still queried the model and executed one action at a time — the same cost per episode as the one-step policy, so the training horizon bought accuracy but not speed. We built the open-loop version — one query, eight actions executed before asking again, the same pattern OpenVLA-OFT uses — and it costs nothing in success (90.4%, no real change from 90.8%) while cutting model queries by 87%, from about 117 per episode to about 15.</p>
+        </div>
       </div>
     </section>
 

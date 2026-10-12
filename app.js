@@ -81,24 +81,19 @@ driftSlider.addEventListener('input', updateDrift);
 updateDrift();
 
 
-const traces = {
-  success: { label: 'SUCCESS', count: '108 steps', image: 'assets/libero-place.jpg', color: '#72d8a0', description: 'One gripper closure, stable transport, release over the plate. Successful episodes average 108 steps on the official protocol.', events: [['approach', 20], ['grasp', 39], ['lift', 55], ['place', 86], ['goal', 100]] },
-  failure: { label: 'TIMEOUT', count: '220 steps', image: 'assets/libero-grasp.jpg', color: '#ff6b5f', description: 'It grasps: 98% of the baseline arm’s 83 official-protocol failures close the gripper at least once. Most then reopen it before the task is done — a drop or a failed placement, not a missed grasp — and every one of them runs out the full 220-step clock rather than giving up early.', events: [['approach', 15], ['grasp', 32], ['transport', 55], ['drop', 74], ['timeout', 100]] }
-};
-function renderTrace(key) {
-  const data = traces[key];
-  document.querySelector('#trace-label').textContent = data.label;
-  document.querySelector('#trace-label').style.color = data.color;
-  document.querySelector('#trace-step-count').textContent = data.count;
-  document.querySelector('#trace-image').src = data.image;
-  document.querySelector('#trace-description').textContent = data.description;
-  document.querySelector('#timeline').innerHTML = data.events.map(([name, pos]) => `<span style="left:${pos}%">${name}</span>`).join('');
+function renderExampleGrid(containerId, items) {
+  const container = document.querySelector(containerId);
+  if (!container) return;
+  container.innerHTML = items.map(item => `
+    <figure class="example-cell">
+      <video src="${item.src}" muted loop playsinline autoplay preload="metadata"></video>
+      <figcaption class="example-tip"><b>${item.task}</b><span>${item.steps} steps · ${item.outcome}</span></figcaption>
+    </figure>`).join('');
 }
-document.querySelectorAll('.failure-toggle button').forEach(button => button.addEventListener('click', () => {
-  document.querySelectorAll('.failure-toggle button').forEach(item => item.classList.toggle('active', item === button));
-  renderTrace(button.dataset.trace);
-}));
-renderTrace('success');
+fetch('assets/examples/manifest.json').then(response => response.json()).then(data => {
+  renderExampleGrid('#examples-success', data.success);
+  renderExampleGrid('#examples-failure', data.failure);
+}).catch(() => {});
 
 document.querySelectorAll('.roadmap-expand').forEach(button => button.addEventListener('click', () => {
   const card = button.closest('.roadmap-card');
