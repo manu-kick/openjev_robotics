@@ -375,7 +375,7 @@ input[type="range"]::-webkit-slider-thumb { appearance: none; width: 15px; heigh
 .examples-tabs button[data-examples="failure"][aria-selected="true"] { border-color: var(--red); color: var(--red); background: rgba(255,107,95,.08); }
 .examples-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
 .examples-grid[hidden] { display: none; }
-.examples-grid.failure { grid-template-columns: repeat(3, 1fr); max-width: 1380px; margin: 0 auto; width: 100%; }
+.examples-grid.failure { grid-template-columns: repeat(3, 1fr); max-width: 75%; margin: 0 auto; width: 100%; }
 .example-cell { position: relative; aspect-ratio: 1; border: 1px solid var(--line); background: #000; }
 .example-cell video { width: 100%; height: 100%; object-fit: cover; display: block; }
 .example-cell:hover { outline: 2px solid var(--yellow); z-index: 4; }
