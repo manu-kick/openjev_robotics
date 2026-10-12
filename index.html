@@ -259,6 +259,10 @@
       <a href="#horizon">Horizon</a>
       <a href="#next">What’s next</a>
     </nav>
+    <div class="affiliation" aria-label="Affiliated institutions">
+      <img src="assets/brand/ispamm-mark.png" alt="ISPAMM Lab">
+      <img src="assets/brand/sapienza-mark.png" alt="Sapienza Università di Roma">
+    </div>
     <button class="soundless" id="motion-toggle" type="button" aria-pressed="false">Reduce motion</button>
   </header>
 
@@ -704,7 +708,7 @@
 
     <section class="closing">
       <p class="eyebrow">The lesson</p>
-      <blockquote>A finite-choice model does not need more parameters to control a continuous robot. It needs the right alphabet.</blockquote>
+      <blockquote><small>A finite-choice model does not need more parameters to control a continuous robot.</small><br><em>It needs the right alphabet.</em></blockquote>
       <p>The discretization choice carried the whole study. At the representation level, a coarse, redundant scheme — 25 uniform bins per axis, seven questions per step — beat a learned codebook that reconstructed every demonstration exactly; precision that a policy cannot reliably hit is not an advantage. At the system level, the same choice of alphabet let an 0.8B model answering multiple-choice questions reach 98.2% on the official protocol, above our own reproduction of a published 7B VLA system, with no architecture change beyond the interface itself. Scale did not do that work; the alphabet did.</p>
       <p>This is a preliminary study, not a final one — LIBERO-Spatial only, one training seed per arm, a single robot and a fixed set of ten tasks. What it establishes is narrower but still useful: that a JEV-style finite-choice model, the same kind built for picking a move in a game, can be adapted to continuous low-level control at all, and that a small one can be competitive while doing it. It also caught two of its own mistakes along the way — a text sentence that confused the gripper decision, an evaluation bug that fed the wrong wrist frame — both found by distrusting a number that looked too good, not by assuming the architecture was right. Appendix C and the roadmap above are what's left before this becomes more than a first result: proprioception as a real continuous token instead of text, and the same interface tested against language and memory, not spatial reasoning alone.</p>
       <div class="closing-links">
@@ -714,7 +718,9 @@
       </div>
     </section>
 
-    <section class="chapter alphabet" id="alphabet">
+    <div class="appendix-divider" aria-hidden="true"><span>Appendix</span><small>Supplementary material — method detail and full ablations, not required to follow the argument above</small></div>
+
+    <section class="chapter alphabet appendix" id="alphabet">
       <div class="section-heading reveal">
         <p class="eyebrow">Appendix A · The representation that follows</p>
         <h2>Continuous motion needs<br>a usable alphabet.</h2>
@@ -772,7 +778,7 @@
       <aside class="rigor-note reveal"><strong>Where the alphabet comes from.</strong><p>The alphabet is not our starting claim; it is the representation that emerges when we ask how this finite-choice contract can express continuous control. In this study, “JEV-style” refers only to that contract. We use the public PlayJev-0.8B checkpoint;<a class="cite" href="#ref-playjev" aria-label="Reference 2">[2]</a> we do not claim access to, or equivalence with, any proprietary JEV model.</p></aside>
     </section>
 
-    <section class="chapter evidence" id="evidence">
+    <section class="chapter evidence appendix" id="evidence">
       <div class="section-heading reveal">
         <p class="eyebrow">Appendix B · Oracle replay</p>
         <h2>Can the alphabet express<br>the right movement?</h2>
@@ -900,7 +906,7 @@
       </div>
     </section>
 
-    <section class="chapter ablations" id="ablations">
+    <section class="chapter ablations appendix" id="ablations">
       <div class="section-heading reveal">
         <p class="eyebrow">Appendix C · Ablations</p>
         <h2>Every arm we trained,<br>and what each change actually did.</h2>
@@ -965,6 +971,11 @@
     <div class="brand"><span class="brand-mark">PJ</span><span>PlayJev × LIBERO</span></div>
     <p>Results on LIBERO-Spatial · official protocol · 500 episodes.</p>
     <p>An OmniJev research project · 2026</p>
+    <div class="footer-affiliation">
+      <img class="footer-ispamm" src="assets/brand/ispamm-wordmark.png" alt="ISPAMM Lab — Intelligent Signal Processing and MultiMedia lab">
+      <img class="footer-sapienza" src="assets/brand/sapienza-mark.png" alt="Sapienza Università di Roma">
+      <p class="footer-author">By <a href="https://emanuelerucci.it" target="_blank" rel="noopener">Emanuele Rucci</a></p>
+    </div>
   </footer>
   <script src="app.js"></script>
   <script>
