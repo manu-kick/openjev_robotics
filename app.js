@@ -84,11 +84,15 @@ updateDrift();
 function renderExampleGrid(containerId, items) {
   const container = document.querySelector(containerId);
   if (!container) return;
-  container.innerHTML = items.map(item => `
+  container.innerHTML = items.map(item => {
+    const taskMatch = item.src.match(/_t(\d+)_/);
+    const taskLabel = taskMatch ? `task ${taskMatch[1]}` : '';
+    return `
     <figure class="example-cell">
       <video src="${item.src}" muted loop playsinline autoplay preload="metadata"></video>
-      <figcaption class="example-tip"><b>${item.task}</b><span>${item.steps} steps · ${item.outcome}</span></figcaption>
-    </figure>`).join('');
+      <figcaption class="example-tip"><b>${item.task}</b><span>${taskLabel ? taskLabel + ' · ' : ''}${item.steps} steps · ${item.outcome}</span></figcaption>
+    </figure>`;
+  }).join('');
 }
 fetch('assets/examples/manifest.json').then(response => response.json()).then(data => {
   renderExampleGrid('#examples-success', data.success);

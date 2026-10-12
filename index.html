@@ -18,6 +18,233 @@
   </script>
   <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
   <link rel="stylesheet" href="style.css">
+  <style>
+    /* hero: the two animations side by side, the text centred below */
+    .hero { display: flex; flex-direction: column; justify-content: center; gap: clamp(12px, 2vh, 24px); height: calc(100vh - 70px); min-height: 560px; max-width: 1760px; padding: 12px 3vw 16px; }
+    .hero-title { text-align: center; flex: none; }
+    .hero-title h1 { white-space: nowrap; font-size: clamp(2.2rem, 4.4vw, 4.6rem); }
+    .hero-sub { text-align: center; flex: none; max-width: 860px; margin: 0 auto; }
+    .hero-sub .hero-actions { margin: 16px 0 0; }
+    .hero-sub .hero-facts { margin-top: 14px; }
+    .hero-stage { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 28px; align-items: stretch; width: 100%; min-height: 0; flex: 1 1 auto; margin: 0; padding: 0; }
+    .hero-stage .robot-hero { display: flex; flex-direction: column; justify-content: center; height: 100%; margin: 0; }
+    .hero-stage .robot-hero video { flex: 1 1 auto; width: 100%; height: 100%; min-height: 0; object-fit: contain; background: #000; }
+    .hero-stage .inspect { display: flex; flex-direction: column; margin-top: 0; }
+    .hero-stage .inspect { height: 100%; min-height: 0; overflow: hidden; }
+    .hero-stage figure.robot-hero { min-height: 0; }
+    .hero-stage .bin-bars { height: 34px; }
+    .hero-copy { text-align: center; width: 100%; max-width: 860px; margin: 0 auto; flex: none; }
+    .hero-copy .dek { margin-left: auto; margin-right: auto; }
+    .hero-actions { justify-content: center; }
+    .hero-facts { justify-content: center; }
+    @media (max-width: 900px) { .hero { height: auto; min-height: 0; padding: 65px 20px 90px; } .hero-stage { grid-template-columns: 1fr; } .hero-stage .robot-hero { height: auto; } .hero-stage .robot-hero video { height: auto; aspect-ratio: 2 / 1; } .hero-title h1 { white-space: normal; } }
+    /* the navigation bar stays hidden on the first screen and slides in once the reader scrolls */
+    .site-header { transition: transform .35s ease, opacity .35s ease; }
+    body.at-top .site-header { transform: translateY(-100%); opacity: 0; pointer-events: none; }
+    /* Architecture: title and intro side by side, same height; JEV in yellow */
+    .jev-intro { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: clamp(28px, 4vw, 64px); align-items: start; }
+    .jev-intro-title, .jev-intro-text { display: flex; flex-direction: column; justify-content: flex-start; }
+    .jev-intro-title h2 { font-size: clamp(1.9rem, 3.1vw, 3.2rem); }
+    .jev-intro-text p { margin: 0; padding-left: 18px; border-left: 2px solid var(--yellow); }
+    .jev-name { color: var(--yellow); }
+    @media (max-width: 900px) { .jev-intro { grid-template-columns: 1fr; } }
+    /* contract diagram: one row, animated icons in each block */
+    .contract-diagram { display: grid; grid-template-columns: minmax(0,1fr) 22px minmax(0,1fr) 22px minmax(0,1fr) 28px minmax(0,1.15fr) 28px minmax(0,1fr); align-items: center; gap: 10px; }
+    .contract-diagram > div { min-width: 0; }
+    .contract-plus, .contract-arrow { text-align: center; color: var(--muted); }
+    .ci-wrap { display: block; width: 34px; height: 34px; margin-bottom: 10px; }
+    .ci { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+    .contract-input .ci-wrap, .contract-model .ci-wrap, .contract-output .ci-wrap { color: var(--blue, #4198ff); }
+    .contract-model .ci-wrap { color: var(--yellow); }
+    .contract-diagram .ci-wrap .ci circle, .contract-diagram .ci-wrap .ci rect { transform-box: fill-box; transform-origin: center; }
+    .contract-input:nth-child(1) .ci { animation: ci-blink 2.8s ease-in-out infinite; }
+    .contract-input:nth-child(3) .ci path { stroke-dasharray: 20; animation: ci-draw 2.4s linear infinite; }
+    .contract-model .ci circle { animation: ci-pulse 1.8s ease-in-out infinite; }
+    .contract-model .ci circle:nth-child(3) { animation-delay: .4s; }
+    .contract-output .bar { fill: currentColor; stroke: none; transform-box: fill-box; transform-origin: bottom; animation: ci-grow 2.2s ease-in-out infinite alternate; }
+    .contract-output .b2 { animation-delay: .35s; }
+    .contract-output .b3 { animation-delay: .7s; }
+    .contract-input:nth-child(5) .ci circle { animation: ci-pulse 2.2s ease-in-out infinite; }
+    .contract-input:nth-child(5) .ci circle:nth-child(2) { animation-delay: .3s; }
+    .contract-input:nth-child(5) .ci circle:nth-child(3) { animation-delay: .6s; }
+    @keyframes ci-blink { 0%,100% { opacity: .35; } 50% { opacity: 1; } }
+    @keyframes ci-draw { to { stroke-dashoffset: -40; } }
+    @keyframes ci-pulse { 0%,100% { transform: scale(1); opacity: .55; } 50% { transform: scale(1.35); opacity: 1; } }
+    @keyframes ci-grow { from { transform: scaleY(.35); } to { transform: scaleY(1); } }
+    @media (max-width: 900px) { .contract-diagram { grid-template-columns: 1fr; } .contract-plus, .contract-arrow { display: none; } }
+    /* control bridge: title on two lines, paragraph with a left rule */
+    .control-bridge { grid-template-columns: auto minmax(0, 1fr); gap: clamp(28px, 4vw, 64px); }
+    .control-bridge h3 { font-size: clamp(1.5rem, 2.3vw, 2.3rem); white-space: nowrap; }
+    .control-bridge > p { padding-top: 0; padding-left: 18px; border-left: 2px solid var(--yellow); }
+    @media (max-width: 900px) { .control-bridge h3 { white-space: normal; } .control-bridge > p { padding-left: 16px; } }
+    /* PlayJev section: image on top, smaller title, training icon */
+    .intro-chapter .chapter-copy h2 { font-size: clamp(1.9rem, 3vw, 3rem); }
+    .intro-chapter .jev-name { color: var(--yellow); }
+    .training-proc { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 16px; align-items: start; margin-top: 22px; }
+    .train-icon { width: 44px; height: 44px; fill: none; stroke: var(--yellow); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; animation: train-spin 6s linear infinite; }
+    .train-dot { fill: var(--yellow); stroke: none; animation: train-pulse 1.8s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+    .training-proc .training-note { margin: 0; }
+    @keyframes train-spin { to { transform: rotate(360deg); } }
+    @keyframes train-pulse { 0%,100% { transform: scale(1); opacity: .6; } 50% { transform: scale(1.6); opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) { .train-icon, .train-dot { animation: none; } }
+    .training-proc { grid-column: 1 / -1; max-width: 1000px; margin: 8px auto 0; grid-template-columns: 52px minmax(0, 1fr); }
+    .train-icon { width: 52px; height: 52px; }
+    .hero, .chapter, .closing, .references { scroll-margin-top: 70px; }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+    /* hero spacing: even rhythm between title, animations and subtitle */
+    .hero { gap: clamp(22px, 3.2vh, 40px); }
+    .hero-title { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .hero-title h1 { margin: 0; }
+    .hero-sub { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .hero-sub .dek { margin: 0; }
+    .hero-sub .hero-actions { margin: 18px 0 0; justify-content: center; }
+    .hero-sub .hero-facts { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); justify-content: center; gap: clamp(28px, 5vw, 80px); }
+    /* less space above the hero; bigger key numbers */
+    .hero { padding-top: 4px; }
+    .hero-sub .hero-facts strong { font-size: clamp(2rem, 3.4vw, 3rem); line-height: 1; letter-spacing: -.04em; }
+    .hero-sub .hero-facts span { margin-top: 6px; }
+    /* neural-network pointer: layered nodes and links, hotspot on the centre node */
+    html, body, a, button, summary, [role="button"] { cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2240%22%20height%3D%2240%22%20viewBox%3D%220%200%2040%2040%22%3E%3Cdefs%3E%3CradialGradient%20id%3D%22g%22%20cx%3D%2250%25%22%20cy%3D%2250%25%22%20r%3D%2250%25%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23ffe27a%22%20stop-opacity%3D%22.9%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23f4cb3d%22%20stop-opacity%3D%220%22/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%2220%22%20r%3D%2211%22%20fill%3D%22url%28%23g%29%22/%3E%3Cg%20stroke%3D%22%23f4cb3d%22%20stroke-width%3D%22.8%22%20fill%3D%22none%22%3E%3Cline%20x1%3D%225%22%20y1%3D%229%22%20x2%3D%2216%22%20y2%3D%226%22%20stroke-opacity%3D%22.55%22/%3E%3Cline%20x1%3D%225%22%20y1%3D%229%22%20x2%3D%2216%22%20y2%3D%2216%22%20stroke-opacity%3D%22.55%22/%3E%3Cline%20x1%3D%225%22%20y1%3D%229%22%20x2%3D%2216%22%20y2%3D%2226%22%20stroke-opacity%3D%22.55%22/%3E%3Cline%20x1%3D%225%22%20y1%3D%229%22%20x2%3D%2216%22%20y2%3D%2236%22%20stroke-opacity%3D%22.55%22/%3E%3Cline%20x1%3D%225%22%20y1%3D%2220%22%20x2%3D%2216%22%20y2%3D%226%22%20stroke-opacity%3D%22.55%22/%3E%3Cline%20x1%3D%225%22%20y1%3D%2220%22%20x2%3D%2216%22%20y2%3D%2216%22%20stroke-opacity%3D%22.55%22/%3E%3Cline%20x1%3D%225%22%20y1%3D%2220%22%20x2%3D%2216%22%20y2%3D%2226%22%20stroke-opacity%3D%22.55%22/%3E%3Cline%20x1%3D%225%22%20y1%3D%2220%22%20x2%3D%2216%22%20y2%3D%2236%22%20stroke-opacity%3D%22.55%22/%3E%3Cline%20x1%3D%225%22%20y1%3D%2231%22%20x2%3D%2216%22%20y2%3D%226%22%20stroke-opacity%3D%22.55%22/%3E%3Cline%20x1%3D%225%22%20y1%3D%2231%22%20x2%3D%2216%22%20y2%3D%2216%22%20stroke-opacity%3D%22.55%22/%3E%3Cline%20x1%3D%225%22%20y1%3D%2231%22%20x2%3D%2216%22%20y2%3D%2226%22%20stroke-opacity%3D%22.55%22/%3E%3Cline%20x1%3D%225%22%20y1%3D%2231%22%20x2%3D%2216%22%20y2%3D%2236%22%20stroke-opacity%3D%22.55%22/%3E%3Cline%20x1%3D%2216%22%20y1%3D%226%22%20x2%3D%2229%22%20y2%3D%2215%22%20stroke-opacity%3D%22.55%22/%3E%3Cline%20x1%3D%2216%22%20y1%3D%226%22%20x2%3D%2229%22%20y2%3D%2227%22%20stroke-opacity%3D%22.55%22/%3E%3Cline%20x1%3D%2216%22%20y1%3D%2216%22%20x2%3D%2229%22%20y2%3D%2215%22%20stroke-opacity%3D%22.55%22/%3E%3Cline%20x1%3D%2216%22%20y1%3D%2216%22%20x2%3D%2229%22%20y2%3D%2227%22%20stroke-opacity%3D%22.55%22/%3E%3Cline%20x1%3D%2216%22%20y1%3D%2226%22%20x2%3D%2229%22%20y2%3D%2215%22%20stroke-opacity%3D%22.55%22/%3E%3Cline%20x1%3D%2216%22%20y1%3D%2226%22%20x2%3D%2229%22%20y2%3D%2227%22%20stroke-opacity%3D%22.55%22/%3E%3Cline%20x1%3D%2216%22%20y1%3D%2236%22%20x2%3D%2229%22%20y2%3D%2215%22%20stroke-opacity%3D%22.55%22/%3E%3Cline%20x1%3D%2216%22%20y1%3D%2236%22%20x2%3D%2229%22%20y2%3D%2227%22%20stroke-opacity%3D%22.55%22/%3E%3C/g%3E%3Cg%20fill%3D%22%23f4cb3d%22%3E%3Ccircle%20cx%3D%225%22%20cy%3D%229%22%20r%3D%222.1%22/%3E%3Ccircle%20cx%3D%225%22%20cy%3D%2220%22%20r%3D%222.1%22/%3E%3Ccircle%20cx%3D%225%22%20cy%3D%2231%22%20r%3D%222.1%22/%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%226%22%20r%3D%222.1%22/%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%2216%22%20r%3D%222.1%22/%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%2226%22%20r%3D%222.1%22/%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%2236%22%20r%3D%222.1%22/%3E%3Ccircle%20cx%3D%2229%22%20cy%3D%2215%22%20r%3D%222.1%22/%3E%3Ccircle%20cx%3D%2229%22%20cy%3D%2227%22%20r%3D%222.1%22/%3E%3C/g%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%2220%22%20r%3D%223%22%20fill%3D%22%23fff6c8%22%20stroke%3D%22%23f4cb3d%22%20stroke-width%3D%221%22/%3E%3C/svg%3E") 16 20, auto; }
+    /* hero animations: the video keeps its real 2:1 shape (both cameras visible), the panel spreads its bars */
+    .hero-stage .inspect { display: flex; flex-direction: column; }
+    .hero-stage .inspect-body { flex: 1 1 auto; align-content: space-evenly; }
+    .hero-stage .inspect-note { margin-top: auto; }
+    /* forward pass on click: the network lights up layer by layer, then fades */
+    .fp-net { position: fixed; width: 64px; height: 84px; pointer-events: none; z-index: 200; transform: translate(-50%, -50%); opacity: 0; }
+    .fp-net.run { animation: fp-fade 1.4s ease-out forwards; }
+    .fp-net .fp-links line { stroke: #f4cb3d; stroke-width: .5; opacity: .25; }
+    .fp-net .fp-node { fill: #f4cb3d; opacity: .25; transform-box: fill-box; transform-origin: center; }
+    .fp-net.run .fp-l0 { animation: fp-flash .5s ease-out .0s both; }
+    .fp-net.run .fp-l1 { animation: fp-flash .5s ease-out .35s both; }
+    .fp-net.run .fp-l2 { animation: fp-flash .5s ease-out .7s both; }
+    .fp-net.run .fp-links line { animation: fp-wire 1.05s ease-out .0s both; }
+    @keyframes fp-flash { 0% { opacity: .25; } 40% { opacity: 1; transform: scale(1.8); } 100% { opacity: .55; transform: scale(1); } }
+    @keyframes fp-wire { 0% { stroke-opacity: .15; } 40% { stroke-opacity: 1; } 100% { stroke-opacity: .3; } }
+    @keyframes fp-fade { 0% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
+    @media (prefers-reduced-motion: reduce) { .fp-net { display: none; } }
+    /* Policy: the intro and the schema fit one screen */
+    #policy { min-height: calc(100vh - 70px); display: flex; flex-direction: column; justify-content: center; gap: clamp(14px, 2.4vh, 26px); padding-top: 28px; padding-bottom: 28px; }
+    .policy-intro { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: clamp(28px, 4vw, 64px); align-items: start; margin: 0; }
+    .policy-intro-title, .policy-intro-text { display: flex; flex-direction: column; }
+    .policy-intro-title h2 { font-size: clamp(1.9rem, 3vw, 2.9rem); margin: 0; }
+    .policy-intro-text p { margin: 0; padding-left: 18px; border-left: 2px solid var(--yellow); }
+    #policy .model-schema { flex: 0 1 auto; min-height: 0; overflow: hidden; }
+    #policy .schema-flow { max-height: calc(100vh - 360px); min-height: 0; }
+    #policy .camera-frames img { max-height: calc((100vh - 360px) / 3); object-fit: cover; }
+    /* Policy schema: full width, more air between the blocks */
+    #policy { max-width: 1480px; padding-inline: 3vw; }
+    #policy .model-schema { width: 100%; max-width: none; }
+    #policy .schema-flow { gap: clamp(18px, 2.4vw, 40px); padding: clamp(18px, 2vw, 34px); }
+    /* Policy diagram: larger, legible, LaTeX formulas in readout and output */
+    #policy .schema-flow { min-height: 62vh; max-height: none; }
+    #policy .camera-frames img { max-height: none; height: auto; }
+    #policy .schema-label { font-size: .85rem; }
+    #policy .schema-flow code { font-size: 1.05rem; display: block; line-height: 1.5; }
+    #policy .schema-flow strong, #policy .schema-flow small { font-size: .95rem; }
+    /* policy formulas: MathJax renders <div>, not <code> */
+    #policy .formula { font-size: .95rem; line-height: 1.5; overflow-wrap: anywhere; word-break: break-word; max-width: 100%; }
+    /* policy schema: five equal columns, content from the top, formulas that fit their column */
+    #policy .schema-flow { grid-template-columns: minmax(0,1fr) 26px minmax(0,1fr) 26px minmax(0,1fr) 26px minmax(0,1fr) 26px minmax(0,1fr); min-height: 58vh; align-items: stretch; gap: 10px; }
+    #policy .schema-flow > section { justify-content: flex-start; padding: 22px 18px; }
+    #policy .schema-flow > section > .schema-label { margin: 0 0 14px; }
+    #policy .formula { font-size: .8rem; }
+    #policy .schema-output .formula { font-size: .7rem; }
+    #policy .schema-readout .formula { font-size: .78rem; }
+    #policy .camera-stream, #policy .schema-core, #policy .schema-questions { flex: 0 0 auto; }
+    /* policy schema, revised: full width, larger inputs, spaced formulas, clear arrows, sensible block height */
+    #policy { max-width: none; padding-inline: 2vw; }
+    #policy .model-schema { width: 100%; }
+    #policy .schema-flow { grid-template-columns: minmax(0,1fr) 56px minmax(0,1fr) 56px minmax(0,1fr) 56px minmax(0,1fr) 56px minmax(0,1fr); min-height: 0; height: auto; gap: 8px; padding: 26px 28px; }
+    #policy .schema-flow > section { min-height: 380px; padding: 24px 22px; gap: 14px; }
+    #policy .schema-arrow { min-width: 56px; }
+    #policy .schema-arrow b { font-size: 1.2rem; padding: 6px; }
+    #policy .schema-arrow i { height: 2px; }
+    #policy .schema-label { font-size: .95rem; letter-spacing: .02em; }
+    #policy .camera-stream { padding: 14px; }
+    #policy .camera-frames img { width: 100%; }
+    #policy .camera-stream strong { font-size: 1.05rem; }
+    #policy .task-chip, #policy .schema-questions .q-grid span { font-size: .9rem; }
+    #policy .schema-questions button, #policy .schema-questions span { min-height: 34px; }
+    #policy .schema-readout .formula, #policy .schema-output .formula { margin: 14px 0; line-height: 1.8; }
+    #policy .schema-readout .formula { font-size: .9rem; }
+    #policy .schema-output .formula { font-size: .82rem; }
+    /* camera inputs: previous and current frame side by side, no overlap */
+    #policy .camera-stream { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 16px; align-items: center; }
+    #policy .camera-frames { position: static; height: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: center; }
+    #policy .camera-frames img { position: static; width: 100%; height: auto; aspect-ratio: 1 / 1; object-fit: cover; }
+    #policy .camera-frames img:first-child { opacity: .55; animation: none; }
+    #policy .camera-frames img:last-child { animation: none; }
+    /* policy formulas: display-mode LaTeX, centred, with air around each */
+    #policy .schema-readout .formula, #policy .schema-output .formula { font-size: .8rem; margin: 10px 0; overflow-x: auto; }
+    #policy .formula mjx-container[display="true"] { margin: .4em 0 !important; }
+    /* policy-math: motion axes as bin distributions, gripper as an open/close animation */
+    .axis-viz { display: grid; gap: 4px; margin: 10px 0; }
+    .axis-row { display: grid; grid-template-columns: 34px 1fr; gap: 10px; align-items: end; }
+    .axis-row b { font: 400 .72rem var(--mono); color: var(--muted); }
+    .axis-bars { display: grid; grid-template-columns: repeat(25, 1fr); align-items: end; gap: 2px; height: 22px; }
+    .axis-bars i { display: block; height: var(--h); background: rgba(65,152,255,.4); transform-origin: bottom; animation: bin-breathe 2.8s ease-in-out var(--d) infinite; }
+    .axis-bars i.peak { background: var(--yellow); }
+    @keyframes bin-breathe { 0%,100% { transform: scaleY(.55); } 50% { transform: scaleY(1); } }
+    .grip-viz { margin: 10px 0; display: grid; grid-template-columns: 120px 1fr; gap: 14px; align-items: center; }
+    .grip-svg { width: 120px; height: 80px; }
+    .grip-base { fill: #2a313c; }
+    .jaw { fill: var(--yellow); transform-box: fill-box; animation: grip-cycle 4s ease-in-out infinite; }
+    .jaw-l { transform-origin: right center; }
+    .jaw-r { transform-origin: left center; }
+    .jaw-l { animation-name: grip-close-l; }
+    .jaw-r { animation-name: grip-close-r; }
+    @keyframes grip-close-l { 0%,40% { transform: translateX(0); } 60%,100% { transform: translateX(14px); } }
+    @keyframes grip-close-r { 0%,40% { transform: translateX(0); } 60%,100% { transform: translateX(-14px); } }
+    .grip-state { font: 400 .72rem var(--mono); color: var(--muted); display: grid; gap: 6px; }
+    .grip-state span { transition: color .3s; }
+    .st-open { animation: grip-label-open 4s steps(1) infinite; }
+    .st-closed { animation: grip-label-closed 4s steps(1) infinite; }
+    @keyframes grip-label-open { 0%,40% { color: var(--yellow); } 60%,100% { color: var(--muted); } }
+    @keyframes grip-label-closed { 0%,40% { color: var(--muted); } 60%,100% { color: var(--yellow); } }
+    @media (prefers-reduced-motion: reduce) { .axis-bars i, .jaw, .st-open, .st-closed { animation: none; } }
+    /* schema 04/05: per-axis rows shared by the distribution histograms and the collapsed values */
+    .axis-readout, .axis-readout-row, .mini-bars { min-width: 0; }
+    .axis-readout { display: grid; gap: 5px; margin: 4px 0 2px; }
+    .axis-readout-row { display: grid; grid-template-columns: 20px 1fr; gap: 8px; align-items: center; }
+    .axis-readout-row b { font: 400 .68rem var(--mono); color: var(--muted); }
+    .axis-readout-row .mini-bars { display: grid; grid-template-columns: repeat(25, 1fr); align-items: end; gap: 1px; height: 24px; }
+    .axis-readout-row .mini-bars i { display: block; height: var(--h); background: rgba(65,152,255,.4); transform-origin: bottom; animation: bin-breathe 2.8s ease-in-out var(--d) infinite; }
+    .axis-readout-row .mini-bars i.peak { background: var(--yellow); }
+    .axis-readout-row.grip .mini-grip { display: flex; align-items: center; gap: 8px; height: 24px; font: 400 .62rem var(--mono); color: var(--muted); }
+    .axis-readout-row.grip .mini-grip i { width: 8px; height: 8px; border-radius: 50%; background: var(--yellow); animation: grip-label-closed 4s steps(1) infinite reverse; }
+    @media (prefers-reduced-motion: reduce) { .axis-readout-row .mini-bars i, .axis-readout-row.grip .mini-grip i { animation: none; } }
+    /* schema 05: a small animated arm icon — reach, grasp, lift, release, loop */
+    .arm-svg { width: 92px; height: auto; margin: 10px auto 6px; display: block; overflow: visible; }
+    .arm-base { fill: #2a313c; }
+    .arm-link { fill: var(--blue); }
+    .arm-jaw { fill: var(--yellow); transform-box: fill-box; }
+    .arm-shoulder { transform-box: fill-box; transform-origin: 50% 100%; animation: arm-shoulder 4s ease-in-out infinite; }
+    .arm-elbow { transform-box: fill-box; transform-origin: 50% 100%; animation: arm-elbow 4s ease-in-out infinite; }
+    .arm-jaw.jaw-l { animation: arm-jaw-l 4s ease-in-out infinite; }
+    .arm-jaw.jaw-r { animation: arm-jaw-r 4s ease-in-out infinite; }
+    @keyframes arm-shoulder {
+      0%, 8% { transform: rotate(8deg); }
+      28%, 55% { transform: rotate(-20deg); }
+      78%, 100% { transform: rotate(8deg); }
+    }
+    @keyframes arm-elbow {
+      0%, 8% { transform: rotate(-4deg); }
+      28%, 55% { transform: rotate(26deg); }
+      78%, 100% { transform: rotate(-4deg); }
+    }
+    @keyframes arm-jaw-l {
+      0%, 20% { transform: translateX(0); }
+      35%, 68% { transform: translateX(2.6px); }
+      85%, 100% { transform: translateX(0); }
+    }
+    @keyframes arm-jaw-r {
+      0%, 20% { transform: translateX(0); }
+      35%, 68% { transform: translateX(-2.6px); }
+      85%, 100% { transform: translateX(0); }
+    }
+    @media (prefers-reduced-motion: reduce) { .arm-shoulder, .arm-elbow, .arm-jaw { animation: none; } }
+
+  </style>
 </head>
 <body>
   <div class="scroll-meter" aria-hidden="true"><span id="scroll-progress"></span></div>
@@ -27,14 +254,12 @@
       <span>PlayJev <i>×</i> LIBERO</span>
     </a>
     <nav aria-label="Main navigation">
-      <a href="#jev">JEV</a>
-      <a href="#alphabet">Alphabet</a>
-      <a href="#evidence">Evidence</a>
+      <a href="#results">Result</a>
       <a href="#policy">Policy</a>
+      <a href="#horizon">Horizon</a>
       <a href="#next">What’s next</a>
     </nav>
     <button class="soundless" id="motion-toggle" type="button" aria-pressed="false">Reduce motion</button>
-    <a class="soundless" href="v01.html">Vai a blogpost v01</a>
   </header>
 
   <nav class="reading-index" aria-label="Reading position">
@@ -42,11 +267,13 @@
       <li><a href="#start" data-section="start"><b><em>00</em> Start</b></a></li>
       <li><a href="#jev" data-section="jev"><b><em>01</em> Architecture</b></a></li>
       <li><a href="#playjev" data-section="playjev"><b><em>02</em> PlayJev</b></a></li>
-      <li><a href="#alphabet" data-section="alphabet"><b><em>03</em> Alphabet</b></a></li>
-      <li><a href="#evidence" data-section="evidence"><b><em>04</em> Oracle replay</b></a></li>
-      <li><a href="#policy" data-section="policy"><b><em>05</em> Policy</b></a></li>
-      <li><a href="#horizon" data-section="horizon"><b><em>05b</em> Horizon</b></a></li>
+      <li><a href="#policy" data-section="policy"><b><em>03</em> Policy</b></a></li>
+      <li><a href="#results" data-section="results"><b><em>04</em> Result</b></a></li>
+      <li><a href="#horizon" data-section="horizon"><b><em>05</em> Horizon</b></a></li>
       <li><a href="#next" data-section="next"><b><em>06</em> Next test</b></a></li>
+      <li><a href="#alphabet" data-section="alphabet"><b><em>A</em> Appendix · Alphabet</b></a></li>
+      <li><a href="#evidence" data-section="evidence"><b><em>B</em> Appendix · Oracle replay</b></a></li>
+      <li><a href="#ablations" data-section="ablations"><b><em>C</em> Appendix · Ablations</b></a></li>
       <li><a href="#references" data-section="references"><b>References</b></a></li>
     </ol>
     <p class="reading-percent" aria-live="off"><span id="reading-percent">0%</span> read</p>
@@ -54,6 +281,10 @@
 
   <main id="top">
     <section class="hero" id="start" aria-labelledby="hero-title">
+      <div class="hero-title reveal">
+        <p class="eyebrow"><span>Experiment 01</span> · From games to robotics</p>
+        <h1 id="hero-title">Jev for <em>continuous</em> robot control.</h1>
+        </div>
       <div class="hero-stage reveal" data-delay="1">
         <figure class="media-card robot-hero">
           <video id="hero-video" autoplay loop muted playsinline poster="assets/rollout-episode21.jpg" aria-label="PlayJev driving the LIBERO robot to pick up the black bowl and place it on the plate. Left: external camera. Right: wrist camera.">
@@ -61,48 +292,39 @@
           </video>
           <figcaption><span class="live-dot blue"></span> One robot · pick up the black bowl · success</figcaption>
         </figure>
-        <details class="inspect" id="hero-inspect">
-          <summary>Show the decision · 25 bins per axis</summary>
+        <div class="inspect" id="hero-inspect">
           <div class="inspect-body" id="bin-panel"></div>
           <p class="inspect-note">At each step PlayJev answers seven questions. The bars are the probabilities over the 25 bins of each axis, for the frame on screen. The highlighted bin is the most likely one; the number is the value executed.</p>
-        </details>
+        </div>
       </div>
 
-      <div class="hero-copy reveal">
-        <p class="eyebrow"><span>Experiment 01</span> · From games to robotics</p>
-        <h1 id="hero-title">From simple commands<br>to <em>continuous</em><br>robot control.</h1>
-        <p class="dek">PlayJev learned to play games by choosing between a few simple moves. We study what it takes to give that same model control of a robot, where every decision is a precise, multidimensional movement.</p>
-        <div class="hero-actions">
-          <a class="button primary" href="#jev">Meet JEV</a>
-          <a class="button ghost" href="#evidence">See the evidence</a>
-        </div>
+      
+      <div class="hero-sub reveal"><p class="dek">We study what it takes to give Jev the ability of controlling a robot, where every decision is a precise, multidimensional movement.</p>
         <div class="hero-facts" aria-label="Key results">
           <div><strong>0.8B</strong><span>parameters</span></div>
-          <div><strong>70%</strong><span>success rate · 28/40 on dev set</span></div>
+          <div><strong>98.2%</strong><span>success · 491/500, official LIBERO-Spatial protocol</span></div>
           <div><strong>193 ms</strong><span>per step, p50</span></div>
         </div>
       </div>
-
     </section>
 
     <section class="chapter theory" id="jev">
       <div class="chapter-number">01</div>
-      <div class="section-heading reveal">
-        <p class="eyebrow">01 · The architecture behind the study</p>
-        <h2>JEV turns language-model prediction into a decision.</h2>
-        <p>JEV is the new model architecture from which this study begins. Instead of producing an unconstrained answer, it evaluates a finite set of admissible choices and returns a calibrated probability distribution over them. The result is a fast, inspectable decision layer that can sit between an observed state and an action.<a class="cite" href="#ref-openjev" aria-label="Reference 1">[1]</a></p>
+      <div class="section-heading reveal jev-intro">
+        <div class="jev-intro-title"><p class="eyebrow">01 · The architecture behind the study</p><h2><span class="jev-name">JEV</span> turns language-model prediction into a decision.</h2></div>
+        <div class="jev-intro-text"><p><span class="jev-name">JEV</span> is the new model architecture from which this study begins. Instead of producing an unconstrained answer, it evaluates a finite set of admissible choices and returns a calibrated probability distribution over them. The result is a fast, inspectable decision layer that can sit between an observed state and an action.<a class="cite" href="#ref-openjev" aria-label="Reference 1">[1]</a></p></div>
       </div>
 
       <div class="definition-grid reveal">
         <article class="definition-card">
-          <span class="definition-index">I</span><p class="eyebrow">The JEV foundation</p>
+          <span class="definition-index">I</span><p class="eyebrow">The <span class="jev-name">JEV</span> foundation</p>
           <div class="equation">\[\mathcal{D}=(s,q,\mathcal{O})\]</div>
-          <p>Studying JEV reveals a useful control primitive: \(s\) is the observed state, \(q\) is a question, and \(\mathcal{O}=\{o_1,\ldots,o_K\}\) is a finite set of admissible commands.</p>
+          <p>Studying <span class="jev-name">JEV</span> reveals a useful control primitive: \(s\) is the observed state, \(q\) is a question, and \(\mathcal{O}=\{o_1,\ldots,o_K\}\) is a finite set of admissible commands.</p>
         </article>
         <article class="definition-card">
           <span class="definition-index">II</span><p class="eyebrow">Choice readout</p>
           <div class="equation">\[p_\theta(o_i\mid\mathcal{D})=\frac{\exp(\ell_i)}{\sum_{j\in\mathcal{O}}\exp(\ell_j)}\]</div>
-          <p>The language model runs once. We keep only the logits \(\ell_i\) of the valid answer letters and normalize them over the option set.</p>
+          <p>The language model runs once. Only the logits \(\ell_i\) of the valid answer letters are kept and normalized over the option set.</p>
         </article>
         <article class="definition-card">
           <span class="definition-index">III</span><p class="eyebrow">Decision</p>
@@ -112,16 +334,20 @@
       </div>
 
       <div class="contract-diagram reveal" aria-label="JEV decision contract diagram">
-        <div class="contract-input"><span>STATE \(s\)</span><b>pixels or text</b></div><div class="contract-plus">\(+\)</div>
-        <div class="contract-input"><span>QUESTION \(q\)</span><b>what should happen?</b></div><div class="contract-plus">\(+\)</div>
-        <div class="contract-input"><span>OPTIONS \(\mathcal{O}\)</span><b>A · B · C · …</b></div><div class="contract-arrow">\(\rightarrow\)</div>
-        <div class="contract-model"><span>one forward pass</span><b>JEV-style model</b></div><div class="contract-arrow">→</div>
-        <div class="contract-output"><span>simplex \(\Delta^{K-1}\)</span><b>\([0.08,\,0.71,\,0.21]\)</b></div>
+        <div class="contract-input"><span class="ci-wrap"><svg viewBox="0 0 24 24" class="ci"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 16l5-5 4 4 3-3 6 6"/><circle cx="16" cy="9" r="1.6"/></svg></span><span>STATE \(s\)</span><b>pixels or text</b></div>
+        <div class="contract-plus" aria-hidden="true">+</div>
+        <div class="contract-input"><span class="ci-wrap"><svg viewBox="0 0 24 24" class="ci"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.7"/><circle cx="12" cy="17" r=".6"/></svg></span><span>QUESTION \(q\)</span><b>what should happen?</b></div>
+        <div class="contract-plus" aria-hidden="true">+</div>
+        <div class="contract-input"><span class="ci-wrap"><svg viewBox="0 0 24 24" class="ci"><circle cx="5" cy="7" r="1.4"/><circle cx="5" cy="12" r="1.4"/><circle cx="5" cy="17" r="1.4"/><path d="M10 7h10M10 12h10M10 17h10"/></svg></span><span>OPTIONS \(\mathcal{O}\)</span><b>A · B · C · …</b></div>
+        <div class="contract-arrow" aria-hidden="true">→</div>
+        <div class="contract-model"><span class="ci-wrap"><svg viewBox="0 0 24 24" class="ci"><circle cx="5" cy="6" r="2"/><circle cx="5" cy="18" r="2"/><circle cx="12" cy="9" r="2"/><circle cx="12" cy="15" r="2"/><circle cx="19" cy="12" r="2"/><path d="M7 6.5l3 2M7 17.5l3-2M14 10l3 1.3M14 14l3-1.3"/></svg></span><span>one forward pass</span><b>JEV-style model</b></div>
+        <div class="contract-arrow" aria-hidden="true">→</div>
+        <div class="contract-output"><span class="ci-wrap"><svg viewBox="0 0 24 24" class="ci"><path d="M4 20h16"/><rect x="5" y="11" width="3" height="9" class="bar b1"/><rect x="10.5" y="5" width="3" height="15" class="bar b2"/><rect x="16" y="14" width="3" height="6" class="bar b3"/></svg></span><span>simplex \(\Delta^{K-1}\)</span><b>\([0.08,\,0.71,\,0.21]\)</b></div>
       </div>
 
       <div class="control-bridge reveal">
         <div><p class="eyebrow">From architecture to robotics</p><h3>A finite choice is simple.<br>A robot action is not.</h3></div>
-        <p>JEV gives us the decision mechanism. The open question is how to use it when the output is no longer “left”, “right”, or “jump”. At every step, a robot must coordinate position, orientation, and its gripper with continuous precision. Our study asks how far the JEV architecture can be extended across that gap.</p>
+        <p>The <span class="jev-name">JEV</span> architecture provides the decision mechanism. The open question is how to use it when the output is no longer “left”, “right”, or “jump”. At every step, a robot must coordinate position, orientation, and its gripper with continuous precision. The question addressed here is how far the <span class="jev-name">JEV</span> architecture can be extended across that gap.</p>
       </div>
 
     </section>
@@ -130,13 +356,13 @@
       <div class="chapter-number">02</div>
       <div class="chapter-copy reveal">
         <p class="eyebrow">02 · A visual child of JEV</p>
-        <h2>PlayJev inherits the decision contract—and learns to see.</h2>
-        <p>JEV defines the parent interface: a state, a question, a finite set of options, and a probability for each valid answer. PlayJev is its visual specialization. It keeps that contract intact, but replaces a textual state with raw pixels and trains the decision model on interaction.<a class="cite" href="#ref-playjev" aria-label="Reference 2">[2]</a></p>
+        <h2><span class="jev-name">PlayJev</span> inherits the decision contract—and learns to see.</h2>
+        <p>JEV defines the parent interface: a state, a question, a finite set of options, and a probability for each valid answer. <span class="jev-name">PlayJev</span> is its visual specialization. It keeps that contract intact, but replaces a textual state with raw pixels and trains the decision model on interaction.<a class="cite" href="#ref-playjev" aria-label="Reference 2">[2]</a></p>
 
         <div class="playjev-lineage" aria-label="JEV to PlayJev model hierarchy">
           <div><small>PARENT CONTRACT</small><strong>JEV</strong><span>finite-choice decision interface</span></div>
           <i aria-hidden="true">inherits →</i>
-          <div class="child"><small>VISUAL SPECIALIZATION</small><strong>PlayJev</strong><span>pixels in · action probabilities out</span></div>
+          <div class="child"><small>VISUAL SPECIALIZATION</small><strong><span class="jev-name">PlayJev</span></strong><span>pixels in · action probabilities out</span></div>
         </div>
 
         <div class="model-specs" aria-label="How PlayJev makes a decision">
@@ -145,9 +371,9 @@
           <span><small>OPTIONS</small><b>shuffled moves</b> position cannot reveal the answer</span>
           <span><small>READOUT</small><b>valid-letter logits</b> normalized into a policy</span>
         </div>
-        <p class="training-note"><strong>Training procedure.</strong> PlayJev learns first from supervised cloning, then from three DAgger rounds that add teacher labels on states reached by the model itself.<a class="cite" href="#ref-dagger" aria-label="Reference 3">[3]</a> Across 2.2 million game frames, one shared policy learns ten different games and reaches a mean teacher-normalized score of 0.57.</p>
+        
       </div>
-      <div class="choice-demo reveal" data-delay="1" aria-label="Example PlayJev decision">
+            <div class="choice-demo reveal" data-delay="1" aria-label="Example PlayJev decision">
         <div class="choice-frame">
           <img src="assets/games-board.webp" alt="Frames from ten games controlled by PlayJev">
           <span>raw game frame</span>
@@ -164,11 +390,333 @@
           <p class="choice-caption">Only logits assigned to valid answer letters become the action distribution.</p>
         </div>
       </div>
+          <div class="training-proc"><svg class="train-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v4h-4"/><circle cx="12" cy="12" r="2.2" class="train-dot"/></svg><p class="training-note"><strong>Training procedure.</strong> <span class="jev-name">PlayJev</span> learns first from supervised cloning, then from three DAgger rounds that add teacher labels on states reached by the model itself.<a class="cite" href="#ref-dagger" aria-label="Reference 3">[3]</a> Across 2.2 million game frames, one shared policy learns ten different games and reaches a mean teacher-normalized score of 0.57.</p></div>
+    </section>
+
+    <section class="chapter policy" id="policy">
+      <div class="section-heading reveal policy-intro">
+        <div class="policy-intro-title"><p class="eyebrow">05 · The policy</p><h2>Seven questions.<br>One movement.</h2></div>
+        <div class="policy-intro-text"><p>The best-performing policy reads both cameras at the same instant, neither one a time pair: external and wrist, both at step t. PlayJev encodes both streams once, answers seven axis-specific Choice questions in parallel, and reconstructs one continuous robot action.</p></div>
+      </div>
+
+      <div class="model-schema reveal" role="img" aria-label="Animated architecture diagram of the best PlayJev robot policy, external and wrist cameras at the same instant, to a seven-dimensional action">
+        <div class="schema-topbar"><span>BEST RESULT · 98.2% · EIGHT-STEP READOUT</span><small>one control step \(t\)</small></div>
+        <div class="schema-flow">
+          <section class="schema-inputs">
+            <p class="schema-label">01 · synchronized input</p>
+            <div class="camera-stream agent-stream">
+              <div class="camera-frames single"><img src="assets/model-agent.jpg" alt=""></div>
+              <div><strong>external camera</strong><small>same instant, \(t\)</small></div>
+            </div>
+            <div class="camera-stream wrist-stream">
+              <div class="camera-frames single"><img src="assets/model-wrist.jpg" alt=""></div>
+              <div><strong>wrist camera</strong><small>same instant, \(t\)</small></div>
+            </div>
+            <div class="task-chip"><span>LANGUAGE</span><b>“pick up the black bowl…”</b></div>
+          </section>
+
+          <div class="schema-arrow" aria-hidden="true"><i></i><b>→</b></div>
+
+          <section class="schema-core">
+            <p class="schema-label">02 · shared model</p>
+            <div class="vision-streams" aria-hidden="true"><span>external camera tokens</span><span>wrist camera tokens</span></div>
+            <div class="model-core"><small>QWEN3.5 · 0.8B</small><strong>PlayJev</strong><i></i><span>shared visual-language state</span></div>
+          </section>
+
+          <div class="schema-arrow" aria-hidden="true"><i></i><b>→</b></div>
+
+          <section class="schema-questions">
+            <p class="schema-label">03 · one batched forward</p>
+            <div class="question-fan" aria-hidden="true">
+              <span style="--d:0">dx</span><span style="--d:1">dy</span><span style="--d:2">dz</span><span style="--d:3">dα</span><span style="--d:4">dβ</span><span style="--d:5">dγ</span><span style="--d:6">grip</span>
+            </div>
+            <small>7 Choice questions · shared visual state</small>
+          </section>
+
+          <div class="schema-arrow" aria-hidden="true"><i></i><b>→</b></div>
+
+          <section class="schema-readout">
+            <p class="schema-label">04 · distributions</p>
+            <div class="axis-readout" aria-hidden="true">
+            <div class="axis-readout-row"><b>dx</b><div class="mini-bars"><i style="--h:6%;--d:0.23s"></i><i style="--h:6%;--d:0.22s"></i><i style="--h:6%;--d:0.2s"></i><i style="--h:6%;--d:0.19s"></i><i style="--h:6%;--d:0.18s"></i><i style="--h:6%;--d:0.17s"></i><i style="--h:6%;--d:0.16s"></i><i style="--h:6%;--d:0.14s"></i><i style="--h:6%;--d:0.13s"></i><i style="--h:6%;--d:0.12s"></i><i style="--h:6%;--d:0.11s"></i><i style="--h:6%;--d:0.1s"></i><i style="--h:6%;--d:0.08s"></i><i style="--h:8%;--d:0.07s"></i><i style="--h:17%;--d:0.06s"></i><i style="--h:31%;--d:0.05s"></i><i style="--h:55%;--d:0.04s"></i><i style="--h:73%;--d:0.02s"></i><i style="--h:89%;--d:0.01s"></i><i style="--h:100%;--d:0.0s" class="peak"></i><i style="--h:86%;--d:0.01s"></i><i style="--h:61%;--d:0.02s"></i><i style="--h:37%;--d:0.04s"></i><i style="--h:25%;--d:0.05s"></i><i style="--h:15%;--d:0.06s"></i></div></div>
+            <div class="axis-readout-row"><b>dy</b><div class="mini-bars"><i style="--h:6%;--d:0.16s"></i><i style="--h:6%;--d:0.14s"></i><i style="--h:6%;--d:0.13s"></i><i style="--h:6%;--d:0.12s"></i><i style="--h:6%;--d:0.11s"></i><i style="--h:6%;--d:0.1s"></i><i style="--h:6%;--d:0.08s"></i><i style="--h:6%;--d:0.07s"></i><i style="--h:6%;--d:0.06s"></i><i style="--h:6%;--d:0.05s"></i><i style="--h:14%;--d:0.04s"></i><i style="--h:46%;--d:0.02s"></i><i style="--h:90%;--d:0.01s"></i><i style="--h:100%;--d:0.0s" class="peak"></i><i style="--h:80%;--d:0.01s"></i><i style="--h:40%;--d:0.02s"></i><i style="--h:23%;--d:0.04s"></i><i style="--h:11%;--d:0.05s"></i><i style="--h:6%;--d:0.06s"></i><i style="--h:6%;--d:0.07s"></i><i style="--h:6%;--d:0.08s"></i><i style="--h:6%;--d:0.1s"></i><i style="--h:6%;--d:0.11s"></i><i style="--h:6%;--d:0.12s"></i><i style="--h:6%;--d:0.13s"></i></div></div>
+            <div class="axis-readout-row"><b>dz</b><div class="mini-bars"><i style="--h:100%;--d:0.0s" class="peak"></i><i style="--h:71%;--d:0.01s"></i><i style="--h:21%;--d:0.02s"></i><i style="--h:6%;--d:0.04s"></i><i style="--h:6%;--d:0.05s"></i><i style="--h:6%;--d:0.06s"></i><i style="--h:6%;--d:0.07s"></i><i style="--h:6%;--d:0.08s"></i><i style="--h:6%;--d:0.1s"></i><i style="--h:6%;--d:0.11s"></i><i style="--h:6%;--d:0.12s"></i><i style="--h:6%;--d:0.13s"></i><i style="--h:6%;--d:0.14s"></i><i style="--h:6%;--d:0.16s"></i><i style="--h:6%;--d:0.17s"></i><i style="--h:6%;--d:0.18s"></i><i style="--h:6%;--d:0.19s"></i><i style="--h:6%;--d:0.2s"></i><i style="--h:6%;--d:0.22s"></i><i style="--h:6%;--d:0.23s"></i><i style="--h:6%;--d:0.24s"></i><i style="--h:6%;--d:0.25s"></i><i style="--h:6%;--d:0.26s"></i><i style="--h:6%;--d:0.28s"></i><i style="--h:6%;--d:0.29s"></i></div></div>
+            <div class="axis-readout-row"><b>dα</b><div class="mini-bars"><i style="--h:6%;--d:0.19s"></i><i style="--h:6%;--d:0.18s"></i><i style="--h:6%;--d:0.17s"></i><i style="--h:6%;--d:0.16s"></i><i style="--h:6%;--d:0.14s"></i><i style="--h:6%;--d:0.13s"></i><i style="--h:6%;--d:0.12s"></i><i style="--h:6%;--d:0.11s"></i><i style="--h:6%;--d:0.1s"></i><i style="--h:6%;--d:0.08s"></i><i style="--h:8%;--d:0.07s"></i><i style="--h:30%;--d:0.06s"></i><i style="--h:59%;--d:0.05s"></i><i style="--h:78%;--d:0.04s"></i><i style="--h:96%;--d:0.02s"></i><i style="--h:99%;--d:0.01s"></i><i style="--h:100%;--d:0.0s" class="peak"></i><i style="--h:85%;--d:0.01s"></i><i style="--h:61%;--d:0.02s"></i><i style="--h:40%;--d:0.04s"></i><i style="--h:29%;--d:0.05s"></i><i style="--h:16%;--d:0.06s"></i><i style="--h:6%;--d:0.07s"></i><i style="--h:6%;--d:0.08s"></i><i style="--h:6%;--d:0.1s"></i></div></div>
+            <div class="axis-readout-row"><b>dβ</b><div class="mini-bars"><i style="--h:6%;--d:0.13s"></i><i style="--h:6%;--d:0.12s"></i><i style="--h:6%;--d:0.11s"></i><i style="--h:6%;--d:0.1s"></i><i style="--h:6%;--d:0.08s"></i><i style="--h:6%;--d:0.07s"></i><i style="--h:6%;--d:0.06s"></i><i style="--h:12%;--d:0.05s"></i><i style="--h:31%;--d:0.04s"></i><i style="--h:62%;--d:0.02s"></i><i style="--h:84%;--d:0.01s"></i><i style="--h:100%;--d:0.0s" class="peak"></i><i style="--h:91%;--d:0.01s"></i><i style="--h:55%;--d:0.02s"></i><i style="--h:19%;--d:0.04s"></i><i style="--h:6%;--d:0.05s"></i><i style="--h:6%;--d:0.06s"></i><i style="--h:6%;--d:0.07s"></i><i style="--h:6%;--d:0.08s"></i><i style="--h:6%;--d:0.1s"></i><i style="--h:6%;--d:0.11s"></i><i style="--h:6%;--d:0.12s"></i><i style="--h:6%;--d:0.13s"></i><i style="--h:6%;--d:0.14s"></i><i style="--h:6%;--d:0.16s"></i></div></div>
+            <div class="axis-readout-row"><b>dγ</b><div class="mini-bars"><i style="--h:6%;--d:0.13s"></i><i style="--h:6%;--d:0.12s"></i><i style="--h:6%;--d:0.11s"></i><i style="--h:6%;--d:0.1s"></i><i style="--h:6%;--d:0.08s"></i><i style="--h:6%;--d:0.07s"></i><i style="--h:6%;--d:0.06s"></i><i style="--h:6%;--d:0.05s"></i><i style="--h:8%;--d:0.04s"></i><i style="--h:31%;--d:0.02s"></i><i style="--h:64%;--d:0.01s"></i><i style="--h:100%;--d:0.0s" class="peak"></i><i style="--h:85%;--d:0.01s"></i><i style="--h:37%;--d:0.02s"></i><i style="--h:8%;--d:0.04s"></i><i style="--h:6%;--d:0.05s"></i><i style="--h:6%;--d:0.06s"></i><i style="--h:6%;--d:0.07s"></i><i style="--h:6%;--d:0.08s"></i><i style="--h:6%;--d:0.1s"></i><i style="--h:6%;--d:0.11s"></i><i style="--h:6%;--d:0.12s"></i><i style="--h:6%;--d:0.13s"></i><i style="--h:6%;--d:0.14s"></i><i style="--h:6%;--d:0.16s"></i></div></div>
+            <div class="axis-readout-row grip"><b>g</b><div class="mini-grip"><i></i><span>open</span><span>closed</span></div></div>
+            </div>
+            <div class="formula">\[p_\theta(b_k \mid s_{t-1:t},\, q,\, j)\]</div>
+          </section>
+
+          <div class="schema-arrow" aria-hidden="true"><i></i><b>→</b></div>
+
+          <section class="schema-output">
+            <p class="schema-label">05 · execute</p>
+            <svg viewBox="0 0 100 112" class="arm-svg" aria-hidden="true">
+              <rect class="arm-base" x="34" y="98" width="32" height="12" rx="3"/>
+              <g class="arm-shoulder">
+                <rect class="arm-link" x="46" y="40" width="8" height="58" rx="3"/>
+                <g class="arm-elbow">
+                  <rect class="arm-link" x="46" y="4" width="7" height="36" rx="3"/>
+                  <g class="arm-gripper">
+                    <rect class="arm-jaw jaw-l" x="38" y="0" width="11" height="4" rx="1.5"/>
+                    <rect class="arm-jaw jaw-r" x="51" y="0" width="11" height="4" rx="1.5"/>
+                  </g>
+                </g>
+              </g>
+            </svg>
+            <div class="formula">\[\hat a_t=(\hat a_{t,1},\dots,\hat a_{t,6},\,\hat g_t)\]</div>
+            <strong>7D ACTION</strong>
+          </section>
+        </div>
+        <div class="schema-legend"><span><i class="current-dot"></i>external camera, same instant t (not a time pair)</span><span><i class="proposed-dot"></i>wrist camera, same instant t (not a time pair)</span><span>BIN25 expected-value readout · eight steps ahead · 98.2% on the official protocol</span></div>
+      </div>
+
+    </section>
+
+    <div class="result-divider reveal" aria-hidden="true"><span>RESULT</span></div>
+
+    <section class="chapter results no-border" id="results">
+      <div class="section-heading reveal">
+        <p class="eyebrow">The result</p>
+        <h2>Official evaluation protocol</h2>
+      </div>
+      <div class="reveal">
+        <p>Every number on this page comes from the official LIBERO-Spatial evaluation protocol, the same one used throughout the published literature for this benchmark (OpenVLA, OpenVLA-OFT and the other systems in the table below): fifty fixed initial states per task — <code>suite.get_task_init_states()</code> — across the suite's ten tasks, five hundred episodes total, every one of the 432 demonstrations used as training data with nothing held out for validation. Each episode seeds the simulator (<code>env.seed(0)</code>), resets to its fixed initial state rather than a random one, runs ten no-op steps to let the scene settle, then allows up to 220 control steps at 256×256 camera resolution; success is read directly from <code>env.check_success()</code>, the suite's own goal predicate, with no custom scoring. We verified this byte-for-byte against OpenVLA-OFT's own evaluation code before running a single episode, so the comparison in this table is not approximate.</p>
+        <table class="results-table">
+          <thead><tr><th>Policy</th><th>Params</th><th>Successes</th><th>Rate</th><th>95% interval</th></tr></thead>
+          <tbody>
+            <tr class="other-model"><td>Octo, published</td><td>93M</td><td>—</td><td>78.9%</td><td>—</td></tr>
+            <tr class="other-model"><td>Diffusion Policy, published</td><td>~260M</td><td>—</td><td>78.3%</td><td>—</td></tr>
+            <tr class="other-model"><td>SpatialVLA, published</td><td>4B</td><td>—</td><td>88.2%</td><td>—</td></tr>
+            <tr class="other-model"><td>OpenVLA, our local reproduction</td><td>7B</td><td>442 / 500</td><td>88.4%</td><td>85.6–91.0%</td></tr>
+            <tr class="other-model"><td>pi0, published</td><td>~3.3B</td><td>—</td><td>96.8%</td><td>—</td></tr>
+            <tr class="other-model"><td>CogACT, published</td><td>~7.3B<sup>*</sup></td><td>—</td><td>97.2%</td><td>—</td></tr>
+            <tr class="other-model"><td>OpenVLA-OFT, our local reproduction</td><td>7B</td><td>488 / 500</td><td>97.6%</td><td>96.2–98.8%</td></tr>
+            <tr><td><strong>PlayJev, 8 steps ahead + wrist (ours)</strong></td><td><b>0.8B</b></td><td><b>491 / 500</b></td><td><b>98.2%</b></td><td>96.6–99.1%</td></tr>
+          </tbody>
+        </table>
+        <p class="limit"><em>Our own rows (OpenVLA, OpenVLA-OFT, PlayJev) are 500-episode closed-loop evaluations run locally on the official initial states. The other rows are each author's own published number for LIBERO-Spatial, not re-run by us — different training runs, sometimes different episode counts or seeds, so treat cross-paper digits as approximate. <sup>*</sup>CogACT states its backbone (7B) and action-head size separately, not a single published total; ~7.3B is our own sum of the two, not a number from its paper. Every PlayJev ablation arm (camera combinations, proprioception, chunking) is in Appendix C, not here.</em></p>
+        <div class="results-charts">
+          <figure class="results-chart">
+            <figcaption><b>Success rate vs. parameters</b><span>all rows above, log-scale x-axis</span></figcaption>
+            <svg viewBox="0 0 640 380" role="img" aria-label="Success rate versus parameter count, log scale, across published LIBERO-Spatial systems">
+<line x1="70" y1="297.9" x2="590" y2="297.9" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+<text x="58" y="301.9" fill="#9da5b4" font-size="11" text-anchor="end" font-family="DM Mono, monospace">75%</text>
+<line x1="70" y1="244.3" x2="590" y2="244.3" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+<text x="58" y="248.3" fill="#9da5b4" font-size="11" text-anchor="end" font-family="DM Mono, monospace">80%</text>
+<line x1="70" y1="190.7" x2="590" y2="190.7" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+<text x="58" y="194.7" fill="#9da5b4" font-size="11" text-anchor="end" font-family="DM Mono, monospace">85%</text>
+<line x1="70" y1="137.1" x2="590" y2="137.1" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+<text x="58" y="141.1" fill="#9da5b4" font-size="11" text-anchor="end" font-family="DM Mono, monospace">90%</text>
+<line x1="70" y1="83.6" x2="590" y2="83.6" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+<text x="58" y="87.6" fill="#9da5b4" font-size="11" text-anchor="end" font-family="DM Mono, monospace">95%</text>
+<line x1="70" y1="30.0" x2="590" y2="30.0" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+<text x="58" y="34.0" fill="#9da5b4" font-size="11" text-anchor="end" font-family="DM Mono, monospace">100%</text>
+<line x1="106.7" y1="330" x2="106.7" y2="30" stroke="rgba(255,255,255,.18)" stroke-width="1" stroke-dasharray="2 4"/>
+<text x="106.7" y="352" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">100M</text>
+<line x1="219.6" y1="330" x2="219.6" y2="30" stroke="rgba(255,255,255,.18)" stroke-width="1" stroke-dasharray="2 4"/>
+<text x="219.6" y="352" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">300M</text>
+<line x1="343.4" y1="330" x2="343.4" y2="30" stroke="rgba(255,255,255,.18)" stroke-width="1" stroke-dasharray="2 4"/>
+<text x="343.4" y="352" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">1B</text>
+<line x1="456.4" y1="330" x2="456.4" y2="30" stroke="rgba(255,255,255,.18)" stroke-width="1" stroke-dasharray="2 4"/>
+<text x="456.4" y="352" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">3B</text>
+<line x1="543.5" y1="330" x2="543.5" y2="30" stroke="rgba(255,255,255,.18)" stroke-width="1" stroke-dasharray="2 4"/>
+<text x="543.5" y="352" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">7B</text>
+<text x="330.0" y="372" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">parameters (log scale)</text>
+<circle cx="99.2" cy="256.1" r="5" fill="#9da5b4" stroke="#090b0f" stroke-width="1.5"/>
+<text x="99.2" y="242.1" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">Octo</text>
+<circle cx="204.9" cy="262.5" r="5" fill="#9da5b4" stroke="#090b0f" stroke-width="1.5"/>
+<text x="204.9" y="248.5" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">Diffusion Policy</text>
+<circle cx="320.5" cy="49.3" r="7" fill="#f4cb3d" stroke="#090b0f" stroke-width="1.5"/>
+<text x="320.5" y="32.3" fill="var(--paper)" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">PlayJev (ours)</text>
+<circle cx="466.2" cy="64.3" r="5" fill="#9da5b4" stroke="#090b0f" stroke-width="1.5"/>
+<text x="452.2" y="68.3" fill="#9da5b4" font-size="11" text-anchor="end" font-family="DM Mono, monospace">pi0</text>
+<circle cx="486.0" cy="156.4" r="5" fill="#9da5b4" stroke="#090b0f" stroke-width="1.5"/>
+<text x="486.0" y="142.4" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">SpatialVLA</text>
+<circle cx="543.5" cy="154.3" r="5" fill="#4198ff" stroke="#090b0f" stroke-width="1.5"/>
+<text x="543.5" y="174.3" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">OpenVLA</text>
+<circle cx="547.8" cy="60.0" r="5" fill="#9da5b4" stroke="#090b0f" stroke-width="1.5"/>
+<text x="547.8" y="80.0" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">CogACT</text>
+<circle cx="543.5" cy="55.7" r="5" fill="#4198ff" stroke="#090b0f" stroke-width="1.5"/>
+<text x="543.5" y="41.7" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">OpenVLA-OFT</text>
+</svg>
+          </figure>
+          <figure class="results-chart">
+            <figcaption><b>Success rate vs. inference latency</b><span>only the three systems measured on the same local GPU</span></figcaption>
+            <svg viewBox="0 0 640 380" role="img" aria-label="Success rate versus measured median query latency, PlayJev, OpenVLA and OpenVLA-OFT on the same local hardware">
+<line x1="70" y1="330.0" x2="610" y2="330.0" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+<text x="58" y="334.0" fill="#9da5b4" font-size="11" text-anchor="end" font-family="DM Mono, monospace">85%</text>
+<line x1="70" y1="230.0" x2="610" y2="230.0" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+<text x="58" y="234.0" fill="#9da5b4" font-size="11" text-anchor="end" font-family="DM Mono, monospace">90%</text>
+<line x1="70" y1="130.0" x2="610" y2="130.0" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+<text x="58" y="134.0" fill="#9da5b4" font-size="11" text-anchor="end" font-family="DM Mono, monospace">95%</text>
+<line x1="70" y1="30.0" x2="610" y2="30.0" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+<text x="58" y="34.0" fill="#9da5b4" font-size="11" text-anchor="end" font-family="DM Mono, monospace">100%</text>
+<line x1="126.8" y1="330" x2="126.8" y2="30" stroke="rgba(255,255,255,.18)" stroke-width="1" stroke-dasharray="2 4"/>
+<text x="126.8" y="352" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">120ms</text>
+<line x1="240.5" y1="330" x2="240.5" y2="30" stroke="rgba(255,255,255,.18)" stroke-width="1" stroke-dasharray="2 4"/>
+<text x="240.5" y="352" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">160ms</text>
+<line x1="354.2" y1="330" x2="354.2" y2="30" stroke="rgba(255,255,255,.18)" stroke-width="1" stroke-dasharray="2 4"/>
+<text x="354.2" y="352" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">200ms</text>
+<line x1="467.9" y1="330" x2="467.9" y2="30" stroke="rgba(255,255,255,.18)" stroke-width="1" stroke-dasharray="2 4"/>
+<text x="467.9" y="352" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">240ms</text>
+<line x1="581.6" y1="330" x2="581.6" y2="30" stroke="rgba(255,255,255,.18)" stroke-width="1" stroke-dasharray="2 4"/>
+<text x="581.6" y="352" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">280ms</text>
+<text x="340.0" y="372" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">median latency per model query</text>
+<circle cx="168.6" cy="78.0" r="5" fill="#4198ff" stroke="#090b0f" stroke-width="1.5"/>
+<text x="168.6" y="62.0" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">OpenVLA-OFT</text>
+<text x="168.6" y="100.0" fill="#9da5b4" font-size="9.5" text-anchor="middle" font-family="DM Mono, monospace">8 actions / query</text>
+<circle cx="499.2" cy="66.0" r="7" fill="#f4cb3d" stroke="#090b0f" stroke-width="1.5"/>
+<text x="499.2" y="50.0" fill="var(--paper)" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">PlayJev (ours)</text>
+<text x="499.2" y="88.0" fill="#9da5b4" font-size="9.5" text-anchor="middle" font-family="DM Mono, monospace">1 action / query</text>
+<circle cx="484.1" cy="262.0" r="5" fill="#4198ff" stroke="#090b0f" stroke-width="1.5"/>
+<text x="484.1" y="246.0" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">OpenVLA</text>
+<text x="484.1" y="284.0" fill="#9da5b4" font-size="9.5" text-anchor="middle" font-family="DM Mono, monospace">1 action / query</text>
+</svg>
+          </figure>
+        </div>
+        <p><strong>Eight steps ahead, with the wrist camera, reaches 98.2%</strong> — above our own reproduction of OpenVLA-OFT (97.6%), with a 0.8B model against its 7B, and above every published number we could find for LIBERO-Spatial at any parameter count. By task it is close to flawless: 46 to 50 out of 50 on every one of the ten tasks, including the one that was hardest for every other arm in this study (36–39/50 elsewhere; 50/50 here). We do not say this lightly, because the first version of this number was wrong, and finding out why is as much the result as the number itself — Appendix C has the full account.</p>
+        <p>The parameter chart has no clean trend: a 93M-parameter policy and a 7B one land within a point of each other (78.9% vs. 88.4%), and the two largest systems we could find a number for (CogACT, OpenVLA-OFT, both ~7B) sit a point apart from each other. Scale correlates loosely with success across this set, but it does not explain PlayJev's position — the smallest model on the chart (0.8B) is also the highest. The latency chart, restricted to what we actually measured on one machine, shows the same shape OpenVLA-OFT's own chunking argument makes: querying once for eight actions (134.7ms) is both faster and more accurate than querying once per action, whether that single query belongs to OpenVLA (245.7ms, 88.4%) or to PlayJev without chunked execution (251.0ms, 98.2% — the accuracy gain here comes from the training horizon, not from chunking, since the closed loop above still executes one action per query; Appendix C's chunked variant shows what happens once it also executes in blocks of eight).</p>
+      </div>
+    </section>
+
+    <section class="chapter examples-chapter">
+      <div class="examples-intro reveal">
+        <div class="examples-intro-title">
+          <p class="eyebrow">Examples</p>
+          <h2>The best policy, watched directly.<br>Sixteen <em class="ok">successes</em> — and all nine times it <em class="bad">failed</em>.</h2>
+        </div>
+        <div class="examples-intro-text">
+          <p>Every clip below is a real rollout of the eight-step, wrist-camera arm (98.2%, 491/500) on the official protocol, replayed from the exact logged seed and initial state. Nothing is cherry-picked past the task spread: hover a tile for the task and outcome.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="examples-grid-stage reveal" id="examples-stage">
+      <div class="examples-tabs" role="tablist" aria-label="Show successful or failed episodes">
+        <button role="tab" aria-selected="true" data-examples="success" type="button"><span>SUCCESS</span><small>16 of 491</small></button>
+        <button role="tab" aria-selected="false" data-examples="failure" type="button"><span>FAILURE</span><small>all 9 of 500</small></button>
+      </div>
+      <p class="examples-help">Hover an element to see the task's textual instruction.</p>
+      <div class="examples-grid" id="examples-success" aria-label="Sixteen successful episodes of the best arm"></div>
+      <div class="examples-grid failure" id="examples-failure" hidden aria-label="All nine failed episodes of the best arm"></div>
+    </section>
+
+    <section class="chapter" id="horizon">
+      <div class="section-heading reveal">
+        <p class="eyebrow">05b · Horizon </p>
+        <h2>How far ahead should it plan?</h2>
+      </div>
+      <div class="reveal">
+        <p>The same bin25 policy can also be asked about the next actions of each state, not just the current one: train it to answer about four or eight steps ahead instead of one, while the closed loop still executes only the current action every time it queries the model. The horizon changes what the policy learns from the same demonstrations; it does not, on its own, change what one inference step costs.</p>
+        <div class="horizon-layout">
+        <div class="horizon-chart">
+          <svg viewBox="0 0 640 380" role="img" aria-label="Success rate versus action horizon M, external camera alone and external plus wrist camera">
+<line x1="70" y1="330.0" x2="500" y2="330.0" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+<text x="58" y="334.0" fill="#9da5b4" font-size="11" text-anchor="end" font-family="DM Mono, monospace">80%</text>
+<line x1="70" y1="255.0" x2="500" y2="255.0" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+<text x="58" y="259.0" fill="#9da5b4" font-size="11" text-anchor="end" font-family="DM Mono, monospace">85%</text>
+<line x1="70" y1="180.0" x2="500" y2="180.0" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+<text x="58" y="184.0" fill="#9da5b4" font-size="11" text-anchor="end" font-family="DM Mono, monospace">90%</text>
+<line x1="70" y1="105.0" x2="500" y2="105.0" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+<text x="58" y="109.0" fill="#9da5b4" font-size="11" text-anchor="end" font-family="DM Mono, monospace">95%</text>
+<line x1="70" y1="30.0" x2="500" y2="30.0" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+<text x="58" y="34.0" fill="#9da5b4" font-size="11" text-anchor="end" font-family="DM Mono, monospace">100%</text>
+<text x="96.9" y="352" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">M=1</text>
+<text x="258.1" y="352" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">M=4</text>
+<text x="473.1" y="352" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">M=8</text>
+<text x="285.0" y="372" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">action horizon (steps asked ahead per query)</text>
+<path d="M 96.9 279.0 L 258.1 204.0 L 473.1 168.0" fill="none" stroke="#4198ff" stroke-width="2"/>
+<circle cx="96.9" cy="279.0" r="5.5" fill="#4198ff" stroke="#090b0f" stroke-width="1.5"/>
+<text x="96.9" y="265.0" fill="var(--paper)" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">83.4%</text>
+<circle cx="258.1" cy="204.0" r="5.5" fill="#4198ff" stroke="#090b0f" stroke-width="1.5"/>
+<text x="258.1" y="190.0" fill="var(--paper)" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">88.4%</text>
+<circle cx="473.1" cy="168.0" r="5.5" fill="#4198ff" stroke="#090b0f" stroke-width="1.5"/>
+<text x="473.1" y="154.0" fill="var(--paper)" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">90.8%</text>
+<text x="487.1" y="172.0" fill="#4198ff" font-size="11" text-anchor="start" font-family="DM Mono, monospace">external camera</text>
+<path d="M 96.9 156.0 L 258.1 165.0 L 473.1 57.0" fill="none" stroke="#f4cb3d" stroke-width="2"/>
+<circle cx="96.9" cy="156.0" r="5.5" fill="#f4cb3d" stroke="#090b0f" stroke-width="1.5"/>
+<text x="96.9" y="142.0" fill="var(--paper)" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">91.6%</text>
+<circle cx="258.1" cy="165.0" r="5.5" fill="#f4cb3d" stroke="#090b0f" stroke-width="1.5"/>
+<text x="258.1" y="151.0" fill="var(--paper)" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">91.0%</text>
+<circle cx="473.1" cy="57.0" r="5.5" fill="#f4cb3d" stroke="#090b0f" stroke-width="1.5"/>
+<text x="473.1" y="43.0" fill="var(--paper)" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">98.2%</text>
+<text x="487.1" y="61.0" fill="#f4cb3d" font-size="11" text-anchor="start" font-family="DM Mono, monospace">external + wrist</text>
+</svg>
+        </div>
+        <div class="horizon-text">
+          <p>On the official five-hundred-episode protocol (§ above), asking about four steps ahead moves success from 83.4% to 88.4%; asking about eight moves it further, to 90.8%, and combined with the wrist camera, to 98.2% — the strongest result in this study. The gain is not free forever: on the external camera alone, going from one to four steps ahead adds 5 points, from four to eight adds another 2.4, a shrinking return for a more demanding training target. With the wrist camera the curve is not even monotonic — M=4 (91.0%) dips slightly below M=1 (91.6%) before M=8 jumps to 98.2% — a reminder that horizon and camera input interact rather than simply add.</p>
+          <p>By default the closed loop queries the model and executes one action at a time, even for an arm trained to answer eight steps ahead — the training horizon buys accuracy but not speed on its own. We built the open-loop version — one query, eight actions executed before asking again, the same pattern OpenVLA-OFT uses — and it costs nothing in success (90.4%, no real change from 90.8%) while cutting model queries by 87%, from about 117 per episode to about 15.</p>
+        </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter next" id="next">
+      <div class="section-heading reveal">
+        <p class="eyebrow">06 · The next test</p>
+        <h2>Spatial built the alphabet.<br>Now we test language and memory.</h2>
+      </div>
+
+      <div class="roadmap reveal">
+        <article class="roadmap-card priority">
+          <span class="order">01</span><p class="eyebrow">LIBERO · Goal</p>
+          <h3>Does it understand what we ask?</h3>
+          <p>Tasks with different goals: drawers, stoves, cabinets, bowls, and plates. This directly tests dependence on Spatial’s ten fixed sentences.</p>
+          <ul><li>Controlled paraphrases</li><li>Minimal instruction pairs</li><li>Language consistency loss</li></ul>
+          <button class="roadmap-expand" type="button" aria-expanded="false">Proposed protocol</button>
+          <div class="roadmap-detail"><p>Replicate the winning Spatial arm unchanged — bin25, eight steps ahead, external + wrist camera at the same instant — then train with 3–5 validated paraphrases per instruction. Evaluate canonical prompts, seen paraphrases, and held-out language templates separately.</p></div>
+        </article>
+        <article class="roadmap-card">
+          <span class="order">02</span><p class="eyebrow">LIBERO · Long</p>
+          <h3>Does it remember what it already did?</h3>
+          <p>Multi-stage sequences: two objects, drawers to close, stoves to switch on. A purely reactive policy is no longer enough; action chunking provides a relevant temporal baseline.<a class="cite" href="#ref-act" aria-label="Reference 11">[11]</a></p>
+          <ul><li>Recent action history</li><li>Subgoals and recovery</li><li>Same bin25 codec</li></ul>
+          <button class="roadmap-expand" type="button" aria-expanded="false">Proposed protocol</button>
+          <div class="roadmap-detail"><p>The codec question is already settled by the oracle replay gate above — bin25 unchanged, not re-run. Start from the winning Spatial arm and compare it, as-is, against a history-conditioned variant and a recovery dataset built from states visited after a missed grasp.</p></div>
+        </article>
+        <article class="roadmap-card">
+          <span class="order">03</span><p class="eyebrow">LIBERO · Object</p>
+          <h3>Does it see an object—or “the black bowl”?</h3>
+          <p>The same pick-and-place structure with different objects. A clean control for separating motor control from visual generalization.</p>
+          <ul><li>Cross-suite transfer</li><li>Texture, shape, category</li><li>Balanced joint training</li></ul>
+          <button class="roadmap-expand" type="button" aria-expanded="false">Proposed protocol</button>
+          <div class="roadmap-detail"><p>Compare Spatial-only, Object-only, and joint training, all starting from the same winning architecture. Sample by task rather than by frame, with robot replay to measure and limit catastrophic forgetting.</p></div>
+        </article>
+        <article class="roadmap-card">
+          <span class="order">04</span><p class="eyebrow">LIBERO · Spatial, revisited</p>
+          <h3>Does a real encoder close the last six points?</h3>
+          <p>Proprioception as text cost 6 points even after removing the gripper-reading confound (Appendix C) — the open question is whether that gap is the text representation itself, not the information.</p>
+          <ul><li>Small continuous MLP projector</li><li>One token, not a sentence</li><li>Same training budget</li></ul>
+          <button class="roadmap-expand" type="button" aria-expanded="false">Proposed protocol</button>
+          <div class="roadmap-detail"><p>Replace the proprioception sentence with a small MLP projector over ee_pos/ee_ori/gripper_states, concatenated as one continuous token after the image tokens — the same pattern OpenVLA-OFT's own projector uses, never rendered as text. Compare against the camera-only baseline (83.4%) and the text-sentence arms (42.4% / 77.4%) at matched training budget.</p></div>
+        </article>
+      </div>
+
+      <div class="pro-banner reveal">
+        <div><p class="eyebrow">Then · evaluation only</p><h3>LIBERO-PRO</h3></div>
+        <p>Freeze the policy and perturb one variable at a time: position, object, language, task, and environment. First measure zero-shot generalization; only then adapt the training.<a class="cite" href="#ref-libero-pro" aria-label="Reference 12">[12]</a></p>
+        <div class="perturbations"><span>position</span><span>object</span><span>semantic</span><span>task</span><span>environment</span></div>
+      </div>
+    </section>
+
+    <section class="closing">
+      <p class="eyebrow">The lesson</p>
+      <blockquote>A finite-choice model does not need more parameters to control a continuous robot. It needs the right alphabet.</blockquote>
+      <p>The discretization choice carried the whole study. At the representation level, a coarse, redundant scheme — 25 uniform bins per axis, seven questions per step — beat a learned codebook that reconstructed every demonstration exactly; precision that a policy cannot reliably hit is not an advantage. At the system level, the same choice of alphabet let an 0.8B model answering multiple-choice questions reach 98.2% on the official protocol, above our own reproduction of a published 7B VLA system, with no architecture change beyond the interface itself. Scale did not do that work; the alphabet did.</p>
+      <p>This is a preliminary study, not a final one — LIBERO-Spatial only, one training seed per arm, a single robot and a fixed set of ten tasks. What it establishes is narrower but still useful: that a JEV-style finite-choice model, the same kind built for picking a move in a game, can be adapted to continuous low-level control at all, and that a small one can be competitive while doing it. It also caught two of its own mistakes along the way — a text sentence that confused the gripper decision, an evaluation bug that fed the wrong wrist frame — both found by distrusting a number that looked too good, not by assuming the architecture was right. Appendix C and the roadmap above are what's left before this becomes more than a first result: proprioception as a real continuous token instead of text, and the same interface tested against language and memory, not spatial reasoning alone.</p>
+      <div class="closing-links">
+        <a href="../paper/main.pdf">Read the paper</a>
+        <a href="../libero_simulator/README.md">Explore the simulator</a>
+        <a href="../README.md">Open PlayJev</a>
+      </div>
     </section>
 
     <section class="chapter alphabet" id="alphabet">
       <div class="section-heading reveal">
-        <p class="eyebrow">03 · The representation that follows</p>
+        <p class="eyebrow">Appendix A · The representation that follows</p>
         <h2>Continuous motion needs<br>a usable alphabet.</h2>
         <p>This is where the alphabet becomes necessary: it translates a continuous robot action into choices PlayJev can make. Each of the seven control dimensions is quantized separately.</p>
       </div>
@@ -226,7 +774,7 @@
 
     <section class="chapter evidence" id="evidence">
       <div class="section-heading reveal">
-        <p class="eyebrow">04 · Oracle replay</p>
+        <p class="eyebrow">Appendix B · Oracle replay</p>
         <h2>Can the alphabet express<br>the right movement?</h2>
         <p>Before PlayJev can learn an action alphabet, that alphabet must preserve the control signal it is meant to describe. Every codec replaces the expert’s continuous trajectory with symbols, then reconstructs an approximation. If that approximation already misses the grasp or drifts away from the goal, the learning problem is ill-posed: the model is being asked to predict letters that cannot reproduce the correct behavior.</p>
         <p class="oracle-intro-note">Oracle replay isolates this representation bottleneck. We give each codec the expert actions directly—without vision, language, or policy prediction—and execute only its reconstruction in the simulator. Success is a necessary gate: first prove that the alphabet can carry the movement, then ask PlayJev to learn it.</p>
@@ -352,173 +900,45 @@
       </div>
     </section>
 
-    <section class="chapter policy" id="policy">
+    <section class="chapter ablations" id="ablations">
       <div class="section-heading reveal">
-        <p class="eyebrow">05 · The policy</p>
-        <h2>Seven questions.<br>One movement.</h2>
-        <p>The proposed multiview policy preserves the temporal agent-view used in our experiments and adds a synchronized temporal wrist-view. PlayJev encodes both streams once, answers seven axis-specific Choice questions in parallel, and reconstructs one continuous robot action.</p>
-      </div>
-
-      <div class="model-schema reveal" role="img" aria-label="Animated architecture diagram of the proposed multiview PlayJev robot policy, from temporal external and wrist cameras to a seven-dimensional action">
-        <div class="schema-topbar"><span>PROPOSED MULTIVIEW POLICY</span><small>one control step \(t\)</small></div>
-        <div class="schema-flow">
-          <section class="schema-inputs">
-            <p class="schema-label">01 · synchronized input</p>
-            <div class="camera-stream agent-stream">
-              <div class="camera-frames"><img src="assets/model-agent.jpg" alt=""><img src="assets/model-agent.jpg" alt=""></div>
-              <div><strong>external camera</strong><small>\(t-1 \rightarrow t\)</small></div>
-            </div>
-            <div class="camera-stream wrist-stream">
-              <div class="camera-frames"><img src="assets/model-wrist.jpg" alt=""><img src="assets/model-wrist.jpg" alt=""></div>
-              <div><strong>wrist camera</strong><small>\(t-1 \rightarrow t\)</small></div>
-            </div>
-            <div class="task-chip"><span>LANGUAGE</span><b>“pick up the black bowl…”</b></div>
-          </section>
-
-          <div class="schema-arrow" aria-hidden="true"><i></i><b>→</b></div>
-
-          <section class="schema-core">
-            <p class="schema-label">02 · shared model</p>
-            <div class="vision-streams" aria-hidden="true"><span>agent temporal tokens</span><span>wrist temporal tokens</span></div>
-            <div class="model-core"><small>QWEN3.5 · 0.8B</small><strong>PlayJev</strong><i></i><span>shared visual-language state</span></div>
-          </section>
-
-          <div class="schema-arrow" aria-hidden="true"><i></i><b>→</b></div>
-
-          <section class="schema-questions">
-            <p class="schema-label">03 · one batched forward</p>
-            <div class="question-fan" aria-hidden="true">
-              <span style="--d:0">dx</span><span style="--d:1">dy</span><span style="--d:2">dz</span><span style="--d:3">dα</span><span style="--d:4">dβ</span><span style="--d:5">dγ</span><span style="--d:6">grip</span>
-            </div>
-            <small>7 Choice questions · shared visual state</small>
-          </section>
-
-          <div class="schema-arrow" aria-hidden="true"><i></i><b>→</b></div>
-
-          <section class="schema-readout">
-            <p class="schema-label">04 · distributions</p>
-            <div class="probability-stack" aria-hidden="true">
-              <span style="--w:73%;--d:0"></span><span style="--w:46%;--d:1"></span><span style="--w:61%;--d:2"></span><span style="--w:35%;--d:3"></span><span style="--w:82%;--d:4"></span><span style="--w:54%;--d:5"></span><span style="--w:91%;--d:6"></span>
-            </div>
-            <code>\(p(b_k\mid S_t,q_j)\)</code>
-          </section>
-
-          <div class="schema-arrow" aria-hidden="true"><i></i><b>→</b></div>
-
-          <section class="schema-output">
-            <p class="schema-label">05 · execute</p>
-            <div class="output-orbit" aria-hidden="true"><i></i><span>Σ</span></div>
-            <code>[dx, dy, dz,<br>dα, dβ, dγ, g]</code>
-            <strong>7D ACTION</strong>
-          </section>
-        </div>
-        <div class="schema-legend"><span><i class="current-dot"></i>current experiment: external stream</span><span><i class="proposed-dot"></i>proposed extension: wrist stream</span><span>BIN25 expected-value readout · binary gripper argmax</span></div>
-      </div>
-
-      <div class="policy-math reveal">
-        <article><p class="eyebrow">Six motion axes</p><div class="equation">\[\hat a_{t,j}=\sum_{k=1}^{25}p_\theta\!\left(b_k\mid s_{t-1:t},q,j\right)b_k\]</div><p>For each continuous axis \(j\), the policy returns a distribution over 25 fixed levels. We execute its probability-weighted mean, not merely the most likely bin.</p></article>
-        <article><p class="eyebrow">Binary gripper</p><div class="equation">\[\hat g_t=\operatorname*{arg\,max}_{g\in\{-1,+1\}}p_\theta\!\left(g\mid s_{t-1:t},q\right)\]</div><p>The gripper remains discrete. All seven questions share the same visual state and are evaluated in one batched forward pass.</p></article>
-      </div>
-
-      <div class="scheme-lab reveal">
-        <div class="scheme-copy">
-          <p class="eyebrow">The counterintuitive experiment</p>
-          <h3>More precise does not mean easier to learn.</h3>
-          <p>Choose a scheme. The second reconstructs every demonstration perfectly, yet it asks almost twice as many questions and produces a worse policy.</p>
-          <div class="scheme-switch" role="group" aria-label="Compare quantization schemes">
-            <button type="button" class="active" data-scheme="a">A · 25 levels</button>
-            <button type="button" data-scheme="b">B · 16 × 16</button>
-          </div>
-        </div>
-        <div class="scheme-score">
-          <div class="donut" id="scheme-donut"><span><strong id="scheme-percent">70</strong>%</span></div>
-          <div class="scheme-values">
-            <div><span>Policy success</span><strong id="scheme-success">28 / 40</strong></div>
-            <div><span>Replay ceiling</span><strong id="scheme-ceiling">39 / 40</strong></div>
-            <div><span>Questions / step</span><strong id="scheme-questions">7</strong></div>
-            <div><span>Latency p50</span><strong id="scheme-latency">193 ms</strong></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="failure-lab reveal">
-        <div class="failure-heading">
-          <div><p class="eyebrow danger">Where it fails</p><h3>Transport is not the problem.<br>It misses the grasp — and cannot recover.</h3></div>
-          <div class="failure-toggle" role="group" aria-label="Show a successful or failed episode">
-            <button class="active" data-trace="success" type="button">Success</button>
-            <button data-trace="failure" type="button">Failure</button>
-          </div>
-        </div>
-        <div class="trace-stage">
-          <img id="trace-image" src="assets/libero-place.jpg" alt="Frame from the selected episode">
-          <div class="trace-data">
-            <div class="trace-status"><span id="trace-label">SUCCESS</span><strong id="trace-step-count">108 steps</strong></div>
-            <div class="timeline" id="timeline" aria-label="Episode event timeline"></div>
-            <p id="trace-description">One gripper closure, stable transport, release over the plate. Successful episodes are shorter than their demonstrations.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="chapter" id="horizon">
-      <div class="section-heading reveal">
-        <p class="eyebrow">05b · Horizon <span class="pending-tag">in progress</span></p>
-        <h2>How far ahead should it plan?</h2>
+        <p class="eyebrow">Appendix C · Ablations</p>
+        <h2>Every arm we trained,<br>and what each change actually did.</h2>
+        <p>The main results compare PlayJev's best arm against other published systems. This appendix is the arm-by-arm record behind that one number: every camera, horizon and proprioception variant on the same 500-episode official protocol, plus the two investigations — a bug and a hypothesis — that explain why some of them look the way they do.</p>
       </div>
       <div class="reveal">
-        <p>The same bin25 policy can also be asked about the next actions of each state. Training then covers four steps ahead, while the closed loop still executes only the current action: the horizon changes what the model learns, not what an inference step costs.</p>
-        <p>Same data, same optimizer steps, same forty dev episodes as the one-step policy, which reached 28 of 40.</p>
-        <p class="pending"><em>[Pending: the four-step result and its paired comparison with the one-step policy. Reported whether or not it clears the gate of five more successes.]</em></p>
-      </div>
-    </section>
+        <table class="results-table">
+          <thead><tr><th>Arm</th><th>Horizon</th><th>Successes</th><th>Rate</th><th>95% interval</th></tr></thead>
+          <tbody>
+            <tr><td>External camera (reference)</td><td>M=1</td><td>417 / 500</td><td>83.4%</td><td>79.9–86.4%</td></tr>
+            <tr><td>+ wrist camera</td><td>M=1</td><td>458 / 500</td><td>91.6%</td><td>88.8–93.7%</td></tr>
+            <tr><td>External camera, 4 steps ahead</td><td>M=4</td><td>442 / 500</td><td>88.4%</td><td>85.3–90.9%</td></tr>
+            <tr><td>External camera, 8 steps ahead</td><td>M=8</td><td>454 / 500</td><td>90.8%</td><td>87.9–93.0%</td></tr>
+            <tr><td>↳ executed in open-loop blocks of 8</td><td>M=8</td><td>452 / 500</td><td>90.4%</td><td>87.5–92.7%</td></tr>
+            <tr><td>4 steps ahead + wrist</td><td>M=4</td><td>455 / 500</td><td>91.0%</td><td>88.2–93.2%</td></tr>
+            <tr><td><strong>8 steps ahead + wrist (best arm)</strong></td><td>M=8</td><td><b>491 / 500</b></td><td><b>98.2%</b></td><td>96.6–99.1%</td></tr>
+            <tr><td>+ proprioception (text, with gripper reading)</td><td>M=1</td><td>212 / 500</td><td>42.4%</td><td>38.1–46.8%</td></tr>
+            <tr><td>+ proprioception (text, gripper reading removed)</td><td>M=1</td><td>387 / 500</td><td>77.4%</td><td>73.5–80.8%</td></tr>
+          </tbody>
+        </table>
+        <p class="limit"><em>One training seed per arm. A second seed has not run yet.</em></p>
 
-    <section class="chapter next" id="next">
-      <div class="section-heading reveal">
-        <p class="eyebrow">06 · The next test</p>
-        <h2>Spatial built the alphabet.<br>Now we test language and memory.</h2>
-      </div>
+        <div class="ablation-block">
+          <h3>The wrist camera story changed after we found a bug in how we were testing it.</h3>
+          <p>The first pass through this evaluation paired each step's camera image with the <em>previous</em> step's wrist image — the two cameras are not a time sequence in training, they are two simultaneous views of the same instant, so this fed the model a combination it had never seen after the very first step of every episode. That bug made the wrist camera look neutral at best (81.6% at one step ahead, worse than no wrist at all) and net negative at times. Once fixed — pairing both cameras at the same instant, exactly as trained — the wrist camera turned out to help every time we added it: +8.2 points alone, +2.6 points on top of four steps ahead, and the combination with eight steps ahead is the best result in the whole study.</p>
+          <p>We checked the fix three ways before trusting it: traced the frame order through the evaluation code and the model server to confirm no reversal; looked at the per-task breakdown, which went from a suspicious block of five perfect tasks followed by a cliff (the fingerprint of a bug) to a uniformly strong spread across all ten; and replayed one logged episode independently, from the same seeded simulator state, with no model involved — same outcome, a real grasp and place, not an artifact of how success gets checked.</p>
+        </div>
 
-      <div class="roadmap reveal">
-        <article class="roadmap-card priority">
-          <span class="order">01</span><p class="eyebrow">LIBERO · Goal</p>
-          <h3>Does it understand what we ask?</h3>
-          <p>Tasks with different goals: drawers, stoves, cabinets, bowls, and plates. This directly tests dependence on Spatial’s ten fixed sentences.</p>
-          <ul><li>Controlled paraphrases</li><li>Minimal instruction pairs</li><li>Language consistency loss</li></ul>
-          <button class="roadmap-expand" type="button" aria-expanded="false">Proposed protocol</button>
-          <div class="roadmap-detail"><p>Replicate bin25 unchanged, then train with 3–5 validated paraphrases per instruction. Evaluate canonical prompts, seen paraphrases, and held-out language templates separately.</p></div>
-        </article>
-        <article class="roadmap-card">
-          <span class="order">02</span><p class="eyebrow">LIBERO · Long</p>
-          <h3>Does it remember what it already did?</h3>
-          <p>Multi-stage sequences: two objects, drawers to close, stoves to switch on. A purely reactive policy is no longer enough; action chunking provides a relevant temporal baseline.<a class="cite" href="#ref-act" aria-label="Reference 11">[11]</a></p>
-          <ul><li>Recent action history</li><li>Subgoals and recovery</li><li>A new tokenizer gate</li></ul>
-          <button class="roadmap-expand" type="button" aria-expanded="false">Proposed protocol</button>
-          <div class="roadmap-detail"><p>First run oracle replay for binning, FAST, and OAT. Then compare the unchanged two-frame baseline with a history-conditioned policy and a recovery dataset built from states visited after missed grasps.</p></div>
-        </article>
-        <article class="roadmap-card">
-          <span class="order">03</span><p class="eyebrow">LIBERO · Object</p>
-          <h3>Does it see an object—or “the black bowl”?</h3>
-          <p>The same pick-and-place structure with different objects. A clean control for separating motor control from visual generalization.</p>
-          <ul><li>Cross-suite transfer</li><li>Texture, shape, category</li><li>Balanced joint training</li></ul>
-          <button class="roadmap-expand" type="button" aria-expanded="false">Proposed protocol</button>
-          <div class="roadmap-detail"><p>Compare Spatial-only, Object-only, and joint training. Sample by task rather than by frame, with robot replay to measure and limit catastrophic forgetting.</p></div>
-        </article>
-      </div>
+        <div class="ablation-block">
+          <h3>Proprioception is the one change that clearly hurts — and we now know exactly where.</h3>
+          <p>Comparing the same 500 episodes step by step against the camera-only baseline, the failure is not spread across the whole policy: it is almost entirely the gripper. 36% of its failed episodes never close the gripper at all, against 2% for the baseline; when it does close, it takes until step 71 on average instead of 43. The likely reason: the sentence includes the gripper's own raw finger-position reading, written in text, immediately before asking the model to decide whether to open or close that same gripper — two different things sitting right next to each other in the prompt.</p>
+          <p>Remove just that one field and performance recovers from 42.4% to 77.4%, and the never-closes-the-gripper failure disappears completely (zero of its failed episodes, better than even the baseline's 2%). The remaining 6-point gap below the camera-only baseline is still open: writing numbers as text loses the metric structure a dedicated continuous encoder would keep; every arm shares the same training budget, so proprioception arms get no extra steps to learn the added parsing task; the extra text competes with the image for a small model's attention; or this task, solvable almost entirely from the external camera alone, may simply not need it.</p>
+        </div>
 
-      <div class="pro-banner reveal">
-        <div><p class="eyebrow">Then · evaluation only</p><h3>LIBERO-PRO</h3></div>
-        <p>Freeze the policy and perturb one variable at a time: position, object, language, task, and environment. First measure zero-shot generalization; only then adapt the training.<a class="cite" href="#ref-libero-pro" aria-label="Reference 12">[12]</a></p>
-        <div class="perturbations"><span>position</span><span>object</span><span>semantic</span><span>task</span><span>environment</span></div>
-      </div>
-    </section>
-
-    <section class="closing">
-      <p class="eyebrow">The lesson</p>
-      <blockquote>The best representation is not the one that compresses most. It is the one that preserves control and remains simple enough to predict.</blockquote>
-      <div class="closing-links">
-        <a href="../paper/main.pdf">Read the paper</a>
-        <a href="../libero_simulator/README.md">Explore the simulator</a>
-        <a href="../README.md">Open PlayJev</a>
+        <div class="ablation-block">
+          <h3>Chunked open-loop execution: the latency advantage was there; it just needed an evaluator that used it.</h3>
+          <p>PlayJev was trained to answer about eight steps ahead, but by default the closed loop still queried the model and executed one action at a time — the same cost per episode as the one-step policy, so the training horizon bought accuracy but not speed. We built the open-loop version — one query, eight actions executed before asking again, the same pattern OpenVLA-OFT uses — and it costs nothing in success (90.4%, no real change from 90.8%) while cutting model queries by 87%, from about 117 per episode to about 15.</p>
+        </div>
       </div>
     </section>
 
@@ -543,9 +963,35 @@
 
   <footer>
     <div class="brand"><span class="brand-mark">PJ</span><span>PlayJev × LIBERO</span></div>
-    <p>Results on LIBERO-Spatial · frozen dev split · 40 episodes.</p>
+    <p>Results on LIBERO-Spatial · official protocol · 500 episodes.</p>
     <p>An OmniJev research project · 2026</p>
   </footer>
   <script src="app.js"></script>
+  <script>
+    (function () {
+      const body = document.body;
+      const update = () => body.classList.toggle('at-top', window.scrollY < 40);
+      update();
+      window.addEventListener('scroll', update, { passive: true });
+    })();
+  </script>
+  <script>
+    // a click on the page fires a forward pass of the network under the pointer
+    (function () {
+      const template = `<svg class="fp-net" viewBox="0 0 32 42" aria-hidden="true"><g class="fp-links"><line x1="5" y1="9" x2="16" y2="6"/><line x1="5" y1="9" x2="16" y2="16"/><line x1="5" y1="9" x2="16" y2="26"/><line x1="5" y1="9" x2="16" y2="36"/><line x1="5" y1="20" x2="16" y2="6"/><line x1="5" y1="20" x2="16" y2="16"/><line x1="5" y1="20" x2="16" y2="26"/><line x1="5" y1="20" x2="16" y2="36"/><line x1="5" y1="31" x2="16" y2="6"/><line x1="5" y1="31" x2="16" y2="16"/><line x1="5" y1="31" x2="16" y2="26"/><line x1="5" y1="31" x2="16" y2="36"/><line x1="16" y1="6" x2="27" y2="15"/><line x1="16" y1="6" x2="27" y2="27"/><line x1="16" y1="16" x2="27" y2="15"/><line x1="16" y1="16" x2="27" y2="27"/><line x1="16" y1="26" x2="27" y2="15"/><line x1="16" y1="26" x2="27" y2="27"/><line x1="16" y1="36" x2="27" y2="15"/><line x1="16" y1="36" x2="27" y2="27"/></g><circle class="fp-node fp-l0" cx="5" cy="9" r="2"/><circle class="fp-node fp-l0" cx="5" cy="20" r="2"/><circle class="fp-node fp-l0" cx="5" cy="31" r="2"/><circle class="fp-node fp-l1" cx="16" cy="6" r="2"/><circle class="fp-node fp-l1" cx="16" cy="16" r="2"/><circle class="fp-node fp-l1" cx="16" cy="26" r="2"/><circle class="fp-node fp-l1" cx="16" cy="36" r="2"/><circle class="fp-node fp-l2" cx="27" cy="15" r="2"/><circle class="fp-node fp-l2" cx="27" cy="27" r="2"/></svg>`;
+      document.addEventListener('pointerdown', (event) => {
+        if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        const net = document.createElement('div');
+        net.innerHTML = template;
+        const el = net.firstElementChild;
+        el.style.left = event.clientX + 'px';
+        el.style.top = event.clientY + 'px';
+        document.body.appendChild(el);
+        void el.getBoundingClientRect();
+        el.classList.add('run');
+        el.addEventListener('animationend', (e) => { if (e.target === el && e.animationName === 'fp-fade') el.remove(); });
+      });
+    })();
+  </script>
 </body>
 </html>
