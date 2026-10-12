@@ -668,15 +668,15 @@
           <p>Tasks with different goals: drawers, stoves, cabinets, bowls, and plates. This directly tests dependence on Spatial’s ten fixed sentences.</p>
           <ul><li>Controlled paraphrases</li><li>Minimal instruction pairs</li><li>Language consistency loss</li></ul>
           <button class="roadmap-expand" type="button" aria-expanded="false">Proposed protocol</button>
-          <div class="roadmap-detail"><p>Replicate bin25 unchanged, then train with 3–5 validated paraphrases per instruction. Evaluate canonical prompts, seen paraphrases, and held-out language templates separately.</p></div>
+          <div class="roadmap-detail"><p>Replicate the winning Spatial arm unchanged — bin25, eight steps ahead, external + wrist camera at the same instant — then train with 3–5 validated paraphrases per instruction. Evaluate canonical prompts, seen paraphrases, and held-out language templates separately.</p></div>
         </article>
         <article class="roadmap-card">
           <span class="order">02</span><p class="eyebrow">LIBERO · Long</p>
           <h3>Does it remember what it already did?</h3>
           <p>Multi-stage sequences: two objects, drawers to close, stoves to switch on. A purely reactive policy is no longer enough; action chunking provides a relevant temporal baseline.<a class="cite" href="#ref-act" aria-label="Reference 11">[11]</a></p>
-          <ul><li>Recent action history</li><li>Subgoals and recovery</li><li>A new tokenizer gate</li></ul>
+          <ul><li>Recent action history</li><li>Subgoals and recovery</li><li>Same bin25 codec</li></ul>
           <button class="roadmap-expand" type="button" aria-expanded="false">Proposed protocol</button>
-          <div class="roadmap-detail"><p>First run oracle replay for binning, FAST, and OAT. Then compare the unchanged two-frame baseline with a history-conditioned policy and a recovery dataset built from states visited after missed grasps.</p></div>
+          <div class="roadmap-detail"><p>The codec question is already settled by the oracle replay gate above — bin25 unchanged, not re-run. Start from the winning Spatial arm and compare it, as-is, against a history-conditioned variant and a recovery dataset built from states visited after a missed grasp.</p></div>
         </article>
         <article class="roadmap-card">
           <span class="order">03</span><p class="eyebrow">LIBERO · Object</p>
@@ -684,7 +684,15 @@
           <p>The same pick-and-place structure with different objects. A clean control for separating motor control from visual generalization.</p>
           <ul><li>Cross-suite transfer</li><li>Texture, shape, category</li><li>Balanced joint training</li></ul>
           <button class="roadmap-expand" type="button" aria-expanded="false">Proposed protocol</button>
-          <div class="roadmap-detail"><p>Compare Spatial-only, Object-only, and joint training. Sample by task rather than by frame, with robot replay to measure and limit catastrophic forgetting.</p></div>
+          <div class="roadmap-detail"><p>Compare Spatial-only, Object-only, and joint training, all starting from the same winning architecture. Sample by task rather than by frame, with robot replay to measure and limit catastrophic forgetting.</p></div>
+        </article>
+        <article class="roadmap-card">
+          <span class="order">04</span><p class="eyebrow">LIBERO · Spatial, revisited</p>
+          <h3>Does a real encoder close the last six points?</h3>
+          <p>Proprioception as text cost 6 points even after removing the gripper-reading confound (Appendix C) — the open question is whether that gap is the text representation itself, not the information.</p>
+          <ul><li>Small continuous MLP projector</li><li>One token, not a sentence</li><li>Same training budget</li></ul>
+          <button class="roadmap-expand" type="button" aria-expanded="false">Proposed protocol</button>
+          <div class="roadmap-detail"><p>Replace the proprioception sentence with a small MLP projector over ee_pos/ee_ori/gripper_states, concatenated as one continuous token after the image tokens — the same pattern OpenVLA-OFT's own projector uses, never rendered as text. Compare against the camera-only baseline (83.4%) and the text-sentence arms (42.4% / 77.4%) at matched training budget.</p></div>
         </article>
       </div>
 
