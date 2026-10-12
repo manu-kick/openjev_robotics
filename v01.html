@@ -612,6 +612,7 @@
       </div>
       <div class="reveal">
         <p>The same bin25 policy can also be asked about the next actions of each state, not just the current one: train it to answer about four or eight steps ahead instead of one, while the closed loop still executes only the current action every time it queries the model. The horizon changes what the policy learns from the same demonstrations; it does not, on its own, change what one inference step costs.</p>
+        <div class="horizon-layout">
         <div class="horizon-chart">
           <svg viewBox="0 0 640 380" role="img" aria-label="Success rate versus action horizon M, external camera alone and external plus wrist camera">
 <line x1="70" y1="330.0" x2="500" y2="330.0" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
@@ -646,8 +647,11 @@
 <text x="487.1" y="61.0" fill="#f4cb3d" font-size="11" text-anchor="start" font-family="DM Mono, monospace">external + wrist</text>
 </svg>
         </div>
-        <p>On the official five-hundred-episode protocol (§ above), asking about four steps ahead moves success from 83.4% to 88.4%; asking about eight moves it further, to 90.8%, and combined with the wrist camera, to 98.2% — the strongest result in this study. The gain is not free forever: on the external camera alone, going from one to four steps ahead adds 5 points, from four to eight adds another 2.4, a shrinking return for a more demanding training target. With the wrist camera the curve is not even monotonic — M=4 (91.0%) dips slightly below M=1 (91.6%) before M=8 jumps to 98.2% — a reminder that horizon and camera input interact rather than simply add.</p>
-        <p>We also closed the gap we flagged here in an earlier draft of this post: PlayJev was trained to answer about eight steps ahead but the closed loop still queried the model and executed one action at a time, the same cost as the one-step policy, so the training horizon bought accuracy but not speed. We built the open-loop version — one query, eight actions executed before asking again, the same pattern OpenVLA-OFT uses — and it costs nothing in success (90.4%, no real change from 90.8%) while cutting model queries by 87%, from about 117 per episode to about 15. The latency advantage was there; it just needed an evaluator that actually used it.</p>
+        <div class="horizon-text">
+          <p>On the official five-hundred-episode protocol (§ above), asking about four steps ahead moves success from 83.4% to 88.4%; asking about eight moves it further, to 90.8%, and combined with the wrist camera, to 98.2% — the strongest result in this study. The gain is not free forever: on the external camera alone, going from one to four steps ahead adds 5 points, from four to eight adds another 2.4, a shrinking return for a more demanding training target. With the wrist camera the curve is not even monotonic — M=4 (91.0%) dips slightly below M=1 (91.6%) before M=8 jumps to 98.2% — a reminder that horizon and camera input interact rather than simply add.</p>
+          <p>We also closed the gap we flagged here in an earlier draft of this post: PlayJev was trained to answer about eight steps ahead but the closed loop still queried the model and executed one action at a time, the same cost as the one-step policy, so the training horizon bought accuracy but not speed. We built the open-loop version — one query, eight actions executed before asking again, the same pattern OpenVLA-OFT uses — and it costs nothing in success (90.4%, no real change from 90.8%) while cutting model queries by 87%, from about 117 per episode to about 15. The latency advantage was there; it just needed an evaluator that actually used it.</p>
+        </div>
+        </div>
       </div>
     </section>
 

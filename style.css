@@ -577,8 +577,12 @@ body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after 
 .results-chart figcaption { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; font: .78rem var(--mono); }
 .results-chart figcaption span { color: var(--muted); font-size: .68rem; }
 .results-chart svg { width: 100%; height: auto; display: block; }
-.horizon-chart { margin: 36px 0; border: 1px solid var(--line); background: var(--panel); padding: 20px; max-width: 640px; }
+.horizon-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(28px, 4vw, 64px); align-items: center; margin: 36px 0; }
+.horizon-chart { margin: 0; border: 1px solid var(--line); background: var(--panel); padding: 20px; max-width: 640px; }
 .horizon-chart svg { width: 100%; height: auto; display: block; }
+.horizon-text p { margin: 0 0 20px; }
+.horizon-text p:last-child { margin-bottom: 0; }
+@media (max-width: 900px) { .horizon-layout { grid-template-columns: 1fr; } }
 .ablation-block { margin-top: 48px; padding-top: 36px; border-top: 1px solid var(--line); }
 .ablation-block:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
 .ablation-block h3 { font-size: 1.3rem; margin-bottom: 14px; }
