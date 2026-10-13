@@ -931,6 +931,7 @@
             <tr><td><strong>↳ both cameras fused (t-1,t) instead (best arm)</strong></td><td>M=8</td><td><b>492 / 500</b></td><td><b>98.4%</b></td><td>96.9–99.2%</td></tr>
             <tr><td>+ proprioception (text, with gripper reading)</td><td>M=1</td><td>212 / 500</td><td>42.4%</td><td>38.1–46.8%</td></tr>
             <tr><td>+ proprioception (text, gripper reading removed)</td><td>M=1</td><td>387 / 500</td><td>77.4%</td><td>73.5–80.8%</td></tr>
+            <tr><td>+ wrist camera + proprioception (text, with gripper reading)</td><td>M=4</td><td>211 / 500</td><td>42.2%</td><td>37.9–46.6%</td></tr>
           </tbody>
         </table>
         <p class="limit"><em>One training seed per arm. A second seed has not run yet.</em></p>
@@ -951,6 +952,7 @@
           <h3>Proprioception is the one change that clearly hurts — and we now know exactly where.</h3>
           <p>Comparing the same 500 episodes step by step against the camera-only baseline, the failure is not spread across the whole policy: it is almost entirely the gripper. 36% of its failed episodes never close the gripper at all, against 2% for the baseline; when it does close, it takes until step 71 on average instead of 43. The likely reason: the sentence includes the gripper's own raw finger-position reading, written in text, immediately before asking the model to decide whether to open or close that same gripper — two different things sitting right next to each other in the prompt.</p>
           <p>Remove just that one field and performance recovers from 42.4% to 77.4%, and the never-closes-the-gripper failure disappears completely (zero of its failed episodes, better than even the baseline's 2%). The remaining 6-point gap below the camera-only baseline is still open: writing numbers as text loses the metric structure a dedicated continuous encoder would keep; every arm shares the same training budget, so proprioception arms get no extra steps to learn the added parsing task; the extra text competes with the image for a small model's attention; or this task, solvable almost entirely from the external camera alone, may simply not need it.</p>
+          <p>Adding the wrist camera and more horizon on top (M=4, same gripper-reading sentence) does not rescue it: 42.2%, statistically indistinguishable from the M=1 camera-only-external number above, and the gripper failure is if anything worse — 74% of its failed episodes never close the gripper at all, against 36% for the simpler arm. Whatever the text sentence confuses, a second camera and a longer training horizon do not fix it; only removing the confusing field did.</p>
         </div>
 
         <div class="ablation-block">
