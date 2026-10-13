@@ -3,23 +3,23 @@
   {
    "src": "assets/examples/success_t0_i40.mp4",
    "task": "pick up the black bowl between the plate and the ramekin and place it on the plate",
-   "steps": 80,
+   "steps": 74,
    "outcome": "success"
   },
   {
    "src": "assets/examples/success_t1_i7.mp4",
    "task": "pick up the black bowl next to the ramekin and place it on the plate",
-   "steps": 116,
+   "steps": 135,
    "outcome": "success"
   },
   {
    "src": "assets/examples/success_t2_i1.mp4",
    "task": "pick up the black bowl from table center and place it on the plate",
-   "steps": 102,
+   "steps": 104,
    "outcome": "success"
   },
   {
-   "src": "assets/examples/success_t3_i48.mp4",
+   "src": "assets/examples/success_t3_i47.mp4",
    "task": "pick up the black bowl on the cookie box and place it on the plate",
    "steps": 86,
    "outcome": "success"
@@ -27,19 +27,19 @@
   {
    "src": "assets/examples/success_t4_i17.mp4",
    "task": "pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate",
-   "steps": 124,
+   "steps": 126,
    "outcome": "success"
   },
   {
    "src": "assets/examples/success_t5_i15.mp4",
    "task": "pick up the black bowl on the ramekin and place it on the plate",
-   "steps": 98,
+   "steps": 92,
    "outcome": "success"
   },
   {
    "src": "assets/examples/success_t6_i14.mp4",
    "task": "pick up the black bowl next to the cookie box and place it on the plate",
-   "steps": 117,
+   "steps": 118,
    "outcome": "success"
   },
   {
@@ -49,106 +49,100 @@
    "outcome": "success"
   },
   {
-   "src": "assets/examples/success_t8_i7.mp4",
+   "src": "assets/examples/success_t8_i48.mp4",
    "task": "pick up the black bowl next to the plate and place it on the plate",
-   "steps": 95,
+   "steps": 91,
    "outcome": "success"
   },
   {
-   "src": "assets/examples/success_t9_i43.mp4",
+   "src": "assets/examples/success_t9_i7.mp4",
    "task": "pick up the black bowl on the wooden cabinet and place it on the plate",
-   "steps": 168,
+   "steps": 117,
    "outcome": "success"
   },
   {
-   "src": "assets/examples/success_t0_i48.mp4",
+   "src": "assets/examples/success_t0_i44.mp4",
    "task": "pick up the black bowl between the plate and the ramekin and place it on the plate",
-   "steps": 85,
+   "steps": 76,
    "outcome": "success"
   },
   {
-   "src": "assets/examples/success_t1_i35.mp4",
+   "src": "assets/examples/success_t1_i48.mp4",
    "task": "pick up the black bowl next to the ramekin and place it on the plate",
-   "steps": 106,
+   "steps": 136,
    "outcome": "success"
   },
   {
-   "src": "assets/examples/success_t2_i6.mp4",
+   "src": "assets/examples/success_t2_i35.mp4",
    "task": "pick up the black bowl from table center and place it on the plate",
-   "steps": 95,
+   "steps": 97,
    "outcome": "success"
   },
   {
-   "src": "assets/examples/success_t3_i37.mp4",
+   "src": "assets/examples/success_t3_i5.mp4",
    "task": "pick up the black bowl on the cookie box and place it on the plate",
-   "steps": 96,
+   "steps": 84,
    "outcome": "success"
   },
   {
-   "src": "assets/examples/success_t4_i28.mp4",
+   "src": "assets/examples/success_t4_i38.mp4",
    "task": "pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate",
-   "steps": 116,
+   "steps": 134,
    "outcome": "success"
   },
   {
-   "src": "assets/examples/success_t5_i2.mp4",
+   "src": "assets/examples/success_t5_i29.mp4",
    "task": "pick up the black bowl on the ramekin and place it on the plate",
-   "steps": 86,
+   "steps": 89,
    "outcome": "success"
   }
  ],
  "failure": [
   {
-   "src": "assets/examples/failure_t3_i46.mp4",
-   "task": "pick up the black bowl on the cookie box and place it on the plate",
+   "src": "assets/examples/failure_t5_i22.mp4",
+   "task": "pick up the black bowl on the ramekin and place it on the plate",
    "steps": 220,
    "outcome": "timeout, 220 steps"
   },
   {
-   "src": "assets/examples/failure_t6_i22.mp4",
-   "task": "pick up the black bowl next to the cookie box and place it on the plate",
-   "steps": 220,
-   "outcome": "timeout, 220 steps"
-  },
-  {
-   "src": "assets/examples/failure_t6_i34.mp4",
-   "task": "pick up the black bowl next to the cookie box and place it on the plate",
-   "steps": 220,
-   "outcome": "timeout, 220 steps"
-  },
-  {
-   "src": "assets/examples/failure_t7_i12.mp4",
-   "task": "pick up the black bowl on the stove and place it on the plate",
-   "steps": 220,
-   "outcome": "timeout, 220 steps"
-  },
-  {
-   "src": "assets/examples/failure_t7_i14.mp4",
-   "task": "pick up the black bowl on the stove and place it on the plate",
-   "steps": 220,
-   "outcome": "timeout, 220 steps"
-  },
-  {
-   "src": "assets/examples/failure_t8_i4.mp4",
-   "task": "pick up the black bowl next to the plate and place it on the plate",
-   "steps": 220,
-   "outcome": "timeout, 220 steps"
-  },
-  {
-   "src": "assets/examples/failure_t8_i23.mp4",
-   "task": "pick up the black bowl next to the plate and place it on the plate",
-   "steps": 220,
-   "outcome": "timeout, 220 steps"
-  },
-  {
-   "src": "assets/examples/failure_t8_i32.mp4",
-   "task": "pick up the black bowl next to the plate and place it on the plate",
+   "src": "assets/examples/failure_t5_i40.mp4",
+   "task": "pick up the black bowl on the ramekin and place it on the plate",
    "steps": 220,
    "outcome": "timeout, 220 steps"
   },
   {
    "src": "assets/examples/failure_t8_i43.mp4",
    "task": "pick up the black bowl next to the plate and place it on the plate",
+   "steps": 220,
+   "outcome": "timeout, 220 steps"
+  },
+  {
+   "src": "assets/examples/failure_t9_i0.mp4",
+   "task": "pick up the black bowl on the wooden cabinet and place it on the plate",
+   "steps": 220,
+   "outcome": "timeout, 220 steps"
+  },
+  {
+   "src": "assets/examples/failure_t9_i28.mp4",
+   "task": "pick up the black bowl on the wooden cabinet and place it on the plate",
+   "steps": 220,
+   "outcome": "timeout, 220 steps"
+  },
+  {
+   "src": "assets/examples/failure_t9_i34.mp4",
+   "task": "pick up the black bowl on the wooden cabinet and place it on the plate",
+   "steps": 220,
+   "outcome": "timeout, 220 steps"
+  },
+  {
+   "src": "assets/examples/failure_t9_i37.mp4",
+   "task": "pick up the black bowl on the wooden cabinet and place it on the plate",
+   "steps": 220,
+   "outcome": "timeout, 220 steps"
+  },
+  {
+   "src": "assets/examples/failure_t9_i48.mp4",
+   "task": "pick up the black bowl on the wooden cabinet and place it on the plate",
    "steps": 220,
    "outcome": "timeout, 220 steps"
   }

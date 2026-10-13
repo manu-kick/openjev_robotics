@@ -311,8 +311,8 @@
       <div class="hero-sub reveal"><p class="dek">We study what it takes to give Jev the ability of controlling a robot, where every decision is a precise, multidimensional movement.</p>
         <div class="hero-facts" aria-label="Key results">
           <div><strong>0.8B</strong><span>parameters</span></div>
-          <div><strong>98.2%</strong><span>success · 491/500, official LIBERO-Spatial protocol</span></div>
-          <div><strong>193 ms</strong><span>per step, p50</span></div>
+          <div><strong>98.4%</strong><span>success · 492/500, official LIBERO-Spatial protocol</span></div>
+          <div><strong>234 ms</strong><span>per step, p50</span></div>
         </div>
       </div>
     </section>
@@ -405,21 +405,21 @@
     <section class="chapter policy" id="policy">
       <div class="section-heading reveal policy-intro">
         <div class="policy-intro-title"><p class="eyebrow">05 · The policy</p><h2>Seven questions.<br>One movement.</h2></div>
-        <div class="policy-intro-text"><p>The best-performing policy reads both cameras at the same instant, neither one a time pair: external and wrist, both at step t. PlayJev encodes both streams once, answers seven axis-specific Choice questions in parallel, and reconstructs one continuous robot action.</p></div>
+        <div class="policy-intro-text"><p>The best-performing policy fuses each camera with its own previous frame: external \((t{-}1,t)\) and wrist \((t{-}1,t)\), two independent temporal pairs instead of one shared instant. PlayJev encodes both streams once, answers seven axis-specific Choice questions in parallel, and reconstructs one continuous robot action.</p></div>
       </div>
 
-      <div class="model-schema reveal" role="img" aria-label="Animated architecture diagram of the best PlayJev robot policy, external and wrist cameras at the same instant, to a seven-dimensional action">
-        <div class="schema-topbar"><span>BEST RESULT · 98.2% · EIGHT-STEP READOUT</span><small>one control step \(t\)</small></div>
+      <div class="model-schema reveal" role="img" aria-label="Animated architecture diagram of the best PlayJev robot policy, external and wrist cameras each fused with their own previous frame, to a seven-dimensional action">
+        <div class="schema-topbar"><span>BEST RESULT · 98.4% · BOTH CAMERAS TEMPORALLY FUSED</span><small>control steps \(t{-}1,t\)</small></div>
         <div class="schema-flow">
           <section class="schema-inputs">
-            <p class="schema-label">01 · synchronized input</p>
+            <p class="schema-label">01 · two temporal pairs</p>
             <div class="camera-stream agent-stream">
-              <div class="camera-frames single"><img src="assets/model-agent.jpg" alt=""></div>
-              <div><strong>external camera</strong><small>same instant, \(t\)</small></div>
+              <div class="camera-frames"><img src="assets/model-agent.jpg" alt=""><img src="assets/model-agent.jpg" alt=""></div>
+              <div><strong>external camera</strong><small>fused pair, \(t{-}1,t\)</small></div>
             </div>
             <div class="camera-stream wrist-stream">
-              <div class="camera-frames single"><img src="assets/model-wrist.jpg" alt=""></div>
-              <div><strong>wrist camera</strong><small>same instant, \(t\)</small></div>
+              <div class="camera-frames"><img src="assets/model-wrist.jpg" alt=""><img src="assets/model-wrist.jpg" alt=""></div>
+              <div><strong>wrist camera</strong><small>fused pair, \(t{-}1,t\)</small></div>
             </div>
             <div class="task-chip"><span>LANGUAGE</span><b>“pick up the black bowl…”</b></div>
           </section>
@@ -428,7 +428,7 @@
 
           <section class="schema-core">
             <p class="schema-label">02 · shared model</p>
-            <div class="vision-streams" aria-hidden="true"><span>external camera tokens</span><span>wrist camera tokens</span></div>
+            <div class="vision-streams" aria-hidden="true"><span>external tokens, fused t-1,t</span><span>wrist tokens, fused t-1,t</span></div>
             <div class="model-core"><small>QWEN3.5 · 0.8B</small><strong>PlayJev</strong><i></i><span>shared visual-language state</span></div>
           </section>
 
@@ -479,7 +479,7 @@
             <strong>7D ACTION</strong>
           </section>
         </div>
-        <div class="schema-legend"><span><i class="current-dot"></i>external camera, same instant t (not a time pair)</span><span><i class="proposed-dot"></i>wrist camera, same instant t (not a time pair)</span><span>BIN25 expected-value readout · eight steps ahead · 98.2% on the official protocol</span></div>
+        <div class="schema-legend"><span><i class="current-dot"></i>external camera, fused (t-1, t) pair</span><span><i class="proposed-dot"></i>wrist camera, fused (t-1, t) pair</span><span>BIN25 expected-value readout · eight steps ahead · 98.4% on the official protocol</span></div>
       </div>
 
     </section>
@@ -503,10 +503,10 @@
             <tr class="other-model"><td>pi0, published</td><td>~3.3B</td><td>—</td><td>96.8%</td><td>—</td></tr>
             <tr class="other-model"><td>CogACT, published</td><td>~7.3B<sup>*</sup></td><td>—</td><td>97.2%</td><td>—</td></tr>
             <tr class="other-model"><td>OpenVLA-OFT, our local reproduction</td><td>7B</td><td>488 / 500</td><td>97.6%</td><td>96.2–98.8%</td></tr>
-            <tr><td><strong>PlayJev, 8 steps ahead + wrist (ours)</strong></td><td><b>0.8B</b></td><td><b>491 / 500</b></td><td><b>98.2%</b></td><td>96.6–99.1%</td></tr>
+            <tr><td><strong>PlayJev, 8 steps ahead, both cameras temporally fused (ours)</strong></td><td><b>0.8B</b></td><td><b>492 / 500</b></td><td><b>98.4%</b></td><td>96.9–99.2%</td></tr>
           </tbody>
         </table>
-        <p class="limit"><em>Our own rows (OpenVLA, OpenVLA-OFT, PlayJev) are 500-episode closed-loop evaluations run locally on the official initial states. The other rows are each author's own published number for LIBERO-Spatial, not re-run by us — different training runs, sometimes different episode counts or seeds, so treat cross-paper digits as approximate. <sup>*</sup>CogACT states its backbone (7B) and action-head size separately, not a single published total; ~7.3B is our own sum of the two, not a number from its paper. Every PlayJev ablation arm (camera combinations, proprioception, chunking) is in Appendix C, not here.</em></p>
+        <p class="limit"><em>Our own rows (OpenVLA, OpenVLA-OFT, PlayJev) are 500-episode closed-loop evaluations run locally on the official initial states. The other rows are each author's own published number for LIBERO-Spatial, not re-run by us — different training runs, sometimes different episode counts or seeds, so treat cross-paper digits as approximate. <sup>*</sup>CogACT states its backbone (7B) and action-head size separately, not a single published total; ~7.3B is our own sum of the two, not a number from its paper. Every PlayJev ablation arm (camera combinations, proprioception, chunking, the same-instant camera pairing this arm improves on) is in Appendix C, not here.</em></p>
         <div class="results-charts">
           <figure class="results-chart">
             <figcaption><b>Success rate vs. parameters</b><span>all rows above, log-scale x-axis</span></figcaption>
@@ -538,8 +538,8 @@
 <text x="99.2" y="242.1" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">Octo</text>
 <circle cx="204.9" cy="262.5" r="5" fill="#9da5b4" stroke="#090b0f" stroke-width="1.5"/>
 <text x="204.9" y="248.5" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">Diffusion Policy</text>
-<circle cx="320.5" cy="49.3" r="7" fill="#f4cb3d" stroke="#090b0f" stroke-width="1.5"/>
-<text x="320.5" y="32.3" fill="var(--paper)" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">PlayJev (ours)</text>
+<circle cx="320.5" cy="47.2" r="7" fill="#f4cb3d" stroke="#090b0f" stroke-width="1.5"/>
+<text x="320.5" y="30.2" fill="var(--paper)" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">PlayJev (ours)</text>
 <circle cx="466.2" cy="64.3" r="5" fill="#9da5b4" stroke="#090b0f" stroke-width="1.5"/>
 <text x="452.2" y="68.3" fill="#9da5b4" font-size="11" text-anchor="end" font-family="DM Mono, monospace">pi0</text>
 <circle cx="486.0" cy="156.4" r="5" fill="#9da5b4" stroke="#090b0f" stroke-width="1.5"/>
@@ -577,17 +577,17 @@
 <circle cx="168.6" cy="78.0" r="5" fill="#4198ff" stroke="#090b0f" stroke-width="1.5"/>
 <text x="168.6" y="62.0" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">OpenVLA-OFT</text>
 <text x="168.6" y="100.0" fill="#9da5b4" font-size="9.5" text-anchor="middle" font-family="DM Mono, monospace">8 actions / query</text>
-<circle cx="499.2" cy="66.0" r="7" fill="#f4cb3d" stroke="#090b0f" stroke-width="1.5"/>
-<text x="499.2" y="50.0" fill="var(--paper)" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">PlayJev (ours)</text>
-<text x="499.2" y="88.0" fill="#9da5b4" font-size="9.5" text-anchor="middle" font-family="DM Mono, monospace">1 action / query</text>
+<circle cx="455.3" cy="62.0" r="7" fill="#f4cb3d" stroke="#090b0f" stroke-width="1.5"/>
+<text x="455.3" y="46.0" fill="var(--paper)" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">PlayJev (ours)</text>
+<text x="455.3" y="84.0" fill="#9da5b4" font-size="9.5" text-anchor="middle" font-family="DM Mono, monospace">1 action / query</text>
 <circle cx="484.1" cy="262.0" r="5" fill="#4198ff" stroke="#090b0f" stroke-width="1.5"/>
 <text x="484.1" y="246.0" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">OpenVLA</text>
 <text x="484.1" y="284.0" fill="#9da5b4" font-size="9.5" text-anchor="middle" font-family="DM Mono, monospace">1 action / query</text>
 </svg>
           </figure>
         </div>
-        <p><strong>Eight steps ahead, with the wrist camera, reaches 98.2%</strong> — above our own reproduction of OpenVLA-OFT (97.6%), with a 0.8B model against its 7B, and above every published number we could find for LIBERO-Spatial at any parameter count. By task it is close to flawless: 46 to 50 out of 50 on every one of the ten tasks, including the one that was hardest for every other arm in this study (36–39/50 elsewhere; 50/50 here). We do not say this lightly, because the first version of this number was wrong, and finding out why is as much the result as the number itself — Appendix C has the full account.</p>
-        <p>The parameter chart has no clean trend: a 93M-parameter policy and a 7B one land within a point of each other (78.9% vs. 88.4%), and the two largest systems we could find a number for (CogACT, OpenVLA-OFT, both ~7B) sit a point apart from each other. Scale correlates loosely with success across this set, but it does not explain PlayJev's position — the smallest model on the chart (0.8B) is also the highest. The latency chart, restricted to what we actually measured on one machine, shows the same shape OpenVLA-OFT's own chunking argument makes: querying once for eight actions (134.7ms) is both faster and more accurate than querying once per action, whether that single query belongs to OpenVLA (245.7ms, 88.4%) or to PlayJev without chunked execution (251.0ms, 98.2% — the accuracy gain here comes from the training horizon, not from chunking, since the closed loop above still executes one action per query; Appendix C's chunked variant shows what happens once it also executes in blocks of eight).</p>
+        <p><strong>Eight steps ahead, with both cameras each fused to their own previous frame, reaches 98.4%</strong> — above our own reproduction of OpenVLA-OFT (97.6%), with a 0.8B model against its 7B, and above every published number we could find for LIBERO-Spatial at any parameter count. By task it is close to flawless: 45 to 50 out of 50 on every one of the ten tasks, including the one that was hardest for every other arm in this study (36–39/50 elsewhere; 45/50 here, still its worst task but no longer a cliff). We do not say any of this lightly: the first version of this camera's numbers was wrong, finding out why is as much the result as the number itself, and this exact arm only exists because we went back and asked whether "two cameras" could mean something more literal than pairing one camera's current frame with another's — Appendix C has the full account of both.</p>
+        <p>The parameter chart has no clean trend: a 93M-parameter policy and a 7B one land within a point of each other (78.9% vs. 88.4%), and the two largest systems we could find a number for (CogACT, OpenVLA-OFT, both ~7B) sit a point apart from each other. Scale correlates loosely with success across this set, but it does not explain PlayJev's position — the smallest model on the chart (0.8B) is also the highest. The latency chart, restricted to what we actually measured on one machine, shows the same shape OpenVLA-OFT's own chunking argument makes: querying once for eight actions (134.7ms) is both faster and more accurate than querying once per action, whether that single query belongs to OpenVLA (245.7ms, 88.4%) or to PlayJev without chunked execution (235.6ms, 98.4% — the accuracy gain here comes from the training horizon and the camera fusion, not from chunking, since the closed loop above still executes one action per query; Appendix C's chunked variant shows what happens once it also executes in blocks of eight).</p>
       </div>
     </section>
 
@@ -595,22 +595,22 @@
       <div class="examples-intro reveal">
         <div class="examples-intro-title">
           <p class="eyebrow">Examples</p>
-          <h2>The best policy, watched directly.<br>Sixteen <em class="ok">successes</em> — and all nine times it <em class="bad">failed</em>.</h2>
+          <h2>The best policy, watched directly.<br>Sixteen <em class="ok">successes</em> — and all eight times it <em class="bad">failed</em>.</h2>
         </div>
         <div class="examples-intro-text">
-          <p>Every clip below is a real rollout of the eight-step, wrist-camera arm (98.2%, 491/500) on the official protocol, replayed from the exact logged seed and initial state. Nothing is cherry-picked past the task spread: hover a tile for the task and outcome.</p>
+          <p>Every clip below is a real rollout of the eight-step arm with both cameras temporally fused (98.4%, 492/500) on the official protocol, replayed from the exact logged seed and initial state. Nothing is cherry-picked past the task spread: hover a tile for the task and outcome.</p>
         </div>
       </div>
     </section>
 
     <section class="examples-grid-stage reveal" id="examples-stage">
       <div class="examples-tabs" role="tablist" aria-label="Show successful or failed episodes">
-        <button role="tab" aria-selected="true" data-examples="success" type="button"><span>SUCCESS</span><small>16 of 491</small></button>
-        <button role="tab" aria-selected="false" data-examples="failure" type="button"><span>FAILURE</span><small>all 9 of 500</small></button>
+        <button role="tab" aria-selected="true" data-examples="success" type="button"><span>SUCCESS</span><small>16 of 492</small></button>
+        <button role="tab" aria-selected="false" data-examples="failure" type="button"><span>FAILURE</span><small>all 8 of 500</small></button>
       </div>
       <p class="examples-help">Hover an element to see the task's textual instruction.</p>
       <div class="examples-grid" id="examples-success" aria-label="Sixteen successful episodes of the best arm"></div>
-      <div class="examples-grid failure" id="examples-failure" hidden aria-label="All nine failed episodes of the best arm"></div>
+      <div class="examples-grid failure" id="examples-failure" hidden aria-label="All eight failed episodes of the best arm"></div>
     </section>
 
     <section class="chapter" id="horizon">
@@ -656,7 +656,7 @@
 </svg>
         </div>
         <div class="horizon-text">
-          <p>On the official five-hundred-episode protocol (§ above), asking about four steps ahead moves success from 83.4% to 88.4%; asking about eight moves it further, to 90.8%, and combined with the wrist camera, to 98.2% — the strongest result in this study. The gain is not free forever: on the external camera alone, going from one to four steps ahead adds 5 points, from four to eight adds another 2.4, a shrinking return for a more demanding training target. With the wrist camera the curve is not even monotonic — M=4 (91.0%) dips slightly below M=1 (91.6%) before M=8 jumps to 98.2% — a reminder that horizon and camera input interact rather than simply add.</p>
+          <p>On the official five-hundred-episode protocol (§ above), asking about four steps ahead moves success from 83.4% to 88.4%; asking about eight moves it further, to 90.8%, and combined with the wrist camera, to 98.2%. The gain is not free forever: on the external camera alone, going from one to four steps ahead adds 5 points, from four to eight adds another 2.4, a shrinking return for a more demanding training target. With the wrist camera the curve is not even monotonic — M=4 (91.0%) dips slightly below M=1 (91.6%) before M=8 jumps to 98.2% — a reminder that horizon and camera input interact rather than simply add. This sweep keeps the camera pairing fixed (both views at the same instant) so M=1, M=4 and M=8 stay comparable; the strongest result in this study, 98.4%, comes from changing that pairing too — fusing each camera with its own previous frame — tested only at M=8, where this sweep says the wrist camera matters most. The result section above and Appendix C have that arm.</p>
           <p>By default the closed loop queries the model and executes one action at a time, even for an arm trained to answer eight steps ahead — the training horizon buys accuracy but not speed on its own. We built the open-loop version — one query, eight actions executed before asking again, the same pattern OpenVLA-OFT uses — and it costs nothing in success (90.4%, no real change from 90.8%) while cutting model queries by 87%, from about 117 per episode to about 15.</p>
         </div>
         </div>
@@ -676,7 +676,7 @@
           <p>Tasks with different goals: drawers, stoves, cabinets, bowls, and plates. This directly tests dependence on Spatial’s ten fixed sentences.</p>
           <ul><li>Controlled paraphrases</li><li>Minimal instruction pairs</li><li>Language consistency loss</li></ul>
           <button class="roadmap-expand" type="button" aria-expanded="false">Proposed protocol</button>
-          <div class="roadmap-detail"><p>Replicate the winning Spatial arm unchanged — bin25, eight steps ahead, external + wrist camera at the same instant — then train with 3–5 validated paraphrases per instruction. Evaluate canonical prompts, seen paraphrases, and held-out language templates separately.</p></div>
+          <div class="roadmap-detail"><p>Replicate the winning Spatial arm unchanged — bin25, eight steps ahead, external + wrist camera each fused with its own previous frame — then train with 3–5 validated paraphrases per instruction. Evaluate canonical prompts, seen paraphrases, and held-out language templates separately.</p></div>
         </article>
         <article class="roadmap-card">
           <span class="order">02</span><p class="eyebrow">LIBERO · Long</p>
@@ -714,7 +714,7 @@
     <section class="closing">
       <p class="eyebrow">The lesson</p>
       <blockquote><small>A finite-choice model does not need more parameters to control a continuous robot.</small><br><em>It needs the right alphabet.</em></blockquote>
-      <p>The discretization choice carried the whole study. At the representation level, a coarse, redundant scheme — 25 uniform bins per axis, seven questions per step — beat a learned codebook that reconstructed every demonstration exactly; precision that a policy cannot reliably hit is not an advantage. At the system level, the same choice of alphabet let an 0.8B model answering multiple-choice questions reach 98.2% on the official protocol, above our own reproduction of a published 7B VLA system, with no architecture change beyond the interface itself. Scale did not do that work; the alphabet did.</p>
+      <p>The discretization choice carried the whole study. At the representation level, a coarse, redundant scheme — 25 uniform bins per axis, seven questions per step — beat a learned codebook that reconstructed every demonstration exactly; precision that a policy cannot reliably hit is not an advantage. At the system level, the same choice of alphabet let an 0.8B model answering multiple-choice questions reach 98.4% on the official protocol, above our own reproduction of a published 7B VLA system, with no architecture change beyond the interface itself and how it reads its two cameras. Scale did not do that work; the alphabet did.</p>
       <p>This is a preliminary study, not a final one — LIBERO-Spatial only, one training seed per arm, a single robot and a fixed set of ten tasks. What it establishes is narrower but still useful: that a JEV-style finite-choice model, the same kind built for picking a move in a game, can be adapted to continuous low-level control at all, and that a small one can be competitive while doing it. It also caught two of its own mistakes along the way — a text sentence that confused the gripper decision, an evaluation bug that fed the wrong wrist frame — both found by distrusting a number that looked too good, not by assuming the architecture was right. Appendix C and the roadmap above are what's left before this becomes more than a first result: proprioception as a real continuous token instead of text, and the same interface tested against language and memory, not spatial reasoning alone.</p>
       <div class="closing-links">
         <a href="../paper/main.pdf">Read the paper</a>
@@ -915,7 +915,7 @@
       <div class="section-heading reveal">
         <p class="eyebrow">Appendix C · Ablations</p>
         <h2>Every arm we trained,<br>and what each change actually did.</h2>
-        <p>The main results compare PlayJev's best arm against other published systems. This appendix is the arm-by-arm record behind that one number: every camera, horizon and proprioception variant on the same 500-episode official protocol, plus the two investigations — a bug and a hypothesis — that explain why some of them look the way they do.</p>
+        <p>The main results compare PlayJev's best arm against other published systems. This appendix is the arm-by-arm record behind that one number: every camera, horizon and proprioception variant on the same 500-episode official protocol, plus the investigations — a bug, an architecture change, and a hypothesis — that explain why some of them look the way they do.</p>
       </div>
       <div class="reveal">
         <table class="results-table">
@@ -927,7 +927,8 @@
             <tr><td>External camera, 8 steps ahead</td><td>M=8</td><td>454 / 500</td><td>90.8%</td><td>87.9–93.0%</td></tr>
             <tr><td>↳ executed in open-loop blocks of 8</td><td>M=8</td><td>452 / 500</td><td>90.4%</td><td>87.5–92.7%</td></tr>
             <tr><td>4 steps ahead + wrist</td><td>M=4</td><td>455 / 500</td><td>91.0%</td><td>88.2–93.2%</td></tr>
-            <tr><td><strong>8 steps ahead + wrist (best arm)</strong></td><td>M=8</td><td><b>491 / 500</b></td><td><b>98.2%</b></td><td>96.6–99.1%</td></tr>
+            <tr><td>8 steps ahead + wrist, same instant t</td><td>M=8</td><td>491 / 500</td><td>98.2%</td><td>96.6–99.1%</td></tr>
+            <tr><td><strong>↳ both cameras fused (t-1,t) instead (best arm)</strong></td><td>M=8</td><td><b>492 / 500</b></td><td><b>98.4%</b></td><td>96.9–99.2%</td></tr>
             <tr><td>+ proprioception (text, with gripper reading)</td><td>M=1</td><td>212 / 500</td><td>42.4%</td><td>38.1–46.8%</td></tr>
             <tr><td>+ proprioception (text, gripper reading removed)</td><td>M=1</td><td>387 / 500</td><td>77.4%</td><td>73.5–80.8%</td></tr>
           </tbody>
@@ -936,8 +937,14 @@
 
         <div class="ablation-block">
           <h3>The wrist camera story changed after we found a bug in how we were testing it.</h3>
-          <p>The first pass through this evaluation paired each step's camera image with the <em>previous</em> step's wrist image — the two cameras are not a time sequence in training, they are two simultaneous views of the same instant, so this fed the model a combination it had never seen after the very first step of every episode. That bug made the wrist camera look neutral at best (81.6% at one step ahead, worse than no wrist at all) and net negative at times. Once fixed — pairing both cameras at the same instant, exactly as trained — the wrist camera turned out to help every time we added it: +8.2 points alone, +2.6 points on top of four steps ahead, and the combination with eight steps ahead is the best result in the whole study.</p>
+          <p>The first pass through this evaluation paired each step's camera image with the <em>previous</em> step's wrist image — the two cameras are not a time sequence in training, they are two simultaneous views of the same instant, so this fed the model a combination it had never seen after the very first step of every episode. That bug made the wrist camera look neutral at best (81.6% at one step ahead, worse than no wrist at all) and net negative at times. Once fixed — pairing both cameras at the same instant, exactly as trained — the wrist camera turned out to help every time we added it: +8.2 points alone, +2.6 points on top of four steps ahead, and the combination with eight steps ahead was the best result in the study — until fusing each camera with its own previous frame, below, pushed it 0.2 points further.</p>
           <p>We checked the fix three ways before trusting it: traced the frame order through the evaluation code and the model server to confirm no reversal; looked at the per-task breakdown, which went from a suspicious block of five perfect tasks followed by a cliff (the fingerprint of a bug) to a uniformly strong spread across all ten; and replayed one logged episode independently, from the same seeded simulator state, with no model involved — same outcome, a real grasp and place, not an artifact of how success gets checked.</p>
+        </div>
+
+        <div class="ablation-block">
+          <h3>"Two cameras" can mean something more literal — and it is worth the extra 0.2 points.</h3>
+          <p>The fixed arm above still reads both cameras at the <em>same</em> instant: neither stream carries motion on its own, only the combination of two static views. We built a genuinely temporal variant instead — external paired with its own previous frame, wrist paired with its own previous frame, each pair fused independently before the two streams are concatenated — so both cameras carry real motion information rather than none. Token budget is unchanged (128 visual tokens either way, confirmed against the real image processor, not just computed by hand), so this is not a bigger model, only a different use of the same input.</p>
+          <p>At M=8 this reaches 492/500 (98.4%), a further 0.2 points over the same-instant arm's 491/500 — a small, plausibly real gain rather than a dramatic one, but it moves in the direction the architecture predicts and its per-task floor rises too (45/50 on the hardest task, against 46/50 same-instant and 36–39/50 for every external-only arm). We did not re-run the M=1/M=4 points on this fused architecture, so the table above still uses the same-instant arm for the clean M=1→4→8 sweep; this row is the one additional, more literal reading of "two cameras," tested only at the horizon where the wrist camera's effect has been largest.</p>
         </div>
 
         <div class="ablation-block">
