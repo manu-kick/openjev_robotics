@@ -439,6 +439,9 @@ footer { min-height: 110px; padding: 28px 4vw; display: flex; flex-wrap: wrap; j
 footer p { margin: 0; }
 .affiliation { display: flex; align-items: center; gap: 14px; padding: 6px 14px; border: 1px solid var(--line); background: rgba(255,255,255,.03); }
 .affiliation img { height: 34px; width: 34px; object-fit: contain; }
+.affiliation-link { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.affiliation-link span { color: var(--paper); font: 600 .72rem var(--mono); letter-spacing: .05em; white-space: nowrap; }
+.affiliation-link:hover span { color: var(--yellow); }
 .hero-brand { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: clamp(14px, 2vh, 26px); flex: none; }
 .hero-brand img { height: 42px; width: 42px; object-fit: contain; }
 .hero-brand span { font: 600 .85rem var(--mono); letter-spacing: .04em; color: var(--paper); text-transform: uppercase; }
