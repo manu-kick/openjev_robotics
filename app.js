@@ -194,3 +194,5 @@ function updateReadingIndex() {
 }
 addEventListener('scroll', updateReadingIndex, { passive: true });
 updateReadingIndex();
+
+document.querySelectorAll('a.not-ready').forEach(link => link.addEventListener('click', event => event.preventDefault()));

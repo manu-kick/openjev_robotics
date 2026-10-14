@@ -422,6 +422,8 @@ input[type="range"]::-webkit-slider-thumb { appearance: none; width: 15px; heigh
 .closing-links { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; }
 .closing-links a { padding: 12px 17px; border: 1px solid var(--line); text-decoration: none; font: .7rem var(--mono); text-transform: uppercase; }
 .closing-links a:hover { color: var(--yellow); border-color: var(--yellow); }
+.closing-links a.not-ready { opacity: .5; cursor: not-allowed; }
+.closing-links a.not-ready:hover { color: var(--paper); border-color: var(--line); }
 .references { padding: 100px max(5vw, calc((100vw - 1200px)/2)); border-top: 1px solid var(--line); background: #0d1016; }
 .references-head { display: grid; grid-template-columns: .6fr 1fr; gap: 10px 50px; margin-bottom: 50px; }
 .references-head .eyebrow { grid-column: 1/-1; }

@@ -720,9 +720,9 @@
       <p>The discretization choice carried the whole study. At the representation level, a coarse, redundant scheme — 25 uniform bins per axis, seven questions per step — beat a learned codebook that reconstructed every demonstration exactly; precision that a policy cannot reliably hit is not an advantage. At the system level, the same choice of alphabet let an 0.8B model answering multiple-choice questions reach 98.4% on the official protocol, above our own reproduction of a published 7B VLA system, with no architecture change beyond the interface itself and how it reads its two cameras. Scale did not do that work; the alphabet did.</p>
       <p>This is a preliminary study, not a final one — LIBERO-Spatial only, one training seed per arm, a single robot and a fixed set of ten tasks. What it establishes is narrower but still useful: that a JEV-style finite-choice model, the same kind built for picking a move in a game, can be adapted to continuous low-level control at all, and that a small one can be competitive while doing it. Appendix C and the roadmap above are what's left before this becomes more than a first result: proprioception as a real continuous token instead of text, and the same interface tested against language and memory, not spatial reasoning alone.</p>
       <div class="closing-links">
-        <a href="../paper/main.pdf">Read the paper</a>
-        <a href="../libero_simulator/README.md">Explore the simulator</a>
-        <a href="../README.md">Open PlayJev</a>
+        <a href="../paper/main.pdf" class="not-ready" aria-disabled="true" title="Not available yet">Read the paper</a>
+        <a href="../libero_simulator/README.md" class="not-ready" aria-disabled="true" title="Not available yet">Explore the simulator</a>
+        <a href="https://github.com/OmniJev/PlayJev" target="_blank" rel="noopener">Open PlayJev</a>
       </div>
     </section>
 
