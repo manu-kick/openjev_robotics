@@ -315,7 +315,7 @@
         <div class="hero-facts" aria-label="Key results">
           <div><strong>0.8B</strong><span>parameters</span></div>
           <div><strong>98.4%</strong><span>success · 492/500, official LIBERO-Spatial protocol</span></div>
-          <div><strong>234 ms</strong><span>per step, p50</span></div>
+          <div><strong>181 ms</strong><span>forward pass, p50</span></div>
         </div>
       </div>
     </section>
@@ -556,7 +556,7 @@
 </svg>
           </figure>
           <figure class="results-chart">
-            <figcaption><b>Success rate vs. inference latency</b><span>only the three systems measured on the same local GPU</span></figcaption>
+            <figcaption><b>Success rate vs. inference latency</b><span>only the three systems measured on the same local GPU, an RTX A6000</span></figcaption>
             <svg viewBox="0 0 640 380" role="img" aria-label="Success rate versus measured median query latency, PlayJev, OpenVLA and OpenVLA-OFT on the same local hardware">
 <line x1="70" y1="330.0" x2="610" y2="330.0" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
 <text x="58" y="334.0" fill="#9da5b4" font-size="11" text-anchor="end" font-family="DM Mono, monospace">85%</text>
@@ -580,9 +580,9 @@
 <circle cx="168.6" cy="78.0" r="5" fill="#4198ff" stroke="#090b0f" stroke-width="1.5"/>
 <text x="168.6" y="62.0" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">OpenVLA-OFT</text>
 <text x="168.6" y="100.0" fill="#9da5b4" font-size="9.5" text-anchor="middle" font-family="DM Mono, monospace">8 actions / query</text>
-<circle cx="455.3" cy="62.0" r="7" fill="#f4cb3d" stroke="#090b0f" stroke-width="1.5"/>
-<text x="455.3" y="46.0" fill="var(--paper)" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">PlayJev (ours)</text>
-<text x="455.3" y="84.0" fill="#9da5b4" font-size="9.5" text-anchor="middle" font-family="DM Mono, monospace">1 action / query</text>
+<circle cx="300.2" cy="62.0" r="7" fill="#f4cb3d" stroke="#090b0f" stroke-width="1.5"/>
+<text x="300.2" y="46.0" fill="var(--paper)" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">PlayJev (ours)</text>
+<text x="300.2" y="84.0" fill="#9da5b4" font-size="9.5" text-anchor="middle" font-family="DM Mono, monospace">forward pass only</text>
 <circle cx="484.1" cy="262.0" r="5" fill="#4198ff" stroke="#090b0f" stroke-width="1.5"/>
 <text x="484.1" y="246.0" fill="#9da5b4" font-size="11" text-anchor="middle" font-family="DM Mono, monospace">OpenVLA</text>
 <text x="484.1" y="284.0" fill="#9da5b4" font-size="9.5" text-anchor="middle" font-family="DM Mono, monospace">1 action / query</text>
@@ -590,7 +590,7 @@
           </figure>
         </div>
         <p><strong>Eight steps ahead, with both cameras each fused to their own previous frame, reaches 98.4%</strong> — above our own reproduction of OpenVLA-OFT (97.6%), with a 0.8B model against its 7B, and above every published number we could find for LIBERO-Spatial at any parameter count. By task it is close to flawless: 45 to 50 out of 50 on every one of the ten tasks, including the one that was hardest for every other arm in this study (36–39/50 elsewhere; 45/50 here, still its worst task but no longer far behind). Appendix C has the full arm-by-arm breakdown behind this number.</p>
-        <p>The parameter chart has no clean trend: a 93M-parameter policy and a 7B one land within a point of each other (78.9% vs. 88.4%), and the two largest systems we could find a number for (CogACT, OpenVLA-OFT, both ~7B) sit a point apart from each other. Scale correlates loosely with success across this set, but it does not explain PlayJev's position — the smallest model on the chart (0.8B) is also the highest. The latency chart, restricted to what we actually measured on one machine, shows the same shape OpenVLA-OFT's own chunking argument makes: querying once for eight actions (134.7ms) is both faster and more accurate than querying once per action, whether that single query belongs to OpenVLA (245.7ms, 88.4%) or to PlayJev without chunked execution (235.6ms, 98.4% — the accuracy gain here comes from the training horizon and the camera fusion, not from chunking, since the closed loop above still executes one action per query; Appendix C's chunked variant shows what happens once it also executes in blocks of eight).</p>
+        <p>The parameter chart has no clean trend: a 93M-parameter policy and a 7B one land within a point of each other (78.9% vs. 88.4%), and the two largest systems we could find a number for (CogACT, OpenVLA-OFT, both ~7B) sit a point apart from each other. Scale correlates loosely with success across this set, but it does not explain PlayJev's position — the smallest model on the chart (0.8B) is also the highest. The latency chart, restricted to what we actually measured on one machine — the same RTX A6000 for all three systems — shows the same shape OpenVLA-OFT's own chunking argument makes: querying once for eight actions (134.7ms) is both faster and more accurate than querying once per action, whether that single query belongs to OpenVLA (245.7ms, 88.4%) or to PlayJev without chunked execution (181ms forward pass, 98.4% — the accuracy gain here comes from the training horizon and the camera fusion, not from chunking, since the closed loop above still executes one action per query; Appendix C's chunked variant shows what happens once it also executes in blocks of eight). PlayJev's number is forward-pass time only, not the full request (OpenVLA's and OpenVLA-OFT's figures include their own image and action preprocessing); image preprocessing and HTTP overhead add roughly 50ms on top in our own evaluation, which the chart does not count.</p>
       </div>
     </section>
 
