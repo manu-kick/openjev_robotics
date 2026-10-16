@@ -77,6 +77,7 @@
     .control-bridge h3 { font-size: clamp(1.5rem, 2.3vw, 2.3rem); white-space: nowrap; }
     .control-bridge > p { padding-top: 0; padding-left: 18px; border-left: 2px solid var(--yellow); }
     @media (max-width: 900px) { .control-bridge h3 { white-space: normal; } .control-bridge > p { padding-left: 16px; } }
+    @media (max-width: 1050px) { .control-bridge { grid-template-columns: 1fr; } }
     /* PlayJev section: image on top, smaller title, training icon */
     .intro-chapter .chapter-copy h2 { font-size: clamp(1.9rem, 3vw, 3rem); }
     .intro-chapter .jev-name { color: var(--yellow); }
@@ -244,6 +245,41 @@
     }
     @media (prefers-reduced-motion: reduce) { .arm-shoulder, .arm-elbow, .arm-jaw { animation: none; } }
 
+    /* mobile fix: these patches above were written for desktop and never got a narrow-viewport
+       override, so on phones they kept their multi-column grids and squeezed everything into a
+       sliver of the screen */
+    @media (max-width: 1050px) {
+      .policy-intro { grid-template-columns: 1fr; }
+      /* the 5-step diagram keeps its left-to-right reading order and scrolls sideways instead of
+         being crushed into a stack — each step gets a real width to breathe, with scroll-snap so
+         it settles on one step at a time, and a peek of the next step to hint there's more */
+      #policy .schema-flow {
+        display: flex !important;
+        grid-template-columns: none !important;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x mandatory;
+        height: auto; min-height: 0;
+        padding-bottom: 14px;
+      }
+      #policy .schema-flow > section {
+        flex: 0 0 82vw;
+        scroll-snap-align: start;
+        min-height: 0 !important;
+      }
+      #policy .schema-arrow {
+        flex: 0 0 34px;
+        min-width: 34px;
+        min-height: 0;
+        scroll-snap-align: center;
+      }
+      /* this section scrolls sideways (not stacked), so its arrows stay horizontal — override
+         style.css's generic @1050px rule that rotates .schema-arrow for sections that DO stack */
+      #policy .schema-arrow i { width: 100%; height: 1px; }
+      #policy .schema-arrow i::after { width: 45%; height: 100%; animation-name: schema-signal; }
+      #policy .schema-arrow b { transform: none; }
+      #policy .camera-stream { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
